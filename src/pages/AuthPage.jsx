@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, User, Store, TrendingUp } from "lucide-react";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 function GeometricPattern() {
   return (
@@ -52,27 +54,28 @@ function GeometricPattern() {
 }
 
 function LoginForm() {
+  const { t } = useTranslation('auth');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
   return (
     <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="login-email" className="text-[#1A2E2C]">
-          البريد الإلكتروني
+        <Label htmlFor="login-email" className="text-[#1A2E2C] rtl:text-right ltr:text-left">
+          {t('email')}
         </Label>
         <Input
           id="login-email"
           type="email"
-          placeholder="example@email.com"
+          placeholder={t('emailPlaceholder')}
           dir="ltr"
-          className="h-11 rounded-lg border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30"
+          className="h-11 rounded-lg border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 rtl:text-right ltr:text-left"
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="login-password" className="text-[#1A2E2C]">
-          كلمة المرور
+        <Label htmlFor="login-password" className="text-[#1A2E2C] rtl:text-right ltr:text-left">
+          {t('password')}
         </Label>
         <div className="relative">
           <Input
@@ -80,13 +83,13 @@ function LoginForm() {
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             dir="ltr"
-            className="h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30"
+            className="h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ltr:text-left rtl:text-right"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99] transition-colors hover:text-[#1A2E2C]"
-            aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+            aria-label={showPassword ? t('hidePassword') : t('showPassword')}
           >
             {showPassword ? (
               <EyeOff className="h-5 w-5" />
@@ -109,14 +112,14 @@ function LoginForm() {
             htmlFor="remember"
             className="cursor-pointer text-sm font-normal text-[#6B9E99]"
           >
-            تذكرني
+            {t('rememberMe')}
           </Label>
         </div>
         <a
           href="#"
           className="text-sm text-[#2A9D8F] underline-offset-4 transition-colors hover:text-[#3DBFB0] hover:underline"
         >
-          نسيت كلمة المرور؟
+          {t('forgotPassword')}
         </a>
       </div>
 
@@ -124,13 +127,14 @@ function LoginForm() {
         type="submit"
         className="mt-2 h-12 rounded-lg bg-[#2A9D8F] text-lg font-semibold text-white shadow-md transition-all hover:bg-[#1A7A6E] hover:shadow-lg"
       >
-        تسجيل الدخول
+        {t('login')}
       </Button>
     </form>
   );
 }
 
 function RegisterForm() {
+  const { t } = useTranslation('auth');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [role, setRole] = useState("buyer");
@@ -139,33 +143,33 @@ function RegisterForm() {
   return (
     <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="register-name" className="text-[#1A2E2C]">
-          الاسم الكامل
+        <Label htmlFor="register-name" className="text-[#1A2E2C] rtl:text-right ltr:text-left">
+          {t('fullName')}
         </Label>
         <Input
           id="register-name"
           type="text"
-          placeholder="محمد أحمد"
-          className="h-11 rounded-lg border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30"
+          placeholder={t('namePlaceholder')}
+          className="h-11 rounded-lg border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 rtl:text-right ltr:text-left"
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="register-email" className="text-[#1A2E2C]">
-          البريد الإلكتروني
+        <Label htmlFor="register-email" className="text-[#1A2E2C] rtl:text-right ltr:text-left">
+          {t('email')}
         </Label>
         <Input
           id="register-email"
           type="email"
-          placeholder="example@email.com"
+          placeholder={t('emailPlaceholder')}
           dir="ltr"
-          className="h-11 rounded-lg border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30"
+          className="h-11 rounded-lg border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 rtl:text-right ltr:text-left"
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="register-password" className="text-[#1A2E2C]">
-          كلمة المرور
+        <Label htmlFor="register-password" className="text-[#1A2E2C] rtl:text-right ltr:text-left">
+          {t('password')}
         </Label>
         <div className="relative">
           <Input
@@ -173,13 +177,13 @@ function RegisterForm() {
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
             dir="ltr"
-            className="h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30"
+            className="h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ltr:text-left rtl:text-right"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99] transition-colors hover:text-[#1A2E2C]"
-            aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+            aria-label={showPassword ? t('hidePassword') : t('showPassword')}
           >
             {showPassword ? (
               <EyeOff className="h-5 w-5" />
@@ -191,8 +195,8 @@ function RegisterForm() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="register-confirm-password" className="text-[#1A2E2C]">
-          تأكيد كلمة المرور
+        <Label htmlFor="register-confirm-password" className="text-[#1A2E2C] rtl:text-right ltr:text-left">
+          {t('confirmPassword')}
         </Label>
         <div className="relative">
           <Input
@@ -200,14 +204,14 @@ function RegisterForm() {
             type={showConfirmPassword ? "text" : "password"}
             placeholder="••••••••"
             dir="ltr"
-            className="h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30"
+            className="h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ltr:text-left rtl:text-right"
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
             className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99] transition-colors hover:text-[#1A2E2C]"
             aria-label={
-              showConfirmPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"
+              showConfirmPassword ? t('hidePassword') : t('showPassword')
             }
           >
             {showConfirmPassword ? (
@@ -221,7 +225,7 @@ function RegisterForm() {
 
       {/* Role Selector */}
       <div className="flex flex-col gap-3">
-        <Label className="text-[#1A2E2C]">نوع الحساب</Label>
+        <Label className="text-[#1A2E2C] rtl:text-right ltr:text-left">{t('accountType')}</Label>
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
@@ -235,8 +239,8 @@ function RegisterForm() {
             <User
               className={`h-8 w-8 ${role === "buyer" ? "text-[#2A9D8F]" : "text-[#6B9E99]"}`}
             />
-            <span className="font-semibold">مشتري</span>
-            <span className="text-xs opacity-70">تصفح وشارك في المزادات</span>
+            <span className="font-semibold">{t('buyer')}</span>
+            <span className="text-xs opacity-70">{t('buyerDesc')}</span>
           </button>
           <button
             type="button"
@@ -250,8 +254,8 @@ function RegisterForm() {
             <Store
               className={`h-8 w-8 ${role === "seller" ? "text-[#2A9D8F]" : "text-[#6B9E99]"}`}
             />
-            <span className="font-semibold">بائع</span>
-            <span className="text-xs opacity-70">أنشئ مزاداتك الخاصة</span>
+            <span className="font-semibold">{t('seller')}</span>
+            <span className="text-xs opacity-70">{t('sellerDesc')}</span>
           </button>
         </div>
       </div>
@@ -266,21 +270,21 @@ function RegisterForm() {
         />
         <Label
           htmlFor="terms"
-          className="cursor-pointer text-sm font-normal leading-relaxed text-[#6B9E99]"
+          className="cursor-pointer text-sm font-normal leading-relaxed text-[#6B9E99] rtl:text-right ltr:text-left"
         >
-          أوافق على{" "}
+          {t('agreeTo')}{" "}
           <a
             href="#"
             className="text-[#2A9D8F] underline underline-offset-4 transition-colors hover:text-[#3DBFB0]"
           >
-            الشروط والأحكام
+            {t('termsAndConditions')}
           </a>{" "}
-          و{" "}
+          {t('and')}{" "}
           <a
             href="#"
             className="text-[#2A9D8F] underline underline-offset-4 transition-colors hover:text-[#3DBFB0]"
           >
-            سياسة الخصوصية
+            {t('privacyPolicy')}
           </a>
         </Label>
       </div>
@@ -290,15 +294,19 @@ function RegisterForm() {
         disabled={!termsAccepted}
         className="mt-2 h-12 rounded-lg bg-[#2A9D8F] text-lg font-semibold text-white shadow-md transition-all hover:bg-[#1A7A6E] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
       >
-        إنشاء حساب جديد
+        {t('createAccount')}
       </Button>
     </form>
   );
 }
 
 export default function AuthPage() {
+  const { t } = useTranslation('auth');
+  const { t: tCommon } = useTranslation('common');
+
   return (
     <div className="flex min-h-screen">
+      <LanguageSwitcher />
       {/* Left Decorative Panel */}
       <div className="relative hidden w-1/2 overflow-hidden bg-[#1A7A6E] lg:flex lg:flex-col lg:items-center lg:justify-center">
         <GeometricPattern />
@@ -307,22 +315,20 @@ export default function AuthPage() {
           {/* Logo/Brand */}
           <div className="flex flex-col items-center gap-4">
             <div className="flex items-center justify-center gap-4">
-              <span className="text-6xl font-bold text-white tracking-tight pb-1">مزادات</span>
+              <span className="text-6xl font-bold text-white tracking-tight pb-1">{tCommon('brandName')}</span>
               <TrendingUp strokeWidth={3} className="h-14 w-14 text-white" />
             </div>
-            <p className="text-2xl font-medium opacity-90 mt-2">Mazadat</p>
+            <p className="text-2xl font-medium opacity-90 mt-2">{tCommon('brandSubtitle')}</p>
           </div>
 
           {/* Tagline */}
           <div className="mt-4 flex flex-col gap-2">
-            <p className="text-3xl font-bold">بيع. اشترِ. ثق.</p>
-            <p className="text-lg opacity-80">Sell. Buy. Trust.</p>
+            <p className="text-3xl font-bold">{t('welcomeTitle')}</p>
           </div>
 
           {/* Description */}
           <p className="mt-6 max-w-md text-lg leading-relaxed opacity-90">
-            منصة المزادات الموثوقة في المملكة العربية السعودية. انضم إلى آلاف
-            المستخدمين الذين يثقون بنا.
+            {t('welcomeSubtitle')}
           </p>
         </div>
 
@@ -336,54 +342,54 @@ export default function AuthPage() {
         
         {/* Teal-on-transparent logo: top-right of the left form panel */}
         <div className="absolute top-8 start-8 hidden lg:flex items-center gap-2 w-[120px]">
-          <span className="text-2xl font-bold text-[#2A9D8F]">مزادات</span>
+          <span className="text-2xl font-bold text-[#2A9D8F]">{tCommon('brandName')}</span>
           <TrendingUp strokeWidth={3} className="h-6 w-6 text-[#2A9D8F]" />
         </div>
 
         {/* Mobile Logo */}
         <div className="mb-8 flex flex-col items-center gap-2 lg:hidden">
           <div className="flex items-center justify-center gap-2 w-[140px] h-[56px] rounded-xl bg-[#2A9D8F] text-white shadow-md">
-            <span className="text-2xl font-bold pb-1 pt-0.5">مزادات</span>
+            <span className="text-2xl font-bold pb-1 pt-0.5">{tCommon('brandName')}</span>
             <TrendingUp strokeWidth={2.5} className="h-6 w-6" />
           </div>
         </div>
 
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md mt-6 lg:mt-0">
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="mb-8 grid h-12 w-full grid-cols-2 rounded-xl bg-white border border-[#C5E0DC] p-1">
               <TabsTrigger
                 value="login"
                 className="rounded-lg text-base font-semibold text-[#6B9E99] transition-all data-[state=active]:bg-[#2A9D8F] data-[state=active]:text-white data-[state=active]:shadow-sm"
               >
-                تسجيل الدخول
+                {t('login')}
               </TabsTrigger>
               <TabsTrigger
                 value="register"
                 className="rounded-lg text-base font-semibold text-[#6B9E99] transition-all data-[state=active]:bg-[#2A9D8F] data-[state=active]:text-white data-[state=active]:shadow-sm"
               >
-                حساب جديد
+                {t('register')}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="login" className="mt-0">
-              <div className="mb-6">
+              <div className="mb-6 rtl:text-right ltr:text-left">
                 <h2 className="text-2xl font-bold text-[#1A2E2C]">
-                  مرحباً بعودتك
+                  {t('welcomeBack')}
                 </h2>
                 <p className="mt-1 text-[#6B9E99]">
-                  سجل دخولك للمتابعة إلى حسابك
+                  {t('loginToContinue')}
                 </p>
               </div>
               <LoginForm />
             </TabsContent>
 
             <TabsContent value="register" className="mt-0">
-              <div className="mb-6">
+              <div className="mb-6 rtl:text-right ltr:text-left">
                 <h2 className="text-2xl font-bold text-[#1A2E2C]">
-                  إنشاء حساب جديد
+                  {t('createAccountTitle')}
                 </h2>
                 <p className="mt-1 text-[#6B9E99]">
-                  انضم إلينا وابدأ رحلتك في عالم المزادات
+                  {t('joinUs')}
                 </p>
               </div>
               <RegisterForm />

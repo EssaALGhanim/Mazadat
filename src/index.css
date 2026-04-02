@@ -6,8 +6,16 @@
   font-family: 'Cairo', sans-serif;
 }
 
+:lang(ar) {
+  font-feature-settings: "kern" 1;
+  letter-spacing: 0;
+}
+
+:lang(en) {
+  letter-spacing: 0.01em;
+}
+
 body {
-  direction: rtl;
   background-color: #F4FAFA;
   color: #1A2E2C;
 }
