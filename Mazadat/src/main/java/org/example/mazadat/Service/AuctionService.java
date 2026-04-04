@@ -9,6 +9,7 @@ import org.example.mazadat.Model.Seller;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.SellerRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class AuctionService {
 
     private final AuctionRepository auctionRepository;
     private final SellerRepository sellerRepository;
+    private final ImageService imageService;
 
 
     public List<Auction> getAllAuctions(){
@@ -28,7 +30,8 @@ public class AuctionService {
         return auctions;
     }
 
-    public void addAuction(AuctionDTOIN auctionDTOIN, Integer sellerId){
+    @Transactional
+    public void addAuction(AuctionDTOIN auctionDTOIN, int sellerId){
         Seller seller = sellerRepository.findById(sellerId).orElse(null);
         if (seller == null){
             throw new ApiException("Seller not found");
@@ -55,7 +58,8 @@ public class AuctionService {
         auctionRepository.save(auction);
     }
 
-    public void updateAuction(AuctionDTOIN auctionDTOIN, Integer auctionId, Integer sellerId){
+    @Transactional
+    public void updateAuction(AuctionDTOIN auctionDTOIN, int auctionId, int sellerId){
         Seller seller = sellerRepository.findById(sellerId).orElse(null);
         if (seller == null){
             throw new ApiException("Seller not found");
@@ -81,7 +85,8 @@ public class AuctionService {
         auctionRepository.save(auction);
     }
 
-    public void deleteAuction(Integer auctionId, Integer sellerId){
+    @Transactional
+    public void deleteAuction(int auctionId, int sellerId){
         Seller seller = sellerRepository.findById(sellerId).orElse(null);
         if (seller == null){
             throw new ApiException("Seller not found");
@@ -100,6 +105,7 @@ public class AuctionService {
         if (auction.getBids() != null && !auction.getBids().isEmpty()){
             throw new ApiException("Auction has bids");
         }
+        imageService.deleteAuctionImages(auctionId);
         auctionRepository.delete(auction);
     }
 }
