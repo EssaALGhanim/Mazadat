@@ -33,5 +33,7 @@
   "viewAuction": "View Auction",
   "publishSuccess": "Your auction has been published!",
   "edit": "Edit",
-  "notSeller": "This page is for sellers only"
+  "notSeller": "This page is for sellers only",
+  "publishFailed": "Failed to publish auction, please try again",
+  "loading": "Loading..."
 }
