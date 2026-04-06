@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Info } from 'lucide-react';
 
 export default function PricingScheduleStep({ formData, setFormData, onNext, onBack }) {
   const { t, i18n } = useTranslation('createAuction');
@@ -20,14 +19,14 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
     if (!formData.startingPrice || isNaN(sp) || sp <= 0) {
       newErrors.startingPrice = t('priceError');
     }
-    
+
     if (formData.reservePrice) {
       const rp = parseFloat(formData.reservePrice);
       if (isNaN(rp) || rp < sp) {
-        newErrors.reservePrice = t('priceError'); 
+        newErrors.reservePrice = t('priceError');
       }
     }
-
+    
     if (!formData.startDate) {
       newErrors.startDate = t('requiredField');
     }
@@ -97,15 +96,9 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
         </div>
 
         <div>
-           <label className="flex items-center mb-2 font-semibold text-[#1A2E2C] group w-max">
-             {t('reservePriceLabel')}
-             <span className="relative inline-block ml-2 rtl:mr-2 rtl:ml-0 cursor-help">
-               <Info className="w-4 h-4 text-[#6B9E99] group-hover:text-[#2A9D8F]" />
-               <div className="absolute hidden group-hover:block w-48 bg-gray-800 text-white text-xs rounded p-2 z-10 bottom-full mb-1 rtl:right-1/2 rtl:translate-x-1/2 ltr:left-1/2 ltr:-translate-x-1/2">
-                 {t('reservePriceTooltip')}
-               </div>
-             </span>
-           </label>
+          <label className="block mb-2 font-semibold text-[#1A2E2C]">
+            {t('reservePriceLabel')}
+          </label>
           <div className="relative">
             <input
               type="number"
@@ -118,7 +111,7 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
               } ${errors.reservePrice ? 'border-[#E05252] focus:ring-[#E05252]' : 'border-[#C5E0DC]'}`}
               style={{ direction: 'ltr', textAlign: i18n.language === 'ar' ? 'right' : 'left' }}
             />
-             <span className={`absolute top-1/2 -translate-y-1/2 text-gray-500 font-bold ${
+            <span className={`absolute top-1/2 -translate-y-1/2 text-gray-500 font-bold ${
               i18n.language === 'ar' ? 'left-3' : 'right-3'
             }`}>
               ﷼

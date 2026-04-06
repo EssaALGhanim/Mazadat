@@ -2,22 +2,26 @@ import React, { useState, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import StepIndicator from './StepIndicator';
 import AuctionDetailsStep from './AuctionDetailsStep';
 import ProductImagesStep from './ProductImagesStep';
 import PricingScheduleStep from './PricingScheduleStep';
 import ReviewPublishStep from './ReviewPublishStep';
+import { createAuction, getAllAuctions } from '@/services/auctionService';
+import { uploadImages } from '@/services/imageService';
 
 export default function CreateAuctionModal({ open, onOpenChange }) {
   const { t } = useTranslation('createAuction');
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [isPublished, setIsPublished] = useState(false);
-  
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    auctionHouseId: null,
     images: [],
     startingPrice: '',
     reservePrice: '',
@@ -31,7 +35,6 @@ export default function CreateAuctionModal({ open, onOpenChange }) {
       setFormData({
         title: '',
         description: '',
-        auctionHouseId: null,
         images: [],
         startingPrice: '',
         reservePrice: '',
@@ -39,6 +42,7 @@ export default function CreateAuctionModal({ open, onOpenChange }) {
         endDate: ''
       });
       setIsPublished(false);
+      setError(null);
     }
   }, [open]);
 
@@ -46,9 +50,54 @@ export default function CreateAuctionModal({ open, onOpenChange }) {
   const handleBack = () => setCurrentStep(prev => Math.max(prev - 1, 1));
   const handleSetStep = (stepIndex) => setCurrentStep(stepIndex);
 
-  const handlePublish = () => {
-    console.log('Publishing Auction Data:', formData);
-    setIsPublished(true);
+  const handlePublish = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const beforeAuctions = await getAllAuctions();
+      const beforeIds = new Set((beforeAuctions || []).map((auction) => auction.id));
+
+      const auctionPayload = {
+        title: formData.title,
+        description: formData.description,
+        startingPrice: parseFloat(formData.startingPrice),
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        ...(formData.reservePrice ? { reservePrice: parseFloat(formData.reservePrice) } : {}),
+      };
+
+      const createResult = await createAuction(auctionPayload);
+      const createdAuctionId =
+          createResult?.id
+          ?? createResult?.auctionId
+          ?? createResult?.data?.id
+          ?? createResult?.data?.auctionId;
+
+      let targetAuctionId = createdAuctionId;
+
+      if (!targetAuctionId) {
+        const afterAuctions = await getAllAuctions();
+        const createdAuction = (afterAuctions || [])
+            .filter((auction) => !beforeIds.has(auction.id))
+            .sort((left, right) => new Date(right.createdAt || 0) - new Date(left.createdAt || 0))[0]
+          || (afterAuctions || []).find((auction) =>
+              auction.title === formData.title
+              && auction.description === formData.description
+              && Number(auction.startingPrice) === Number(formData.startingPrice)
+          );
+        targetAuctionId = createdAuction?.id;
+      }
+
+      if (formData.images.length > 0 && targetAuctionId) {
+        await uploadImages(targetAuctionId, formData.images);
+      }
+
+      setIsPublished(true);
+    } catch {
+      setError(t('publishFailed'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -56,104 +105,103 @@ export default function CreateAuctionModal({ open, onOpenChange }) {
   };
 
   return (
-    <Dialog.Root open={open} onOpenChange={(val) => {
+      <Dialog.Root open={open} onOpenChange={(val) => {
         if (!val && !isPublished && (formData.title || formData.images.length > 0)) {
-           const confirmClose = window.confirm(t('pageTitle') + "?"); // Very simple confirm dialog matching browser lang
-           if (!confirmClose) return;
+          const confirmClose = window.confirm(t('pageTitle') + '?');
+          if (!confirmClose) return;
         }
         onOpenChange(val);
-    }}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50 animate-in fade-in" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-4xl max-h-[90vh] bg-[#F4FAFA] rounded-xl shadow-xl z-50 overflow-hidden flex flex-col focus:outline-none animate-in zoom-in-95 duration-200">
-          
-          {/* Header */}
-          <div className="bg-white border-b border-[#C5E0DC] px-6 h-16 flex items-center justify-between shrink-0">
-             <div className="flex items-center gap-3">
-               <img src="/logos/mazadat_green_logo.png" alt="Mazadat" className="h-8" />
-               <Dialog.Title className="font-bold text-[#1A2E2C] text-lg hidden sm:block">
-                 {t('pageTitle')}
-               </Dialog.Title>
-             </div>
-             
-             {!isPublished && (
-                 <Dialog.Close asChild>
-                   <button className="text-[#6B9E99] hover:text-[#1A2E2C] transition-colors p-1 rounded-full hover:bg-gray-100">
-                     <X className="w-6 h-6" />
-                   </button>
-                 </Dialog.Close>
-             )}
-          </div>
+      }}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50 animate-in fade-in" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-4xl max-h-[90vh] bg-[#F4FAFA] rounded-xl shadow-xl z-50 overflow-hidden flex flex-col focus:outline-none animate-in zoom-in-95 duration-200">
 
-          {/* Body */}
-          <div className="overflow-y-auto p-4 md:p-8 flex-1">
+            {/* Header */}
+            <div className="bg-white border-b border-[#C5E0DC] px-6 h-16 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <img src="/logos/mazadat_green_logo.png" alt="Mazadat" className="h-8" />
+                <Dialog.Title className="font-bold text-[#1A2E2C] text-lg hidden sm:block">
+                  {t('pageTitle')}
+                </Dialog.Title>
+              </div>
+              {!isPublished && (
+                  <Dialog.Close asChild>
+                    <button className="text-[#6B9E99] hover:text-[#1A2E2C] transition-colors p-1 rounded-full hover:bg-gray-100">
+                      <X className="w-6 h-6" />
+                    </button>
+                  </Dialog.Close>
+              )}
+            </div>
+
+            {/* Body */}
+            <div className="overflow-y-auto p-4 md:p-8 flex-1">
               {isPublished ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center h-full">
+                  <div className="flex flex-col items-center justify-center py-12 text-center h-full">
                     <div className="bg-white p-8 rounded-xl shadow-sm border border-[#C5E0DC] max-w-md w-full animate-in fade-in zoom-in duration-500">
-                        <div className="flex justify-center mb-6">
+                      <div className="flex justify-center mb-6">
                         <CheckCircle className="w-20 h-20 text-[#2A9D8F]" strokeWidth={1.5} />
-                        </div>
-                        <h2 className="text-2xl font-bold text-[#1A2E2C] mb-8">{t('publishSuccess')}</h2>
-                        
-                        <div className="space-y-3">
-                        <Link 
-                            to="/auctions/preview" 
+                      </div>
+                      <h2 className="text-2xl font-bold text-[#1A2E2C] mb-8">{t('publishSuccess')}</h2>
+                      <div className="space-y-3">
+                        <button
                             onClick={handleClose}
                             className="block w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-6 py-3 rounded-lg font-bold transition-colors"
                         >
-                            {t('viewAuction')}
-                        </Link>
-                        <button 
-                            onClick={handleClose}
-                            className="w-full bg-white border border-[#C5E0DC] text-[#1A2E2C] hover:bg-[#F4FAFA] px-6 py-3 rounded-lg font-bold transition-colors"
-                        >
-                            {t('backToDashboard')}
+                          {t('backToDashboard')}
                         </button>
-                        </div>
+                      </div>
                     </div>
-                </div>
+                  </div>
               ) : (
-                <div className="container mx-auto max-w-3xl pb-8">
+                  <div className="container mx-auto max-w-3xl pb-8">
                     <StepIndicator currentStep={currentStep} />
 
+                    {/* Error Message */}
+                    {error && (
+                        <div className="mb-4 bg-red-50 border border-[#E05252] text-[#E05252] rounded-lg px-4 py-3 text-sm font-semibold">
+                          {error}
+                        </div>
+                    )}
+
                     <div className="mt-6 transition-all duration-300">
-                    {currentStep === 1 && (
-                        <AuctionDetailsStep 
-                        formData={formData} 
-                        setFormData={setFormData} 
-                        onNext={handleNext} 
-                        />
-                    )}
-                    {currentStep === 2 && (
-                        <ProductImagesStep 
-                        formData={formData} 
-                        setFormData={setFormData} 
-                        onNext={handleNext} 
-                        onBack={handleBack} 
-                        />
-                    )}
-                    {currentStep === 3 && (
-                        <PricingScheduleStep 
-                        formData={formData} 
-                        setFormData={setFormData} 
-                        onNext={handleNext} 
-                        onBack={handleBack} 
-                        />
-                    )}
-                    {currentStep === 4 && (
-                        <ReviewPublishStep 
-                        formData={formData} 
-                        onBack={handleBack} 
-                        onPublish={handlePublish}
-                        setStep={handleSetStep}
-                        />
-                    )}
+                      {currentStep === 1 && (
+                          <AuctionDetailsStep
+                              formData={formData}
+                              setFormData={setFormData}
+                              onNext={handleNext}
+                          />
+                      )}
+                      {currentStep === 2 && (
+                          <ProductImagesStep
+                              formData={formData}
+                              setFormData={setFormData}
+                              onNext={handleNext}
+                              onBack={handleBack}
+                          />
+                      )}
+                      {currentStep === 3 && (
+                          <PricingScheduleStep
+                              formData={formData}
+                              setFormData={setFormData}
+                              onNext={handleNext}
+                              onBack={handleBack}
+                          />
+                      )}
+                      {currentStep === 4 && (
+                          <ReviewPublishStep
+                              formData={formData}
+                              onBack={handleBack}
+                              onPublish={handlePublish}
+                              setStep={handleSetStep}
+                              loading={loading}
+                          />
+                      )}
                     </div>
-                </div>
+                  </div>
               )}
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
   );
 }

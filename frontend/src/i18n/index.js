@@ -9,13 +9,17 @@ import enAuth from './locales/en/auth.json'
 import enCommon from './locales/en/common.json'
 import enCreateAuction from './locales/en/createAuction.json'
 
+import arPolicies from './locales/ar/policies.json'
+import enPolicies from './locales/en/policies.json'
+
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources: {
-      ar: { auth: arAuth, common: arCommon, createAuction: arCreateAuction },
-      en: { auth: enAuth, common: enCommon, createAuction: enCreateAuction }
+      ar: { auth: arAuth, common: arCommon, createAuction: arCreateAuction, policies: arPolicies  },
+      en: { auth: enAuth, common: enCommon, createAuction: enCreateAuction, policies: enPolicies  }
     },
     lng: 'ar',
     fallbackLng: 'ar',

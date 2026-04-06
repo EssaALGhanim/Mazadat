@@ -1,116 +1,178 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, User } from 'lucide-react';
+import { Plus, User, LogOut } from 'lucide-react';
 import CreateAuctionModal from '../components/createAuction/CreateAuctionModal';
+import AuctionCard from '../components/auction/AuctionCard';
+import { getAllAuctions } from '@/services/auctionService';
 
 export default function HomePage() {
-  const { t, i18n } = useTranslation('common');
-  const [userRoles, setUserRoles] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+    const { t, i18n } = useTranslation('common');
+    const [currentUser, setCurrentUser] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [auctions, setAuctions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const isAr = i18n.language === 'ar';
 
-  useEffect(() => {
-    try {
-      const userString = localStorage.getItem('user');
-      const user = userString ? JSON.parse(userString) : null;
-      const roles = user?.roles || (user?.role ? [user.role] : []);
-      setUserRoles(roles);
-    } catch (e) {
-      setUserRoles([]);
-    }
-  }, []);
+    useEffect(() => {
+        try {
+            const stored = localStorage.getItem('user');
+            const parsed = stored ? JSON.parse(stored) : null;
+            setCurrentUser(parsed);
+        } catch {
+            setCurrentUser(null);
+        }
+    }, []);
 
-  const isSeller = userRoles.includes('Seller');
-  const isAr = i18n.language === 'ar';
+    useEffect(() => {
+        fetchAuctions();
+    }, []);
 
-  return (
-    <div className="min-h-screen bg-[#F0F2F5]"> {/* Facebook-like background gray */}
-      <header className="bg-white border-b border-[#C5E0DC] px-6 h-16 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-        <img src="/logos/mazadat_green_logo.png" alt="Mazadat" className="h-8" />
-        
-        <button
-          onClick={() => i18n.changeLanguage(isAr ? 'en' : 'ar')}
-          className="bg-[#F4FAFA] hover:bg-[#E2F1EF] text-[#2A9D8F] px-4 py-2 rounded-lg font-bold transition-colors text-sm"
-        >
-          {isAr ? 'English' : 'العربية'}
-        </button>
-      </header>
+    const fetchAuctions = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await getAllAuctions();
+            setAuctions(data || []);
+        } catch {
+            setError(isAr ? 'فشل تحميل المزادات' : 'Failed to load auctions');
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
-          {/* Create Post / Add Listing Block */}
-          {isSeller && (
-            <div className="bg-white rounded-xl shadow-sm border border-[#C5E0DC] p-4 mb-6">
-               <div className="flex gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
-                     <User className="w-6 h-6 text-gray-500" />
-                  </div>
-                  <button 
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex-1 bg-[#F4FAFA] hover:bg-[#E2F1EF] text-right rtl:text-right ltr:text-left text-[#6B9E99] px-4 py-2.5 rounded-full font-medium transition-colors border border-[#C5E0DC] focus:outline-none"
-                    style={{ textAlign: isAr ? 'right' : 'left' }}
-                  >
-                    {isAr ? 'ما الذي تريد بيعه اليوم في المزاد؟' : 'What would you like to auction today?'}
-                  </button>
-               </div>
-               <div className="h-px bg-gray-100 my-3"></div>
-               <div className="flex justify-around">
-                  <button 
-                    onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 text-[#6B9E99] hover:bg-[#F4FAFA] px-4 py-2 rounded-lg transition-colors font-semibold flex-1 justify-center"
-                  >
-                    <Plus className="w-5 h-5 text-[#2A9D8F]" />
-                    <span>{isAr ? 'إضافة مزاد جديد' : 'Add New Listing'}</span>
-                  </button>
-               </div>
-            </div>
-          )}
+    const handleActionComplete = (type) => {
+        if (type === 'cancel') {
+            alert(t('cancelSuccess'));
+        } else if (type === 'sold') {
+            alert(t('markAsSoldSuccess'));
+        }
+        fetchAuctions();
+    };
 
-          {/* Feed style listings */}
-          <div className="space-y-6">
-             {[...Array(6)].map((_, i) => (
-                 <div key={i} className="bg-white border border-[#C5E0DC] rounded-xl overflow-hidden shadow-sm">
-                     {/* Header */}
-                     <div className="p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
-                            <span className="font-bold text-gray-500">{i+1}</span>
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        window.location.href = '/auth';
+    };
+
+    const isSeller = currentUser?.role === 'SELLER';
+
+    return (
+        <div className="min-h-screen bg-[#F0F2F5]">
+
+            {/* Header */}
+            <header className="bg-white border-b border-[#C5E0DC] px-6 h-16 flex items-center justify-between sticky top-0 z-40 shadow-sm">
+                <img src="/logos/mazadat_green_logo.png" alt="Mazadat" className="h-8" />
+
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => window.location.href = '/policies'}
+                        className="text-[#6B9E99] hover:text-[#2A9D8F] text-sm font-semibold transition-colors"
+                    >
+                        {isAr ? 'الشروط والسياسات' : 'Policies'}
+                    </button>
+
+                    <button
+                        onClick={() => window.location.href = '/profile/edit'}
+                        className="flex items-center gap-1 text-[#6B9E99] hover:text-[#2A9D8F] text-sm font-semibold transition-colors"
+                    >
+                        <User className="w-4 h-4" />
+                        {isAr ? 'الملف الشخصي' : 'Profile'}
+                    </button>
+
+                    <button
+                        onClick={() => i18n.changeLanguage(isAr ? 'en' : 'ar')}
+                        className="bg-[#F4FAFA] hover:bg-[#E2F1EF] text-[#2A9D8F] px-4 py-2 rounded-lg font-bold transition-colors text-sm"
+                    >
+                        {isAr ? 'English' : 'العربية'}
+                    </button>
+
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-1 bg-white border border-[#E05252] text-[#E05252] hover:bg-[#E05252] hover:text-white px-4 py-2 rounded-lg font-bold transition-colors text-sm"
+                    >
+                        <LogOut className="w-4 h-4" />
+                        {isAr ? 'تسجيل الخروج' : 'Logout'}
+                    </button>
+                </div>
+            </header>
+
+            <main className="container mx-auto px-4 py-8 max-w-2xl">
+
+                {/* Create Auction Block */}
+                {isSeller && (
+                    <div className="bg-white rounded-xl shadow-sm border border-[#C5E0DC] p-4 mb-6">
+                        <div className="flex gap-3">
+                            <div className="w-10 h-10 rounded-full bg-[#EAF7F5] flex items-center justify-center shrink-0">
+                                <User className="w-6 h-6 text-[#2A9D8F]" />
+                            </div>
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="flex-1 bg-[#F4FAFA] hover:bg-[#E2F1EF] text-[#6B9E99] px-4 py-2.5 rounded-full font-medium transition-colors border border-[#C5E0DC] focus:outline-none"
+                                style={{ textAlign: isAr ? 'right' : 'left' }}
+                            >
+                                {isAr ? 'ما الذي تريد بيعه اليوم في المزاد؟' : 'What would you like to auction today?'}
+                            </button>
                         </div>
-                        <div>
-                            <h3 className="font-bold text-[#1A2E2C]">
-                                {isAr ? 'بائع مجهول' : 'Anonymous Seller'} {i + 1}
-                            </h3>
-                            <p className="text-xs text-[#6B9E99]">{isAr ? 'منذ ساعتين' : '2 hours ago'}</p>
+                        <div className="h-px bg-gray-100 my-3"></div>
+                        <div className="flex justify-around">
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className="flex items-center gap-2 text-[#6B9E99] hover:bg-[#F4FAFA] px-4 py-2 rounded-lg transition-colors font-semibold flex-1 justify-center"
+                            >
+                                <Plus className="w-5 h-5 text-[#2A9D8F]" />
+                                <span>{isAr ? 'إضافة مزاد جديد' : 'Add New Listing'}</span>
+                            </button>
                         </div>
-                     </div>
+                    </div>
+                )}
 
-                     {/* Content */}
-                     <div className="px-4 pb-3">
-                         <h4 className="font-bold text-lg mb-1">{isAr ? 'عنوان المزاد هنا' : 'Auction Title Here'}</h4>
-                         <p className="text-[#1A2E2C] text-sm leading-relaxed mb-3">
-                           {isAr 
-                             ? 'هذا وصف مبدئي للمزاد لعرض التصميم بشكل عام ضمن بطاقات العرض. سيكون هذا النص بديلاً للوصف التفصيلي للمنتج المعروض.' 
-                             : 'This is a placeholder description to demonstrate the layout of auction cards. It will contain details about the item being auctioned.'}
-                         </p>
-                     </div>
+                {/* Loading State */}
+                {loading && (
+                    <div className="flex justify-center items-center py-20">
+                        <div className="w-10 h-10 border-4 border-[#C5E0DC] border-t-[#2A9D8F] rounded-full animate-spin" />
+                    </div>
+                )}
 
-                     {/* Main Image */}
-                     <div className="w-full h-80 bg-gray-100 border-y border-gray-100 flex items-center justify-center relative">
-                        <span className="text-6xl text-[#C5E0DC]/50 font-bold">PHOTO</span>
-                     </div>
-                     
-                     {/* Interaction Bar */}
-                     <div className="p-4 flex justify-between items-center bg-[#F8F9FA]">
-                         <span className="font-bold text-lg text-[#2A9D8F]" dir="ltr">
-                             {Math.floor(Math.random() * 5000) + 100} <span className="text-sm">﷼</span>
-                         </span>
-                         <button className="bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-6 py-2 rounded-lg font-bold transition-colors">
-                             {isAr ? 'شارك في المزاد' : 'Place Bid'}
-                         </button>
-                     </div>
-                 </div>
-             ))}
-          </div>
-      </main>
+                {/* Error State */}
+                {!loading && error && (
+                    <div className="bg-white rounded-xl border border-[#E05252] p-6 text-center">
+                        <p className="text-[#E05252] font-semibold mb-4">{error}</p>
+                        <button
+                            onClick={fetchAuctions}
+                            className="bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-6 py-2 rounded-lg font-bold transition-colors"
+                        >
+                            {isAr ? 'إعادة المحاولة' : 'Try Again'}
+                        </button>
+                    </div>
+                )}
 
-      <CreateAuctionModal open={isModalOpen} onOpenChange={setIsModalOpen} />
-    </div>
-  );
+                {/* Empty State */}
+                {!loading && !error && auctions.length === 0 && (
+                    <div className="bg-white rounded-xl border border-[#C5E0DC] p-12 text-center">
+                        <p className="text-[#6B9E99] font-semibold text-lg">
+                            {isAr ? 'لا توجد مزادات حالياً' : 'No auctions available'}
+                        </p>
+                    </div>
+                )}
+
+                {/* Auction Feed */}
+                {!loading && !error && auctions.length > 0 && (
+                    <div className="space-y-6">
+                        {auctions.map((auction) => (
+                            <AuctionCard
+                                key={auction.id}
+                                auction={auction}
+                                currentUser={currentUser}
+                                onActionComplete={handleActionComplete}
+                            />
+                        ))}
+                    </div>
+                )}
+
+            </main>
+
+            <CreateAuctionModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+        </div>
+    );
 }
