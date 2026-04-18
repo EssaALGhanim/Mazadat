@@ -1,0 +1,85 @@
+version: '3.9'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: mazadat-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: mazadat
+      MYSQL_USER: mazadat_user
+      MYSQL_PASSWORD: mazadat_password
+      TZ: 'Asia/Riyadh'
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./Mazadat/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - mazadat-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Spring Boot Backend
+  backend:
+    build:
+      context: ./Mazadat
+      dockerfile: Dockerfile
+    container_name: mazadat-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mazadat
+      SPRING_DATASOURCE_USERNAME: mazadat_user
+      SPRING_DATASOURCE_PASSWORD: mazadat_password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_PORT: 8080
+      MAZADAT_UPLOAD_DIR: /app/uploads
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./Mazadat/uploads:/app/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - mazadat-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # React Frontend with Nginx
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mazadat-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - mazadat-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  mazadat-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+

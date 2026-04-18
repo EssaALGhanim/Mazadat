@@ -1,0 +1,34 @@
+# Maven build files
+target/
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (in case)
+node_modules/
+dist/
+build/
+
+# Local development
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Version control
+.git/
+.gitignore
+
