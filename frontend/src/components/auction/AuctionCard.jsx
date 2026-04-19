@@ -8,6 +8,7 @@ import { deleteAuction } from '@/services/auctionService';
 import { resolveImageUrl } from '@/services/imageService';
 import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirection';
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
+import WatchlistButton from '@/components/watchlist/WatchlistButton';
 
 export default function AuctionCard({ auction, currentUser, onActionComplete }) {
     const { t, i18n } = useTranslation('common');
@@ -106,6 +107,13 @@ export default function AuctionCard({ auction, currentUser, onActionComplete }) 
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-red-100" />
                     </span>
                     {isAr ? 'مزاد مباشر' : 'Live Auction'}
+                </div>
+            )}
+
+            {/* Watchlist Button - Only show for buyers */}
+            {isBuyer && (
+                <div className="absolute top-2 start-2 z-10">
+                    <WatchlistButton auctionId={auction.id} variant="icon" />
                 </div>
             )}
 

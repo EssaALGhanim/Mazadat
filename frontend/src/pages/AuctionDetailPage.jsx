@@ -9,6 +9,7 @@ import { getAuctionById } from '@/services/auctionService';
 import { resolveImageUrl } from '@/services/imageService';
 import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirection';
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
+import WatchlistButton from '@/components/watchlist/WatchlistButton';
 
 export default function AuctionDetailPage({ currentUser }) {
     const { t, i18n } = useTranslation('common');
@@ -334,6 +335,10 @@ export default function AuctionDetailPage({ currentUser }) {
                                 >
                                     {isAr ? '💰 مزايدة الآن' : '💰 Place Bid Now'}
                                 </button>
+                            )}
+
+                            {isBuyer && (
+                                <WatchlistButton auctionId={auction.id} variant="full" className="w-full text-sm" />
                             )}
 
                             {isWinner && (

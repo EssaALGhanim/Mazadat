@@ -8,6 +8,7 @@ import AuctionCard from '../components/auction/AuctionCard';
 import TopNavigationBar from '../components/TopNavigationBar';
 import FilterSidebar from '../components/FilterSidebar';
 import MyBidsPage from './MyBidsPage';
+import WatchlistPage from './WatchlistPage';
 import { getAllAuctions } from '@/services/auctionService';
 import { getSellerAuctionHouse } from '@/services/auctionHouseService';
 
@@ -26,6 +27,7 @@ export default function HomePage() {
   const [hasAuctionHouse, setHasAuctionHouse] = useState(false);
   const [checkingAuctionHouse, setCheckingAuctionHouse] = useState(false);
   const [showMyBids, setShowMyBids] = useState(false);
+  const [showWatchlist, setShowWatchlist] = useState(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [filters, setFilters] = useState({
     auctionHouse: '',
@@ -165,7 +167,29 @@ export default function HomePage() {
   }, [isSeller, navigate]);
 
   if (showMyBids && isBuyer) {
-    return <MyBidsPage currentUser={currentUser} onBack={() => setShowMyBids(false)} />;
+    return (
+      <MyBidsPage
+        currentUser={currentUser}
+        onBack={() => setShowMyBids(false)}
+        onShowWatchlist={() => {
+          setShowMyBids(false);
+          setShowWatchlist(true);
+        }}
+      />
+    );
+  }
+
+  if (showWatchlist && isBuyer) {
+    return (
+      <WatchlistPage
+        currentUser={currentUser}
+        onBack={() => setShowWatchlist(false)}
+        onShowMyBids={() => {
+          setShowWatchlist(false);
+          setShowMyBids(true);
+        }}
+      />
+    );
   }
 
   return (
@@ -175,6 +199,7 @@ export default function HomePage() {
         isSeller={isSeller}
         isBuyer={isBuyer}
         onShowMyBids={() => setShowMyBids(true)}
+        onShowWatchlist={() => setShowWatchlist(true)}
         onCreateAuction={handleCreateAuctionClick}
         onLogout={handleLogout}
       />
