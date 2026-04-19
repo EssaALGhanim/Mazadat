@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { User, Save, Home, Pencil, X } from 'lucide-react';
 import { getCurrentUserProfile, updateSellerProfile, updateBuyerProfile } from '@/services/userService';
+import TopNavigationBar from '../components/TopNavigationBar';
 
 export default function EditProfilePage() {
     const { t, i18n } = useTranslation('common');
@@ -160,101 +161,120 @@ export default function EditProfilePage() {
         );
     }
 
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        window.location.href = '/auth';
+    };
+
+    const isSeller = user?.role === 'SELLER';
+    const isBuyer = user?.role === 'BUYER';
+
     return (
-        <div className="min-h-screen bg-[#F4FAFA] flex items-center justify-center px-4 py-10">
-            <div className="bg-white rounded-xl shadow-sm border border-[#C5E0DC] w-full max-w-lg p-8">
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-[#EAF7F5] flex items-center justify-center">
-                            <User className="w-6 h-6 text-[#2A9D8F]" />
+        <div className="min-h-screen bg-[#F4FAFA] flex flex-col">
+            <TopNavigationBar
+                currentUser={user}
+                isSeller={isSeller}
+                isBuyer={isBuyer}
+                onShowMyBids={() => navigate('/')}
+                onCreateAuction={() => navigate('/seller-dashboard')}
+                onLogout={handleLogout}
+            />
+
+            <div className="flex-1 flex items-center justify-center px-4 py-10">
+                <div className="bg-white rounded-xl shadow-sm border border-[#C5E0DC] w-full max-w-lg p-8">
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-full bg-[#EAF7F5] flex items-center justify-center">
+                                <User className="w-6 h-6 text-[#2A9D8F]" />
+                            </div>
+                            <h1 className="text-2xl font-bold text-[#1A2E2C]">{t('editProfile')}</h1>
                         </div>
-                        <h1 className="text-2xl font-bold text-[#1A2E2C]">{t('editProfile')}</h1>
+
+                        {!isEditMode ? (
+                            <button onClick={handleEdit} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#EAF7F5] text-[#2A9D8F] font-semibold hover:bg-[#DFF0ED]">
+                                <Pencil className="w-4 h-4" />
+                                {t('edit') || 'Edit'}
+                            </button>
+                        ) : (
+                            <button onClick={handleCancel} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200">
+                                <X className="w-4 h-4" />
+                                {t('cancel') || 'Cancel'}
+                            </button>
+                        )}
                     </div>
 
-                    {!isEditMode ? (
-                        <button onClick={handleEdit} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#EAF7F5] text-[#2A9D8F] font-semibold hover:bg-[#DFF0ED]">
-                            <Pencil className="w-4 h-4" />
-                            {t('edit') || 'Edit'}
-                        </button>
-                    ) : (
-                        <button onClick={handleCancel} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200">
-                            <X className="w-4 h-4" />
-                            {t('cancel') || 'Cancel'}
-                        </button>
+                    {success && (
+                        <div className="mb-6 bg-[#EAF7F5] border border-[#2A9D8F] text-[#2A9D8F] rounded-lg px-4 py-3 font-semibold text-sm">
+                            {t('profileUpdated')}
+                        </div>
                     )}
-                </div>
 
-                {success && (
-                    <div className="mb-6 bg-[#EAF7F5] border border-[#2A9D8F] text-[#2A9D8F] rounded-lg px-4 py-3 font-semibold text-sm">
-                        {t('profileUpdated')}
-                    </div>
-                )}
+                    {errors.general && (
+                        <div className="mb-6 bg-red-50 border border-[#E05252] text-[#E05252] rounded-lg px-4 py-3 font-semibold text-sm">
+                            {errors.general}
+                        </div>
+                    )}
 
-                {errors.general && (
-                    <div className="mb-6 bg-red-50 border border-[#E05252] text-[#E05252] rounded-lg px-4 py-3 font-semibold text-sm">
-                        {errors.general}
-                    </div>
-                )}
-
-                <div className="space-y-5">
-                    <div>
-                        <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('username')} *</label>
-                        <input name="username" value={formData.username} onChange={handleChange} readOnly={!isEditMode} className={inputClass(errors.username)} />
-                        {errors.username && <p className="text-[#E05252] text-sm mt-1">{errors.username}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('email')} *</label>
-                        <input name="email" type="email" value={formData.email} onChange={handleChange} readOnly={!isEditMode} className={inputClass(errors.email)} dir="ltr" />
-                        {errors.email && <p className="text-[#E05252] text-sm mt-1">{errors.email}</p>}
-                    </div>
-
-                    <div>
-                        <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('phoneNumber') || 'Phone Number'} *</label>
-                        <input name="phoneNumber" type="tel" value={formData.phoneNumber} onChange={handleChange} readOnly={!isEditMode} className={inputClass(errors.phoneNumber)} dir="ltr" placeholder="+9665XXXXXXXX" />
-                        {errors.phoneNumber && <p className="text-[#E05252] text-sm mt-1">{errors.phoneNumber}</p>}
-                    </div>
-
-                    {!isEditMode ? (
+                    <div className="space-y-5">
                         <div>
-                            <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('password')}</label>
-                            <input value="********" readOnly className={inputClass(false)} />
+                            <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('username')} *</label>
+                            <input name="username" value={formData.username} onChange={handleChange} readOnly={!isEditMode} className={inputClass(errors.username)} />
+                            {errors.username && <p className="text-[#E05252] text-sm mt-1">{errors.username}</p>}
                         </div>
-                    ) : (
-                        <>
-                            <div>
-                                <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('newPassword')} *</label>
-                                <input name="password" type="password" value={formData.password} onChange={handleChange} className={inputClass(errors.password)} dir="ltr" />
-                                {errors.password && <p className="text-[#E05252] text-sm mt-1">{errors.password}</p>}
-                            </div>
 
+                        <div>
+                            <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('email')} *</label>
+                            <input name="email" type="email" value={formData.email} onChange={handleChange} readOnly={!isEditMode} className={inputClass(errors.email)} dir="ltr" />
+                            {errors.email && <p className="text-[#E05252] text-sm mt-1">{errors.email}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('phoneNumber') || 'Phone Number'} *</label>
+                            <input name="phoneNumber" type="tel" value={formData.phoneNumber} onChange={handleChange} readOnly={!isEditMode} className={inputClass(errors.phoneNumber)} dir="ltr" placeholder="+9665XXXXXXXX" />
+                            {errors.phoneNumber && <p className="text-[#E05252] text-sm mt-1">{errors.phoneNumber}</p>}
+                        </div>
+
+                        {!isEditMode ? (
                             <div>
-                                <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('confirmPassword') || 'Confirm Password'} *</label>
-                                <input name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} className={inputClass(errors.confirmPassword)} dir="ltr" />
-                                {errors.confirmPassword && <p className="text-[#E05252] text-sm mt-1">{errors.confirmPassword}</p>}
+                                <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('password')}</label>
+                                <input value="********" readOnly className={inputClass(false)} />
                             </div>
-                        </>
+                        ) : (
+                            <>
+                                <div>
+                                    <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('newPassword')} *</label>
+                                    <input name="password" type="password" value={formData.password} onChange={handleChange} className={inputClass(errors.password)} dir="ltr" />
+                                    {errors.password && <p className="text-[#E05252] text-sm mt-1">{errors.password}</p>}
+                                </div>
+
+                                <div>
+                                    <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('confirmPassword') || 'Confirm Password'} *</label>
+                                    <input name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} className={inputClass(errors.confirmPassword)} dir="ltr" />
+                                    {errors.confirmPassword && <p className="text-[#E05252] text-sm mt-1">{errors.confirmPassword}</p>}
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {isEditMode && (
+                        <button
+                            onClick={handleSave}
+                            disabled={loading}
+                            className="mt-8 w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                        >
+                            <Save className="w-5 h-5" />
+                            {loading ? '...' : t('saveChanges')}
+                        </button>
                     )}
-                </div>
 
-                {isEditMode && (
                     <button
-                        onClick={handleSave}
-                        disabled={loading}
-                        className="mt-8 w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                        onClick={() => navigate(user?.role === 'SELLER' ? '/seller-dashboard' : '/')}
+                        className="mt-4 w-full bg-[#F4FAFA] hover:bg-[#E2F1EF] text-[#2A9D8F] px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2"
                     >
-                        <Save className="w-5 h-5" />
-                        {loading ? '...' : t('saveChanges')}
+                        <Home className="w-5 h-5" />
+                        {isAr ? 'العودة للرئيسية' : 'Return to Homepage'}
                     </button>
-                )}
-
-                <button
-                    onClick={() => navigate(user?.role === 'SELLER' ? '/seller-dashboard' : '/')}
-                    className="mt-4 w-full bg-[#F4FAFA] hover:bg-[#E2F1EF] text-[#2A9D8F] px-6 py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2"
-                >
-                    <Home className="w-5 h-5" />
-                    {isAr ? 'العودة للرئيسية' : 'Return to Homepage'}
-                </button>
+                </div>
             </div>
         </div>
     );
