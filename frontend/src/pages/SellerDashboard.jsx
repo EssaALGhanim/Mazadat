@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Trash2, Eye, TrendingUp, Package, DollarSign, Clock, ShieldPlus } from 'lucide-react';
+import { Plus, Trash2, Eye, TrendingUp, Package, DollarSign, Clock, ShieldPlus, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TopNavigationBar from '../components/TopNavigationBar';
 import CreateAuctionModal from '../components/createAuction/CreateAuctionModal';
@@ -24,6 +24,7 @@ export default function SellerDashboard() {
     const [deleteLoading, setDeleteLoading] = useState(null);
     const [deleteError, setDeleteError] = useState(null);
     const [filterStatus, setFilterStatus] = useState('all'); // all, active, completed
+    const [searchQuery, setSearchQuery] = useState('');
     const [currentSeller, setCurrentSeller] = useState(null);
     const isAr = i18n.language === 'ar';
 
@@ -114,9 +115,16 @@ export default function SellerDashboard() {
     };
 
     const filteredAuctions = auctions.filter(auction => {
-        if (filterStatus === 'all') return true;
-        if (filterStatus === 'active') return !isAuctionEnded(auction);
-        if (filterStatus === 'completed') return isAuctionEnded(auction);
+        if (filterStatus === 'active' && isAuctionEnded(auction)) return false;
+        if (filterStatus === 'completed' && !isAuctionEnded(auction)) return false;
+        
+        if (searchQuery.trim()) {
+            const lowerQuery = searchQuery.toLowerCase();
+            const matchesTitle = auction.title?.toLowerCase().includes(lowerQuery);
+            const matchesId = auction.id?.toString().includes(lowerQuery);
+            return matchesTitle || matchesId;
+        }
+
         return true;
     });
 
@@ -321,17 +329,18 @@ export default function SellerDashboard() {
                     {/* Auctions Section */}
                     {auctionHouse && !loading && (
                         <div>
-                            {/* Filter and Create Button */}
-                            <div className="flex flex-col sm:flex-row gap-4 mb-8 items-start sm:items-center justify-between">
-                                <div className="flex gap-2">
+                            {/* Filters, Search, and Create Button */}
+                            <div className="flex flex-col xl:flex-row gap-4 mb-6 items-start xl:items-center justify-between">
+                                {/* Filters */}
+                                <div className="flex gap-2 shrink-0">
                                     {['all', 'active', 'completed'].map((status) => (
                                         <button
                                             key={status}
                                             onClick={() => setFilterStatus(status)}
-                                            className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                                            className={`px-4 py-3 rounded-lg font-semibold transition-colors ${
                                                 filterStatus === status
                                                     ? 'bg-[#2A9D8F] text-white'
-                                                    : 'bg-white text-[#6B9E99] border border-[#C5E0DC] hover:bg-[#F4FAFA]'
+                                                    : 'bg-white text-[#6B9E99] border-2 border-[#C5E0DC] hover:bg-[#F4FAFA]'
                                             }`}
                                         >
                                             {status === 'all' && (isAr ? 'جميع' : 'All')}
@@ -340,11 +349,25 @@ export default function SellerDashboard() {
                                         </button>
                                     ))}
                                 </div>
+
+                                {/* Search Bar */}
+                                <div className="relative w-full flex-1 xl:mx-4 max-w-2xl">
+                                    <Search className={`absolute top-1/2 -translate-y-1/2 w-6 h-6 text-[#6B9E99] ${isAr ? 'right-4' : 'left-4'}`} />
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder={isAr ? "البحث في المزادات بالاسم أو رقم المعرف..." : "Search auctions by name or ID..."}
+                                        className={`w-full ${isAr ? 'pr-12 pl-4' : 'pl-12 pr-4'} py-3 bg-white border-2 border-[#C5E0DC] rounded-xl focus:outline-none focus:border-[#2A9D8F] focus:ring-0 text-[#1A2E2C] placeholder-[#6B9E99] shadow-sm text-base font-medium transition-all hover:border-[#6B9E99]`}
+                                    />
+                                </div>
+
+                                {/* Create Button */}
                                 <button
                                     onClick={handleCreateAuction}
-                                    className="flex items-center gap-2 bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-6 py-2 rounded-lg font-semibold transition-colors"
+                                    className="flex items-center justify-center w-full xl:w-auto gap-2 bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-6 py-3 rounded-xl font-semibold transition-colors shrink-0"
                                 >
-                                    <Plus className="w-4 h-4" />
+                                    <Plus className="w-5 h-5" />
                                     {isAr ? 'مزاد جديد' : 'New Auction'}
                                 </button>
                             </div>
