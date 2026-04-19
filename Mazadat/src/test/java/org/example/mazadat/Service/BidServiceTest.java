@@ -1,5 +1,8 @@
 package org.example.mazadat.Service;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.example.mazadat.Api.ApiException;
 import org.example.mazadat.DTOIN.BidDTOIN;
 import org.example.mazadat.Model.Auction;
@@ -9,21 +12,17 @@ import org.example.mazadat.Model.User;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.BidRepository;
 import org.example.mazadat.Repository.BuyerRepository;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class BidServiceTest {
@@ -36,6 +35,9 @@ class BidServiceTest {
 
     @Mock
     private BuyerRepository buyerRepository;
+
+    @Mock
+    private AutoBidService autoBidService;
 
     @InjectMocks
     private BidService bidService;

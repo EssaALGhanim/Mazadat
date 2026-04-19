@@ -10,10 +10,12 @@ import org.example.mazadat.Model.Buyer;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.BidRepository;
 import org.example.mazadat.Repository.BuyerRepository;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,8 @@ public class BidService {
     private final BidRepository bidRepository;
     private final AuctionRepository auctionRepository;
     private final BuyerRepository buyerRepository;
+    @Lazy
+    private final AutoBidService autoBidService;
 
 
     public List<Bid> getAllBids(){
@@ -62,8 +66,19 @@ public class BidService {
             throw new ApiException("Auction has ended");
         }
 
-        if (bidDTOIN.getAmount() <= auction.getCurrentPrice()){
-            throw new ApiException("Bid amount must be higher than current price");
+        Optional<Bid> highestBidOpt = bidRepository.findTopByAuctionIdOrderByAmountDescPlacedAtDesc(bidDTOIN.getAuctionId());
+
+        if (highestBidOpt.isEmpty()) {
+            // First bid — must be at least the starting price
+            if (bidDTOIN.getAmount() < auction.getStartingPrice()) {
+                throw new ApiException("First bid must be at least the starting price. Minimum allowed: " + auction.getStartingPrice());
+            }
+        } else {
+            // Subsequent bids — must be at least 5% above the current highest bid
+            double minRequired = Math.ceil(highestBidOpt.get().getAmount() * 1.05);
+            if (bidDTOIN.getAmount() < minRequired) {
+                throw new ApiException("Bid must be at least 5% higher than the previous highest bid. Minimum allowed: " + minRequired);
+            }
         }
 
         Bid bid = new Bid();
@@ -73,9 +88,12 @@ public class BidService {
 
         auction.setCurrentPrice(bidDTOIN.getAmount());
         auction.setHighestBidder(buyer.getUser().getUsername());
+        auction.setHighestBidderEmail(buyer.getUser().getEmail());
 
         auctionRepository.save(auction);
         bidRepository.save(bid);
+
+        autoBidService.triggerAutoBidding(auction);
     }
 
     private BidDTOOUT toDto(Bid bid) {
