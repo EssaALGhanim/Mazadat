@@ -1,5 +1,8 @@
 package org.example.mazadat.Service;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.example.mazadat.Api.ApiException;
 import org.example.mazadat.DTOIN.BidDTOIN;
 import org.example.mazadat.Model.Auction;
@@ -7,23 +10,20 @@ import org.example.mazadat.Model.Bid;
 import org.example.mazadat.Model.Buyer;
 import org.example.mazadat.Model.User;
 import org.example.mazadat.Repository.AuctionRepository;
+import org.example.mazadat.Repository.AutoBidRepository;
 import org.example.mazadat.Repository.BidRepository;
 import org.example.mazadat.Repository.BuyerRepository;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class BidServiceTest {
@@ -36,6 +36,9 @@ class BidServiceTest {
 
     @Mock
     private BuyerRepository buyerRepository;
+
+    @Mock
+    private AutoBidRepository autoBidRepository;
 
     @InjectMocks
     private BidService bidService;
@@ -110,6 +113,98 @@ class BidServiceTest {
         verify(bidRepository).save(any(Bid.class));
         verify(auctionRepository).save(auction);
         assertEquals(210.0, auction.getCurrentPrice());
+    }
+
+    @Test
+    void addBidBlocksWhenIpUsedByThreeDistinctAccounts() {
+        Buyer buyer = buildBuyer();
+        Auction auction = buildAuction();
+        BidDTOIN dto = buildBidRequest(150.0);
+
+        when(buyerRepository.findById(1)).thenReturn(Optional.of(buyer));
+        when(auctionRepository.findById(10)).thenReturn(Optional.of(auction));
+        when(bidRepository.countDistinctBuyerIdsByIpAddress("10.10.10.10")).thenReturn(2L);
+        when(bidRepository.existsByBuyerIdAndIpAddress(1, "10.10.10.10")).thenReturn(false);
+        when(bidRepository.countDistinctBuyerIdsByDeviceFingerprint("device-A")).thenReturn(0L);
+        when(bidRepository.existsByBuyerIdAndDeviceFingerprint(1, "device-A")).thenReturn(false);
+
+        ApiException exception = assertThrows(ApiException.class,
+                () -> bidService.addBid(dto, 1, "10.10.10.10", "device-A"));
+
+        assertEquals("Bid blocked due to suspicious multi-account bidding activity", exception.getMessage());
+        verify(bidRepository, never()).save(any(Bid.class));
+    }
+
+    @Test
+    void addBidAllowsHighValueBidFromNewAccountButStillSavesBid() {
+        Buyer buyer = buildBuyer();
+        buyer.getUser().setCreatedAt(LocalDateTime.now().minusHours(1));
+        Auction auction = buildAuction();
+        BidDTOIN dto = buildBidRequest(60000.0);
+
+        when(buyerRepository.findById(1)).thenReturn(Optional.of(buyer));
+        when(auctionRepository.findById(10)).thenReturn(Optional.of(auction));
+        when(bidRepository.findTopByAuctionIdOrderByAmountDescPlacedAtDesc(10)).thenReturn(Optional.empty());
+        when(bidRepository.countDistinctBuyerIdsByIpAddress("10.0.0.1")).thenReturn(0L);
+        when(bidRepository.existsByBuyerIdAndIpAddress(1, "10.0.0.1")).thenReturn(false);
+        when(bidRepository.countDistinctBuyerIdsByDeviceFingerprint("device-new")).thenReturn(0L);
+        when(bidRepository.existsByBuyerIdAndDeviceFingerprint(1, "device-new")).thenReturn(false);
+
+        bidService.addBid(dto, 1, "10.0.0.1", "device-new");
+
+        verify(bidRepository).save(any(Bid.class));
+        verify(auctionRepository).save(auction);
+    }
+
+    @Test
+    void addBidExtendsAuctionWhenBidInLastTwoMinutes() {
+        Buyer buyer = buildBuyer();
+        Auction auction = buildAuction();
+        LocalDateTime endDate = LocalDateTime.now().plusSeconds(90);
+        auction.setEndDate(endDate);
+        BidDTOIN dto = buildBidRequest(100.0);
+
+        when(buyerRepository.findById(1)).thenReturn(Optional.of(buyer));
+        when(auctionRepository.findById(10)).thenReturn(Optional.of(auction));
+        when(bidRepository.findTopByAuctionIdOrderByAmountDescPlacedAtDesc(10)).thenReturn(Optional.empty());
+
+        bidService.addBid(dto, 1);
+
+        assertEquals(endDate.plusMinutes(5), auction.getEndDate());
+    }
+
+    @Test
+    void addBidDoesNotExtendAuctionWhenBidEarlyEnough() {
+        Buyer buyer = buildBuyer();
+        Auction auction = buildAuction();
+        LocalDateTime endDate = LocalDateTime.now().plusMinutes(3);
+        auction.setEndDate(endDate);
+        BidDTOIN dto = buildBidRequest(100.0);
+
+        when(buyerRepository.findById(1)).thenReturn(Optional.of(buyer));
+        when(auctionRepository.findById(10)).thenReturn(Optional.of(auction));
+        when(bidRepository.findTopByAuctionIdOrderByAmountDescPlacedAtDesc(10)).thenReturn(Optional.empty());
+
+        bidService.addBid(dto, 1);
+
+        assertEquals(endDate, auction.getEndDate());
+    }
+
+    @Test
+    void addBidExtendsAuctionAtExactTwoMinuteBoundary() {
+        Buyer buyer = buildBuyer();
+        Auction auction = buildAuction();
+        LocalDateTime endDate = LocalDateTime.now().plusMinutes(2);
+        auction.setEndDate(endDate);
+        BidDTOIN dto = buildBidRequest(100.0);
+
+        when(buyerRepository.findById(1)).thenReturn(Optional.of(buyer));
+        when(auctionRepository.findById(10)).thenReturn(Optional.of(auction));
+        when(bidRepository.findTopByAuctionIdOrderByAmountDescPlacedAtDesc(10)).thenReturn(Optional.empty());
+
+        bidService.addBid(dto, 1);
+
+        assertEquals(endDate.plusMinutes(5), auction.getEndDate());
     }
 
     private BidDTOIN buildBidRequest(double amount) {

@@ -22,6 +22,9 @@ export default function AuctionDetailPage({ currentUser }) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [bidModalOpen, setBidModalOpen] = useState(false);
     const [bidLoading, setBidLoading] = useState(false);
+    const [bidSubmitError, setBidSubmitError] = useState(null);
+    const [isFeatured, setIsFeatured] = useState(false);
+    const [featureLoading, setFeatureLoading] = useState(false);
 
     // Fetch auction from API
     useEffect(() => {

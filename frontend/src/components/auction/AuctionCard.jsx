@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { User } from 'lucide-react';
+import { User, Star } from 'lucide-react';
 import CountdownTimer from './CountdownTimer';
 import PlaceBidModal from './PlaceBidModal';
 import { placeBid, generateReceipt } from '@/services/bidService';
@@ -8,11 +8,13 @@ import { deleteAuction } from '@/services/auctionService';
 import { resolveImageUrl } from '@/services/imageService';
 import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirection';
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
+import WatchlistButton from '@/components/watchlist/WatchlistButton';
 
-export default function AuctionCard({ auction, currentUser, onActionComplete }) {
+export default function AuctionCard({ auction, currentUser, onActionComplete, isFeatured = false }) {
     const { t, i18n } = useTranslation('common');
     const [loading, setLoading] = useState(false);
     const [bidModalOpen, setBidModalOpen] = useState(false);
+    const [bidSubmitError, setBidSubmitError] = useState(null);
     const isAr = i18n.language === 'ar';
 
     const isBuyer = currentUser?.role === 'BUYER';
@@ -21,12 +23,13 @@ export default function AuctionCard({ auction, currentUser, onActionComplete }) 
     const isPending = auction?.status === 'PENDING';
     const isEnded = auction?.status === 'COMPLETED' || auction?.status === 'ENDED';
     const isFailedBelowReserve = auction?.status === 'FAILED_BELOW_RESERVE';
+    const hasStarted = !auction?.startDate || new Date(auction.startDate) <= new Date();
 
     // Check if auction time has passed
     const hasEndTimePasssed = auction?.endDate && new Date(auction.endDate) < new Date();
     const auctionEnded = isEnded || isFailedBelowReserve || hasEndTimePasssed;
 
-    const canBid = isBuyer && (isActive || isPending) && !auctionEnded;
+    const canBid = isBuyer && (isActive || isPending) && hasStarted && !auctionEnded;
     const currentPrice = Number(auction?.currentPrice);
     const startingPrice = Number(auction?.startingPrice);
     const hasBids = Number.isFinite(auction?.bidCount)
@@ -45,12 +48,16 @@ export default function AuctionCard({ auction, currentUser, onActionComplete }) 
 
     const handlePlaceBid = async (amount) => {
         setLoading(true);
+        setBidSubmitError(null);
         try {
             await placeBid(auction.id, amount);
             setBidModalOpen(false);
+            setBidSubmitError(null);
             onActionComplete?.('bid');
+            return true;
         } catch (error) {
-            alert(error.message || t('actionFailed'));
+            setBidSubmitError(error.message || t('actionFailed'));
+            return false;
         } finally {
             setLoading(false);
         }
@@ -96,16 +103,31 @@ export default function AuctionCard({ auction, currentUser, onActionComplete }) 
     const descriptionDir = resolveTextDirection(auction?.description || '');
 
     return (
-        <div className="relative bg-white border border-[#C5E0DC] rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
+        <div className={`relative bg-white border ${isFeatured ? 'border-[#FFD700] ring-2 ring-[#FFD700]/30' : 'border-[#C5E0DC]'} rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow h-full flex flex-col`}>
+
+            {/* Featured Badge */}
+            {isFeatured && (
+                <div className="absolute top-2 end-2 z-20 bg-gradient-to-r from-[#FFD700] to-[#FFA500] text-white rounded-full px-2.5 py-1 text-[10px] font-bold flex items-center gap-1.5 shadow-md">
+                    <Star className="w-3 h-3 fill-current" />
+                    {isAr ? 'مميز' : 'Featured'}
+                </div>
+            )}
 
             {/* Live Auction Corner Badge */}
-            {!auctionEnded && (
+            {!auctionEnded && !isFeatured && (
                 <div className="absolute top-2 end-2 z-10 bg-red-600 text-white rounded-full px-2.5 py-1 text-[10px] font-bold flex items-center gap-1.5 shadow-sm">
                     <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-200 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-red-100" />
                     </span>
                     {isAr ? 'مزاد مباشر' : 'Live Auction'}
+                </div>
+            )}
+
+            {/* Watchlist Button - Only show for buyers */}
+            {isBuyer && (
+                <div className="absolute top-2 start-2 z-10">
+                    <WatchlistButton auctionId={auction.id} variant="icon" />
                 </div>
             )}
 
@@ -207,6 +229,11 @@ export default function AuctionCard({ auction, currentUser, onActionComplete }) 
 
             {/* Interaction Bar - Bottom */}
             <div className="p-2.5 flex gap-2 bg-white border-t border-[#C5E0DC]">
+                {isBuyer && !hasStarted && !auctionEnded && (
+                    <p className="flex-1 text-xs font-semibold text-[#6B9E99] self-center">
+                        {isAr ? 'المزاد لم يبدأ بعد' : 'Auction has not started yet'}
+                    </p>
+                )}
                 {canCancel && (
                     <button
                         onClick={handleCancelAuction}
@@ -238,12 +265,19 @@ export default function AuctionCard({ auction, currentUser, onActionComplete }) 
 
             <PlaceBidModal
                 open={bidModalOpen}
-                onOpenChange={setBidModalOpen}
+                onOpenChange={(isOpen) => {
+                    setBidModalOpen(isOpen);
+                    if (!isOpen) {
+                        setBidSubmitError(null);
+                    }
+                }}
                 currentPrice={currentPrice}
                 minBid={minRequiredBid}
                 hasPreviousBid={hasBids}
                 onBidSubmit={handlePlaceBid}
                 loading={loading}
+                submitError={bidSubmitError}
+                onClearSubmitError={() => setBidSubmitError(null)}
             />
         </div>
     );

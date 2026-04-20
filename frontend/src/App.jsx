@@ -11,6 +11,7 @@ import EditProfilePage from './pages/EditProfilePage'
 import PoliciesPage from './pages/PoliciesPage'
 import AuctionDetailPage from './pages/AuctionDetailPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import { WatchlistProvider } from './contexts/WatchlistContext'
 
 function App() {
   const { i18n } = useTranslation()
@@ -23,61 +24,63 @@ function App() {
 
   return (
       <BrowserRouter>
-        <Toaster position="top-center" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'} />
-        <Routes>
-          <Route path="/auth" element={<AuthPage />} />
-          <Route path="/" element={
-            <ProtectedRoute blockedRole="SELLER" redirectTo="/seller-dashboard">
-              <HomePage />
-            </ProtectedRoute>
-          } />
-          <Route path="/seller" element={
-            <ProtectedRoute requiredRole="SELLER" redirectTo="/">
-              <SellerDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/seller-dashboard" element={
-            <ProtectedRoute requiredRole="SELLER" redirectTo="/">
-              <SellerDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/seller/team" element={
-            <ProtectedRoute requiredRole="SELLER" redirectTo="/">
-              <SellerTeamPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/seller/settings" element={
-            <ProtectedRoute requiredRole="SELLER" redirectTo="/">
-              <AuctionHouseSettingsPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/auction/:auctionId" element={
-            <ProtectedRoute>
-              {(currentUser) => <AuctionDetailPage currentUser={currentUser} />}
-            </ProtectedRoute>
-          } />
-          <Route path="/auction" element={
-            <ProtectedRoute>
-              {(currentUser) => <Navigate to={currentUser?.role === 'SELLER' ? '/seller-dashboard' : '/'} replace />}
-            </ProtectedRoute>
-          } />
-          <Route path="/auction/*" element={
-            <ProtectedRoute>
-              {(currentUser) => <Navigate to={currentUser?.role === 'SELLER' ? '/seller-dashboard' : '/'} replace />}
-            </ProtectedRoute>
-          } />
-          <Route path="/profile/edit" element={
-            <ProtectedRoute>
-              <EditProfilePage />
-            </ProtectedRoute>
-          } />
-          <Route path="/policies" element={<PoliciesPage />} />
-          <Route path="*" element={
-            <ProtectedRoute>
-              {(currentUser) => <Navigate to={currentUser?.role === 'SELLER' ? '/seller-dashboard' : '/'} replace />}
-            </ProtectedRoute>
-          } />
-        </Routes>
+        <WatchlistProvider>
+          <Toaster position="top-center" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'} />
+          <Routes>
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/" element={
+              <ProtectedRoute blockedRole="SELLER" redirectTo="/seller-dashboard">
+                <HomePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/seller" element={
+              <ProtectedRoute requiredRole="SELLER" redirectTo="/">
+                <SellerDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/seller-dashboard" element={
+              <ProtectedRoute requiredRole="SELLER" redirectTo="/">
+                <SellerDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/seller/team" element={
+              <ProtectedRoute requiredRole="SELLER" redirectTo="/">
+                <SellerTeamPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/seller/settings" element={
+              <ProtectedRoute requiredRole="SELLER" redirectTo="/">
+                <AuctionHouseSettingsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/auction/:auctionId" element={
+              <ProtectedRoute>
+                {(currentUser) => <AuctionDetailPage currentUser={currentUser} />}
+              </ProtectedRoute>
+            } />
+            <Route path="/auction" element={
+              <ProtectedRoute>
+                {(currentUser) => <Navigate to={currentUser?.role === 'SELLER' ? '/seller-dashboard' : '/'} replace />}
+              </ProtectedRoute>
+            } />
+            <Route path="/auction/*" element={
+              <ProtectedRoute>
+                {(currentUser) => <Navigate to={currentUser?.role === 'SELLER' ? '/seller-dashboard' : '/'} replace />}
+              </ProtectedRoute>
+            } />
+            <Route path="/profile/edit" element={
+              <ProtectedRoute>
+                <EditProfilePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/policies" element={<PoliciesPage />} />
+            <Route path="*" element={
+              <ProtectedRoute>
+                {(currentUser) => <Navigate to={currentUser?.role === 'SELLER' ? '/seller-dashboard' : '/'} replace />}
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </WatchlistProvider>
       </BrowserRouter>
   )
 }

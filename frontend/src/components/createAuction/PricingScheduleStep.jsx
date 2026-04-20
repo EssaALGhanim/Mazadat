@@ -15,20 +15,28 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
 
   const handleNext = () => {
     const newErrors = {};
+    const now = new Date();
     const sp = parseFloat(formData.startingPrice);
     if (!formData.startingPrice || isNaN(sp) || sp <= 0) {
-      newErrors.startingPrice = t('priceError');
+      newErrors.startingPrice = t('priceErrorZero');
     }
 
     if (formData.reservePrice) {
       const rp = parseFloat(formData.reservePrice);
-      if (isNaN(rp) || rp < sp) {
+      if (isNaN(rp) || rp <= 0) {
+        newErrors.reservePrice = t('priceErrorZero');
+      } else if (rp < sp) {
         newErrors.reservePrice = t('priceError');
       }
     }
     
     if (!formData.startDate) {
       newErrors.startDate = t('requiredField');
+    } else {
+      const start = new Date(formData.startDate);
+      if (start.getTime() < now.getTime()) {
+        newErrors.startDate = t('startDatePastError') || 'Start date cannot be in the past';
+      }
     }
 
     if (!formData.endDate) {
