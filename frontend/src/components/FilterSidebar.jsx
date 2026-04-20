@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Sliders, RotateCcw, Save, FolderOpen } from 'lucide-react';
+import { X, Sliders, RotateCcw, Save, FolderOpen, Search } from 'lucide-react';
 import { getAllAuctionHouses } from '@/services/auctionHouseService';
 import { Slider } from '@/components/ui/slider';
 import SaveSearchModal from '@/components/savedSearch/SaveSearchModal';
@@ -18,6 +18,7 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
     const [sortBy, setSortBy] = useState('newest');
     const [category, setCategory] = useState('');
     const [status, setStatus] = useState('all');
+    const [searchKeyword, setSearchKeyword] = useState('');
 
     // Saved search states
     const [saveSearchModalOpen, setSaveSearchModalOpen] = useState(false);
@@ -60,9 +61,10 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
             priceRange,
             sortBy,
             category,
-            status
+            status,
+            searchKeyword
         });
-    }, [selectedHouse, priceRange, sortBy, category, status, onFiltersChange]);
+    }, [selectedHouse, priceRange, sortBy, category, status, searchKeyword, onFiltersChange]);
 
     const categories = [
         { value: '', label: isAr ? 'جميع الفئات' : 'All Categories' },
@@ -88,6 +90,7 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
         setSortBy('newest');
         setCategory('');
         setStatus('all');
+        setSearchKeyword('');
     };
 
     const getCurrentFilters = () => ({
@@ -96,6 +99,7 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
         sortBy,
         category,
         status,
+        searchKeyword,
     });
 
     const loadFilters = (filters) => {
@@ -104,6 +108,7 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
         setSortBy(filters.sortBy || 'newest');
         setCategory(filters.category || '');
         setStatus(filters.status || 'all');
+        setSearchKeyword(filters.searchKeyword || '');
     };
 
     const FilterSection = ({ title, children }) => (
@@ -151,6 +156,20 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
                         >
                             <X className="w-5 h-5 text-[#6B9E99]" />
                         </button>
+                    </div>
+
+                    {/* Search Input */}
+                    <div className="mb-6 pb-6 border-b border-[#C5E0DC]">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B9E99]" />
+                            <input
+                                type="text"
+                                value={searchKeyword}
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                                placeholder={isAr ? 'ابحث في المزادات...' : 'Search auctions...'}
+                                className="w-full pl-10 pr-4 py-3 border border-[#C5E0DC] rounded-lg text-sm text-[#1A2E2C] placeholder:text-[#6B9E99] focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white font-medium hover:border-[#2A9D8F] transition-colors"
+                            />
+                        </div>
                     </div>
 
                     {/* Saved Search Actions */}

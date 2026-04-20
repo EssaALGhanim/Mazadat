@@ -35,6 +35,7 @@ export default function HomePage() {
     sortBy: 'newest',
     category: '',
     status: 'all',
+    searchKeyword: '',
   });
 
   useEffect(() => {
@@ -106,6 +107,21 @@ export default function HomePage() {
     };
 
     let filtered = [...auctions];
+
+    // Search keyword filter
+    if (filters.searchKeyword) {
+      const keyword = filters.searchKeyword.toLowerCase().trim();
+      filtered = filtered.filter((a) => {
+        const title = (a.title || '').toLowerCase();
+        const description = (a.description || '').toLowerCase();
+        const sellerName = (a.sellerName || '').toLowerCase();
+        const auctionHouseName = (a.auctionHouseName || '').toLowerCase();
+        return title.includes(keyword) ||
+               description.includes(keyword) ||
+               sellerName.includes(keyword) ||
+               auctionHouseName.includes(keyword);
+      });
+    }
 
     if (filters.auctionHouse) {
       filtered = filtered.filter((a) => String(a.auctionHouseId) === String(filters.auctionHouse));
