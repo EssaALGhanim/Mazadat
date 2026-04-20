@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Sliders, RotateCcw } from 'lucide-react';
+import { X, Sliders, RotateCcw, Save, FolderOpen } from 'lucide-react';
 import { getAllAuctionHouses } from '@/services/auctionHouseService';
 import { Slider } from '@/components/ui/slider';
+import SaveSearchModal from '@/components/savedSearch/SaveSearchModal';
+import ManageSavedSearchesModal from '@/components/savedSearch/ManageSavedSearchesModal';
 
 export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileClose, maxPrice = 100000 }) {
     const { i18n } = useTranslation('common');
@@ -16,6 +18,10 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
     const [sortBy, setSortBy] = useState('newest');
     const [category, setCategory] = useState('');
     const [status, setStatus] = useState('all');
+
+    // Saved search states
+    const [saveSearchModalOpen, setSaveSearchModalOpen] = useState(false);
+    const [manageSearchesModalOpen, setManageSearchesModalOpen] = useState(false);
     const sliderStep = Math.max(10, Math.round((Math.max(1, Number(maxPrice) || 1) / 200)));
     const normalizedMax = Math.max(1, Number(maxPrice) || 1);
 
@@ -84,6 +90,22 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
         setStatus('all');
     };
 
+    const getCurrentFilters = () => ({
+        auctionHouse: selectedHouse,
+        priceRange,
+        sortBy,
+        category,
+        status,
+    });
+
+    const loadFilters = (filters) => {
+        setSelectedHouse(filters.auctionHouse || '');
+        setPriceRange(clampRange(filters.priceRange || [0, normalizedMax]));
+        setSortBy(filters.sortBy || 'newest');
+        setCategory(filters.category || '');
+        setStatus(filters.status || 'all');
+    };
+
     const FilterSection = ({ title, children }) => (
         <div className="pb-6 border-b border-[#C5E0DC]">
             <h3 className="text-sm font-bold text-[#1A2E2C] mb-4 flex items-center gap-2">
@@ -128,6 +150,24 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
                             className="p-2 hover:bg-[#F4FAFA] rounded-lg transition-colors"
                         >
                             <X className="w-5 h-5 text-[#6B9E99]" />
+                        </button>
+                    </div>
+
+                    {/* Saved Search Actions */}
+                    <div className="grid grid-cols-2 gap-2 mb-6 pb-6 border-b border-[#C5E0DC]">
+                        <button
+                            onClick={() => setSaveSearchModalOpen(true)}
+                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white rounded-lg font-semibold transition-colors text-xs"
+                        >
+                            <Save className="w-4 h-4" />
+                            {isAr ? 'حفظ البحث' : 'Save Search'}
+                        </button>
+                        <button
+                            onClick={() => setManageSearchesModalOpen(true)}
+                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white border border-[#C5E0DC] hover:bg-[#F4FAFA] text-[#2A9D8F] rounded-lg font-semibold transition-colors text-xs"
+                        >
+                            <FolderOpen className="w-4 h-4" />
+                            {isAr ? 'عمليات البحث' : 'My Searches'}
                         </button>
                     </div>
 
@@ -276,6 +316,22 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
                     </button>
                 </div>
             </aside>
+
+            {/* Modals */}
+            <SaveSearchModal
+                open={saveSearchModalOpen}
+                onOpenChange={setSaveSearchModalOpen}
+                currentFilters={getCurrentFilters()}
+                onSaveSuccess={() => {
+                    // Optional: Show success message
+                }}
+            />
+
+            <ManageSavedSearchesModal
+                open={manageSearchesModalOpen}
+                onOpenChange={setManageSearchesModalOpen}
+                onLoadSearch={loadFilters}
+            />
         </>
     );
 }

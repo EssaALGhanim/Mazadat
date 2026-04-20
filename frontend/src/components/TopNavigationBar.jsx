@@ -52,12 +52,22 @@ export default function TopNavigationBar({
                 )}
                 {isBuyer && (
                     <button
-                        onClick={() => onShowMyBids?.(true)}
+                        onClick={() => onShowMyBids?.()}
                         className="flex items-center gap-1 text-[#6B9E99] hover:text-[#2A9D8F] text-sm font-semibold transition-colors"
                         title={isAr ? 'مزايداتي' : 'My Bids'}
                     >
                         <Trophy className="w-4 h-4" />
                         <span className="hidden lg:inline">{isAr ? 'مزايداتي' : 'My Bids'}</span>
+                    </button>
+                )}
+                {isBuyer && (
+                    <button
+                        onClick={() => onShowWatchlist?.()}
+                        className="flex items-center gap-1 text-[#6B9E99] hover:text-[#2A9D8F] text-sm font-semibold transition-colors"
+                        title={isAr ? 'قائمة المتابعة' : 'Watchlist'}
+                    >
+                        <Bookmark className="w-4 h-4" />
+                        <span className="hidden lg:inline">{isAr ? 'قائمة المتابعة' : 'Watchlist'}</span>
                     </button>
                 )}
 
