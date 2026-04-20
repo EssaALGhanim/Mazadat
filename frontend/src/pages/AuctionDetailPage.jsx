@@ -22,6 +22,7 @@ export default function AuctionDetailPage({ currentUser }) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [bidModalOpen, setBidModalOpen] = useState(false);
     const [bidLoading, setBidLoading] = useState(false);
+    const [bidSubmitError, setBidSubmitError] = useState(null);
 
     // Fetch auction from API
     useEffect(() => {
@@ -77,10 +78,11 @@ export default function AuctionDetailPage({ currentUser }) {
     const isPending = auction?.status === 'PENDING';
     const isEnded = auction?.status === 'COMPLETED' || auction?.status === 'ENDED';
     const isFailedBelowReserve = auction?.status === 'FAILED_BELOW_RESERVE';
+    const hasStarted = !auction?.startDate || new Date(auction.startDate) <= new Date();
     const hasEndTimePassed = auction?.endDate && new Date(auction.endDate) < new Date();
     const auctionEnded = isEnded || isFailedBelowReserve || hasEndTimePassed;
 
-    const canBid = isBuyer && (isActive || isPending) && !auctionEnded;
+    const canBid = isBuyer && (isActive || isPending) && hasStarted && !auctionEnded;
     const currentPrice = Number(auction?.currentPrice);
     const startingPrice = Number(auction?.startingPrice);
     const hasBids = Number.isFinite(auction?.bidCount) ? auction.bidCount > 0 : (Number.isFinite(currentPrice) && Number.isFinite(startingPrice) ? currentPrice > startingPrice : !!currentPrice);
@@ -103,13 +105,17 @@ export default function AuctionDetailPage({ currentUser }) {
 
     const handlePlaceBid = async (amount) => {
         setBidLoading(true);
+        setBidSubmitError(null);
         try {
             await placeBid(auction.id, amount);
             setBidModalOpen(false);
+            setBidSubmitError(null);
             // Refresh auction data - in real scenario you'd fetch updated data
             alert(isAr ? 'تم تسجيل المزايدة بنجاح' : 'Bid placed successfully!');
+            return true;
         } catch (error) {
-            alert(error.message || t('actionFailed'));
+            setBidSubmitError(error.message || t('actionFailed'));
+            return false;
         } finally {
             setBidLoading(false);
         }
@@ -326,6 +332,11 @@ export default function AuctionDetailPage({ currentUser }) {
 
                         {/* Action Buttons */}
                         <div className="bg-white rounded-xl border border-[#C5E0DC] p-4 shadow-sm space-y-2">
+                            {isBuyer && !hasStarted && !auctionEnded && (
+                                <div className="w-full bg-[#F4FAFA] border border-[#C5E0DC] text-[#6B9E99] px-4 py-3 rounded-lg font-semibold text-sm text-center">
+                                    {isAr ? 'المزاد لم يبدأ بعد' : 'Auction has not started yet'}
+                                </div>
+                            )}
                             {canBid && (
                                 <button
                                     onClick={() => setBidModalOpen(true)}
@@ -379,12 +390,19 @@ export default function AuctionDetailPage({ currentUser }) {
             {/* Bid Modal */}
             <PlaceBidModal
                 open={bidModalOpen}
-                onOpenChange={setBidModalOpen}
+                onOpenChange={(isOpen) => {
+                    setBidModalOpen(isOpen);
+                    if (!isOpen) {
+                        setBidSubmitError(null);
+                    }
+                }}
                 currentPrice={currentPrice}
                 minBid={minRequiredBid}
                 hasPreviousBid={hasBids}
                 onBidSubmit={handlePlaceBid}
                 loading={bidLoading}
+                submitError={bidSubmitError}
+                onClearSubmitError={() => setBidSubmitError(null)}
             />
         </div>
     );

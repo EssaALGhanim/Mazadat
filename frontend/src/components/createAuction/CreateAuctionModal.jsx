@@ -59,6 +59,18 @@ export default function CreateAuctionModal({ open, onOpenChange, onSuccess }) {
       const startDateObj = new Date(formData.startDate);
       const endDateObj = new Date(formData.endDate);
 
+      if (startDateObj.getTime() < Date.now()) {
+        setError(t('startDatePastError') || 'Start date cannot be in the past');
+        setLoading(false);
+        return;
+      }
+
+      if (endDateObj.getTime() <= startDateObj.getTime()) {
+        setError(t('endDateError') || 'End date must be after start date');
+        setLoading(false);
+        return;
+      }
+
 
       // Format: yyyy-MM-dd'T'HH:mm
       const formatDate = (date) => {

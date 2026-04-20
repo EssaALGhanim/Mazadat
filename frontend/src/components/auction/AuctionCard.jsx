@@ -13,6 +13,7 @@ export default function AuctionCard({ auction, currentUser, onActionComplete }) 
     const { t, i18n } = useTranslation('common');
     const [loading, setLoading] = useState(false);
     const [bidModalOpen, setBidModalOpen] = useState(false);
+    const [bidSubmitError, setBidSubmitError] = useState(null);
     const isAr = i18n.language === 'ar';
 
     const isBuyer = currentUser?.role === 'BUYER';
@@ -21,12 +22,13 @@ export default function AuctionCard({ auction, currentUser, onActionComplete }) 
     const isPending = auction?.status === 'PENDING';
     const isEnded = auction?.status === 'COMPLETED' || auction?.status === 'ENDED';
     const isFailedBelowReserve = auction?.status === 'FAILED_BELOW_RESERVE';
+    const hasStarted = !auction?.startDate || new Date(auction.startDate) <= new Date();
 
     // Check if auction time has passed
     const hasEndTimePasssed = auction?.endDate && new Date(auction.endDate) < new Date();
     const auctionEnded = isEnded || isFailedBelowReserve || hasEndTimePasssed;
 
-    const canBid = isBuyer && (isActive || isPending) && !auctionEnded;
+    const canBid = isBuyer && (isActive || isPending) && hasStarted && !auctionEnded;
     const currentPrice = Number(auction?.currentPrice);
     const startingPrice = Number(auction?.startingPrice);
     const hasBids = Number.isFinite(auction?.bidCount)
@@ -45,12 +47,16 @@ export default function AuctionCard({ auction, currentUser, onActionComplete }) 
 
     const handlePlaceBid = async (amount) => {
         setLoading(true);
+        setBidSubmitError(null);
         try {
             await placeBid(auction.id, amount);
             setBidModalOpen(false);
+            setBidSubmitError(null);
             onActionComplete?.('bid');
+            return true;
         } catch (error) {
-            alert(error.message || t('actionFailed'));
+            setBidSubmitError(error.message || t('actionFailed'));
+            return false;
         } finally {
             setLoading(false);
         }
@@ -207,6 +213,11 @@ export default function AuctionCard({ auction, currentUser, onActionComplete }) 
 
             {/* Interaction Bar - Bottom */}
             <div className="p-2.5 flex gap-2 bg-white border-t border-[#C5E0DC]">
+                {isBuyer && !hasStarted && !auctionEnded && (
+                    <p className="flex-1 text-xs font-semibold text-[#6B9E99] self-center">
+                        {isAr ? 'المزاد لم يبدأ بعد' : 'Auction has not started yet'}
+                    </p>
+                )}
                 {canCancel && (
                     <button
                         onClick={handleCancelAuction}
@@ -238,12 +249,19 @@ export default function AuctionCard({ auction, currentUser, onActionComplete }) 
 
             <PlaceBidModal
                 open={bidModalOpen}
-                onOpenChange={setBidModalOpen}
+                onOpenChange={(isOpen) => {
+                    setBidModalOpen(isOpen);
+                    if (!isOpen) {
+                        setBidSubmitError(null);
+                    }
+                }}
                 currentPrice={currentPrice}
                 minBid={minRequiredBid}
                 hasPreviousBid={hasBids}
                 onBidSubmit={handlePlaceBid}
                 loading={loading}
+                submitError={bidSubmitError}
+                onClearSubmitError={() => setBidSubmitError(null)}
             />
         </div>
     );
