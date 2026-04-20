@@ -23,6 +23,11 @@ public class AuctionController {
         return ResponseEntity.status(HttpStatus.OK.value()).body(auctionService.getAllAuctions());
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> searchAuctions(@RequestParam(required = false) String query){
+        return ResponseEntity.status(HttpStatus.OK.value()).body(auctionService.searchAuctions(query));
+    }
+
     @GetMapping("/{auctionId}")
     public ResponseEntity<?> getAuctionById(@PathVariable Integer auctionId){
         return ResponseEntity.status(HttpStatus.OK.value()).body(auctionService.getAuctionById(auctionId));

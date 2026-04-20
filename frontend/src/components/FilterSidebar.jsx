@@ -6,7 +6,7 @@ import { Slider } from '@/components/ui/slider';
 import SaveSearchModal from '@/components/savedSearch/SaveSearchModal';
 import ManageSavedSearchesModal from '@/components/savedSearch/ManageSavedSearchesModal';
 
-export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileClose, maxPrice = 100000 }) {
+export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobileOpen, onMobileClose, priceBounds = [0, 100000] }) {
     const { i18n } = useTranslation('common');
     const isAr = i18n.language === 'ar';
     const [auctionHouses, setAuctionHouses] = useState([]);
@@ -14,7 +14,7 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
 
     // Filter states
     const [selectedHouse, setSelectedHouse] = useState('');
-    const [priceRange, setPriceRange] = useState([0, maxPrice]);
+    const [priceRange, setPriceRange] = useState(priceBounds);
     const [sortBy, setSortBy] = useState('newest');
     const [category, setCategory] = useState('');
     const [status, setStatus] = useState('all');
@@ -23,16 +23,22 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
     // Saved search states
     const [saveSearchModalOpen, setSaveSearchModalOpen] = useState(false);
     const [manageSearchesModalOpen, setManageSearchesModalOpen] = useState(false);
-    const sliderStep = Math.max(10, Math.round((Math.max(1, Number(maxPrice) || 1) / 200)));
-    const normalizedMax = Math.max(1, Number(maxPrice) || 1);
+    const sliderStep = Math.max(1, Math.round((Math.max(1, Number(priceBounds[1]) || 1) / 200)));
+    const normalizedMin = Math.min(...priceBounds);
+    const normalizedMax = Math.max(...priceBounds);
 
     const clampRange = (range) => {
-        const rawMin = Number(range?.[0]) || 0;
-        const rawMax = Number(range?.[1]) || 0;
-        const nextMin = Math.max(0, Math.min(rawMin, normalizedMax));
+        const rawMin = Number(range?.[0]) || normalizedMin;
+        const rawMax = Number(range?.[1]) || normalizedMax;
+        const nextMin = Math.max(normalizedMin, Math.min(rawMin, normalizedMax));
         const nextMax = Math.max(nextMin, Math.min(rawMax, normalizedMax));
         return [nextMin, nextMax];
     };
+
+    // Sync selected range when available bounds change (e.g., new search query)
+    useEffect(() => {
+        setPriceRange(clampRange(priceBounds));
+    }, [normalizedMin, normalizedMax]);
 
     // Load auction houses on mount
     useEffect(() => {
@@ -50,10 +56,6 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
         fetchHouses();
     }, []);
 
-    // Notify parent of filter changes
-    useEffect(() => {
-        setPriceRange((prev) => clampRange(prev));
-    }, [maxPrice]);
 
     useEffect(() => {
         onFiltersChange?.({
@@ -86,11 +88,16 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
 
     const resetFilters = () => {
         setSelectedHouse('');
-        setPriceRange([0, normalizedMax]);
+        setPriceRange([normalizedMin, normalizedMax]);
         setSortBy('newest');
         setCategory('');
         setStatus('all');
         setSearchKeyword('');
+        onSearchSubmit?.('');
+    };
+
+    const handleSearchSubmit = () => {
+        onSearchSubmit?.(searchKeyword.trim());
     };
 
     const getCurrentFilters = () => ({
@@ -104,7 +111,7 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
 
     const loadFilters = (filters) => {
         setSelectedHouse(filters.auctionHouse || '');
-        setPriceRange(clampRange(filters.priceRange || [0, normalizedMax]));
+        setPriceRange(clampRange(filters.priceRange || [normalizedMin, normalizedMax]));
         setSortBy(filters.sortBy || 'newest');
         setCategory(filters.category || '');
         setStatus(filters.status || 'all');
@@ -160,15 +167,29 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
 
                     {/* Search Input */}
                     <div className="mb-6 pb-6 border-b border-[#C5E0DC]">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B9E99]" />
-                            <input
-                                type="text"
-                                value={searchKeyword}
-                                onChange={(e) => setSearchKeyword(e.target.value)}
-                                placeholder={isAr ? 'ابحث في المزادات...' : 'Search auctions...'}
-                                className="w-full pl-10 pr-4 py-3 border border-[#C5E0DC] rounded-lg text-sm text-[#1A2E2C] placeholder:text-[#6B9E99] focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white font-medium hover:border-[#2A9D8F] transition-colors"
-                            />
+                        <div className="flex items-center gap-2">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B9E99]" />
+                                <input
+                                    type="text"
+                                    value={searchKeyword}
+                                    onChange={(e) => setSearchKeyword(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            handleSearchSubmit();
+                                        }
+                                    }}
+                                    placeholder={isAr ? 'ابحث في المزادات...' : 'Search auctions...'}
+                                    className="w-full pl-10 pr-4 py-3 border border-[#C5E0DC] rounded-lg text-sm text-[#1A2E2C] placeholder:text-[#6B9E99] focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white font-medium hover:border-[#2A9D8F] transition-colors"
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleSearchSubmit}
+                                className="px-4 py-3 bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white rounded-lg font-semibold transition-colors text-sm"
+                            >
+                                {isAr ? 'بحث' : 'Search'}
+                            </button>
                         </div>
                     </div>
 
@@ -280,15 +301,15 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
                             <div className="rounded-2xl border border-[#C5E0DC] bg-gradient-to-br from-[#F8FCFC] to-white p-4 shadow-sm">
                                 <Slider
                                     value={priceRange}
-                                    min={0}
+                                    min={normalizedMin}
                                     max={normalizedMax}
                                     step={sliderStep}
                                     onValueChange={(value) => setPriceRange(clampRange(value))}
                                     className="py-3"
                                 />
-                                <div className="mt-4 flex items-center justify-between text-xs font-semibold text-[#6B9E99]">
-                                    <span>{isAr ? 'الأدنى' : 'Minimum'}</span>
+                                <div className={`mt-4 flex items-center ${isAr ? 'flex-row-reverse' : 'flex-row'} justify-between text-xs font-semibold text-[#6B9E99]`}>
                                     <span>{isAr ? 'الأقصى' : 'Maximum'}</span>
+                                    <span>{isAr ? 'الأدنى' : 'Minimum'}</span>
                                 </div>
                             </div>
                             <div className="flex gap-3">
@@ -297,9 +318,9 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
                                     <input
                                         type="number"
                                         value={priceRange[0]}
-                                        min="0"
+                                        min={normalizedMin}
                                         max={priceRange[1]}
-                                        onChange={(e) => setPriceRange(clampRange([Number(e.target.value) || 0, priceRange[1]]))}
+                                        onChange={(e) => setPriceRange(clampRange([Number(e.target.value) || normalizedMin, priceRange[1]]))}
                                         className="w-full bg-transparent text-sm font-semibold text-[#1A2E2C] focus:outline-none"
                                         placeholder={isAr ? 'الأدنى' : 'Min'}
                                     />
