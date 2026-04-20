@@ -69,4 +69,34 @@ public interface BidRepository extends JpaRepository<Bid,Integer> {
             ORDER BY b.placedAt DESC
             """)
     List<Bid> findWonHighestBuyerBidPerAuction(@Param("buyerId") Integer buyerId, @Param("now") LocalDateTime now);
+
+    @Query("""
+            SELECT COUNT(DISTINCT b.buyer.id)
+            FROM Bid b
+            WHERE b.ipAddress = :ipAddress
+            """)
+    long countDistinctBuyerIdsByIpAddress(@Param("ipAddress") String ipAddress);
+
+    @Query("""
+            SELECT COUNT(b) > 0
+            FROM Bid b
+            WHERE b.buyer.id = :buyerId
+              AND b.ipAddress = :ipAddress
+            """)
+    boolean existsByBuyerIdAndIpAddress(@Param("buyerId") Integer buyerId, @Param("ipAddress") String ipAddress);
+
+    @Query("""
+            SELECT COUNT(DISTINCT b.buyer.id)
+            FROM Bid b
+            WHERE b.deviceFingerprint = :deviceFingerprint
+            """)
+    long countDistinctBuyerIdsByDeviceFingerprint(@Param("deviceFingerprint") String deviceFingerprint);
+
+    @Query("""
+            SELECT COUNT(b) > 0
+            FROM Bid b
+            WHERE b.buyer.id = :buyerId
+              AND b.deviceFingerprint = :deviceFingerprint
+            """)
+    boolean existsByBuyerIdAndDeviceFingerprint(@Param("buyerId") Integer buyerId, @Param("deviceFingerprint") String deviceFingerprint);
 }

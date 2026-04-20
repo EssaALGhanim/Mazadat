@@ -17,6 +17,9 @@ import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.AutoBidRepository;
 import org.example.mazadat.Repository.BidRepository;
 import org.example.mazadat.Repository.BuyerRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +29,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BidService {
 
+    private static final Logger logger = LoggerFactory.getLogger(BidService.class);
+
     private final BidRepository bidRepository;
     private final AuctionRepository auctionRepository;
     private final BuyerRepository buyerRepository;
     private final AutoBidRepository autoBidRepository;
+
+    @Value("${mazadat.fraud.multi-account-threshold:3}")
+    private int multiAccountThreshold;
+
+    @Value("${mazadat.fraud.new-account-window-hours:24}")
+    private long newAccountWindowHours;
+
+    @Value("${mazadat.fraud.high-value-bid-threshold:50000}")
+    private double highValueBidThreshold;
 
 
     public List<Bid> getAllBids(){
@@ -51,6 +65,10 @@ public class BidService {
     }
 
     public void addBid(BidDTOIN bidDTOIN, Integer buyerId){
+        addBid(bidDTOIN, buyerId, null, null);
+    }
+
+    public void addBid(BidDTOIN bidDTOIN, Integer buyerId, String ipAddress, String deviceFingerprint){
         Buyer buyer = buyerRepository.findById(buyerId).orElse(null);
         if (buyer == null){
             throw new ApiException("Buyer not found");
@@ -65,10 +83,20 @@ public class BidService {
             throw new ApiException("Auction is not active");
         }
 
+        if (auction.getStartDate() != null && LocalDateTime.now().isBefore(auction.getStartDate())) {
+            throw new ApiException("Auction has not started yet");
+        }
+
         // Check if auction has ended
         if (auction.getEndDate() != null && LocalDateTime.now().isAfter(auction.getEndDate())){
             throw new ApiException("Auction has ended");
         }
+
+        String normalizedIpAddress = normalizeIdentityValue(ipAddress, 45);
+        String normalizedDeviceFingerprint = normalizeIdentityValue(deviceFingerprint, 255);
+
+        enforceMultiAccountFraudProtection(buyer, bidDTOIN, normalizedIpAddress, normalizedDeviceFingerprint);
+        flagNewAccountHighValueBid(buyer, bidDTOIN, normalizedIpAddress, normalizedDeviceFingerprint);
 
         Optional<Bid> highestBidOpt = bidRepository.findTopByAuctionIdOrderByAmountDescPlacedAtDesc(bidDTOIN.getAuctionId());
 
@@ -87,6 +115,8 @@ public class BidService {
 
         Bid bid = new Bid();
         bid.setAmount(bidDTOIN.getAmount());
+        bid.setIpAddress(normalizedIpAddress);
+        bid.setDeviceFingerprint(normalizedDeviceFingerprint);
         bid.setAuction(auction);
         bid.setBuyer(buyer);
 
@@ -98,6 +128,80 @@ public class BidService {
         bidRepository.save(bid);
 
         triggerAutoBidding(auction);
+    }
+
+    private void enforceMultiAccountFraudProtection(Buyer buyer, BidDTOIN bidDTOIN, String ipAddress, String deviceFingerprint) {
+        boolean blockedByIp = shouldBlockByIdentity(ipAddress,
+                bidRepository::countDistinctBuyerIdsByIpAddress,
+                value -> bidRepository.existsByBuyerIdAndIpAddress(buyer.getId(), value));
+
+        boolean blockedByDevice = shouldBlockByIdentity(deviceFingerprint,
+                bidRepository::countDistinctBuyerIdsByDeviceFingerprint,
+                value -> bidRepository.existsByBuyerIdAndDeviceFingerprint(buyer.getId(), value));
+
+        if (blockedByIp || blockedByDevice) {
+            logger.warn(
+                    "FRAUD_BLOCK_MULTI_ACCOUNT: buyerId={}, auctionId={}, amount={}, ipAddress={}, deviceFingerprint={}, threshold={}",
+                    buyer.getId(),
+                    bidDTOIN.getAuctionId(),
+                    bidDTOIN.getAmount(),
+                    ipAddress,
+                    deviceFingerprint,
+                    multiAccountThreshold
+            );
+            throw new ApiException("Bid blocked due to suspicious multi-account bidding activity");
+        }
+    }
+
+    private void flagNewAccountHighValueBid(Buyer buyer, BidDTOIN bidDTOIN, String ipAddress, String deviceFingerprint) {
+        if (buyer.getUser() == null || buyer.getUser().getCreatedAt() == null) {
+            return;
+        }
+
+        LocalDateTime accountCreatedAt = buyer.getUser().getCreatedAt();
+        boolean isNewAccount = accountCreatedAt.isAfter(LocalDateTime.now().minusHours(newAccountWindowHours));
+        boolean isHighValueBid = bidDTOIN.getAmount() != null && bidDTOIN.getAmount() >= highValueBidThreshold;
+
+        if (isNewAccount && isHighValueBid) {
+            logger.warn(
+                    "FRAUD_FLAG_NEW_ACCOUNT_HIGH_BID: buyerId={}, auctionId={}, amount={}, accountCreatedAt={}, ipAddress={}, deviceFingerprint={}, highValueThreshold={}, newAccountWindowHours={}",
+                    buyer.getId(),
+                    bidDTOIN.getAuctionId(),
+                    bidDTOIN.getAmount(),
+                    accountCreatedAt,
+                    ipAddress,
+                    deviceFingerprint,
+                    highValueBidThreshold,
+                    newAccountWindowHours
+            );
+        }
+    }
+
+    private boolean shouldBlockByIdentity(String identityValue,
+                                          java.util.function.Function<String, Long> distinctBuyerCountSupplier,
+                                          java.util.function.Function<String, Boolean> currentBuyerUsageSupplier) {
+        if (identityValue == null) {
+            return false;
+        }
+
+        long distinctBuyers = distinctBuyerCountSupplier.apply(identityValue);
+        boolean currentBuyerAlreadyUsedIdentity = currentBuyerUsageSupplier.apply(identityValue);
+        long projectedDistinctBuyers = distinctBuyers + (currentBuyerAlreadyUsedIdentity ? 0 : 1);
+
+        return projectedDistinctBuyers >= multiAccountThreshold;
+    }
+
+    private String normalizeIdentityValue(String rawValue, int maxLength) {
+        if (rawValue == null) {
+            return null;
+        }
+
+        String normalizedValue = rawValue.trim();
+        if (normalizedValue.isEmpty()) {
+            return null;
+        }
+
+        return normalizedValue.length() > maxLength ? normalizedValue.substring(0, maxLength) : normalizedValue;
     }
 
     public AutoBidDTOOUT setAutoBid(AutoBidDTOIN dto, Integer buyerId) {
@@ -113,6 +217,10 @@ public class BidService {
 
         if (!"ACTIVE".equals(auction.getStatus()) && !"PENDING".equals(auction.getStatus())) {
             throw new ApiException("Auction is not active");
+        }
+
+        if (auction.getStartDate() != null && LocalDateTime.now().isBefore(auction.getStartDate())) {
+            throw new ApiException("Auction has not started yet");
         }
 
         if (dto.getMaxAmount() <= auction.getCurrentPrice()) {

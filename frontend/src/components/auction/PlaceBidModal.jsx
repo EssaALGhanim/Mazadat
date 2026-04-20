@@ -3,14 +3,25 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 
-export default function PlaceBidModal({ open, onOpenChange, currentPrice, minBid, hasPreviousBid = true, onBidSubmit, loading = false }) {
+export default function PlaceBidModal({
+  open,
+  onOpenChange,
+  currentPrice,
+  minBid,
+  hasPreviousBid = true,
+  onBidSubmit,
+  loading = false,
+  submitError = null,
+  onClearSubmitError,
+}) {
   const { t } = useTranslation('common');
   const [bidAmount, setBidAmount] = useState('');
   const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    onClearSubmitError?.();
 
     const amount = parseFloat(bidAmount);
 
@@ -29,18 +40,23 @@ export default function PlaceBidModal({ open, onOpenChange, currentPrice, minBid
       return;
     }
 
-    onBidSubmit?.(amount);
-    setBidAmount('');
-    setError(null);
+    const success = await onBidSubmit?.(amount);
+    if (success !== false) {
+      setBidAmount('');
+      setError(null);
+    }
   };
 
   const handleOpenChange = (newOpen) => {
     if (!newOpen) {
       setBidAmount('');
       setError(null);
+      onClearSubmitError?.();
     }
     onOpenChange?.(newOpen);
   };
+
+  const activeError = error || submitError;
 
   return (
     <Dialog.Root open={open} onOpenChange={handleOpenChange}>
@@ -70,9 +86,9 @@ export default function PlaceBidModal({ open, onOpenChange, currentPrice, minBid
             </div>
 
             {/* Error Message */}
-            {error && (
+            {activeError && (
               <div className="bg-red-50 border border-[#E05252] text-[#E05252] rounded-lg px-4 py-3 text-sm font-semibold">
-                {error}
+                {activeError}
               </div>
             )}
 
@@ -88,6 +104,7 @@ export default function PlaceBidModal({ open, onOpenChange, currentPrice, minBid
                   onChange={(e) => {
                     setBidAmount(e.target.value);
                     setError(null);
+                    onClearSubmitError?.();
                   }}
                   placeholder={`${minBid} or more`}
                   min={minBid}

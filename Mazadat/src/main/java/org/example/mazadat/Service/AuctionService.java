@@ -61,6 +61,7 @@ public class AuctionService {
         auction.setDescription(auctionDTOIN.getDescription());
         auction.setStartingPrice(auctionDTOIN.getStartingPrice());
         validateReservePrice(auctionDTOIN.getStartingPrice(), auctionDTOIN.getReservePrice());
+        validateAuctionSchedule(auctionDTOIN.getStartDate(), auctionDTOIN.getEndDate());
         auction.setReservePrice(auctionDTOIN.getReservePrice());
         auction.setCurrentPrice(auctionDTOIN.getStartingPrice());
         auction.setStatus("PENDING");
@@ -94,6 +95,7 @@ public class AuctionService {
         auction.setDescription(auctionDTOIN.getDescription());
         auction.setStartingPrice(auctionDTOIN.getStartingPrice());
         validateReservePrice(auctionDTOIN.getStartingPrice(), auctionDTOIN.getReservePrice());
+        validateAuctionSchedule(auctionDTOIN.getStartDate(), auctionDTOIN.getEndDate());
         auction.setReservePrice(auctionDTOIN.getReservePrice());
         auction.setStartDate(auctionDTOIN.getStartDate());
         auction.setEndDate(auctionDTOIN.getEndDate());
@@ -128,6 +130,20 @@ public class AuctionService {
     private void validateReservePrice(Double startingPrice, Double reservePrice) {
         if (reservePrice != null && reservePrice < startingPrice) {
             throw new ApiException("Reserve price cannot be lower than starting price");
+        }
+    }
+
+    private void validateAuctionSchedule(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate == null || endDate == null) {
+            return;
+        }
+
+        if (startDate.isBefore(LocalDateTime.now())) {
+            throw new ApiException("Start date cannot be in the past");
+        }
+
+        if (!endDate.isAfter(startDate)) {
+            throw new ApiException("End date must be after start date");
         }
     }
 

@@ -24,6 +24,12 @@ public class Bid {
     @Column(nullable = false)
     private Double amount;
 
+    @Column(length = 45)
+    private String ipAddress;
+
+    @Column(length = 255)
+    private String deviceFingerprint;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime placedAt;
