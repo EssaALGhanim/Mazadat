@@ -1,16 +1,25 @@
 package org.example.mazadat.Service;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.example.mazadat.Api.ApiException;
 import org.example.mazadat.DTOIN.BuyerDTOIN;
 import org.example.mazadat.DTOIN.BuyerUpdateDTOIN;
+import org.example.mazadat.DTOIN.SearchPreferenceDTOIN;
+import org.example.mazadat.DTOOUT.SearchPreferenceDTOOUT;
+import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.Buyer;
+import org.example.mazadat.Model.SearchPreference;
 import org.example.mazadat.Model.User;
+import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.BuyerRepository;
+import org.example.mazadat.Repository.SearchPreferenceRepository;
 import org.example.mazadat.Repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +27,8 @@ public class BuyerService {
 
     private final BuyerRepository buyerRepository;
     private final UserRepository userRepository;
+    private final AuctionRepository auctionRepository;
+    private final SearchPreferenceRepository searchPreferenceRepository;
 
 
     public void addBuyer(BuyerDTOIN buyerDTOIN){
@@ -97,5 +108,75 @@ public class BuyerService {
 
         userRepository.save(user);
         buyerRepository.save(buyer);
+    }
+
+    public SearchPreferenceDTOOUT saveSearchPreference(Integer buyerId, SearchPreferenceDTOIN dto) {
+        Buyer buyer = buyerRepository.findById(buyerId).orElse(null);
+        if (buyer == null) {
+            throw new ApiException("Buyer not found");
+        }
+
+        if (dto.getMinPrice() != null && dto.getMaxPrice() != null && dto.getMinPrice() > dto.getMaxPrice()) {
+            throw new ApiException("Min price cannot be greater than max price");
+        }
+
+        SearchPreference preference = new SearchPreference();
+        preference.setBuyer(buyer);
+        preference.setName(dto.getName());
+        preference.setKeyword(dto.getKeyword());
+        preference.setMinPrice(dto.getMinPrice());
+        preference.setMaxPrice(dto.getMaxPrice());
+        preference.setStatus(dto.getStatus());
+        searchPreferenceRepository.save(preference);
+
+        return toSearchPreferenceDto(preference);
+    }
+
+    public List<SearchPreferenceDTOOUT> getMySearchPreferences(Integer buyerId) {
+        return searchPreferenceRepository.findByBuyerId(buyerId)
+                .stream()
+                .map(this::toSearchPreferenceDto)
+                .toList();
+    }
+
+    public void deleteSearchPreference(Integer buyerId, Integer preferenceId) {
+        SearchPreference preference = searchPreferenceRepository.findByIdAndBuyerId(preferenceId, buyerId)
+                .orElseThrow(() -> new ApiException("Search preference not found"));
+        searchPreferenceRepository.delete(preference);
+    }
+
+    public List<Auction> applySearchPreference(Integer buyerId, Integer preferenceId) {
+        SearchPreference preference = searchPreferenceRepository.findByIdAndBuyerId(preferenceId, buyerId)
+                .orElseThrow(() -> new ApiException("Search preference not found"));
+
+        return auctionRepository.findAll().stream()
+                .filter(a -> {
+                    if (preference.getKeyword() != null && !preference.getKeyword().isBlank()) {
+                        String kw = preference.getKeyword().toLowerCase();
+                        boolean titleMatch = a.getTitle() != null && a.getTitle().toLowerCase().contains(kw);
+                        boolean descMatch = a.getDescription() != null && a.getDescription().toLowerCase().contains(kw);
+                        if (!titleMatch && !descMatch) return false;
+                    }
+                    if (preference.getMinPrice() != null && a.getCurrentPrice() != null
+                            && a.getCurrentPrice() < preference.getMinPrice()) return false;
+                    if (preference.getMaxPrice() != null && a.getCurrentPrice() != null
+                            && a.getCurrentPrice() > preference.getMaxPrice()) return false;
+                    if (preference.getStatus() != null && !preference.getStatus().isBlank()
+                            && !preference.getStatus().equalsIgnoreCase(a.getStatus())) return false;
+                    return true;
+                })
+                .toList();
+    }
+
+    private SearchPreferenceDTOOUT toSearchPreferenceDto(SearchPreference p) {
+        return new SearchPreferenceDTOOUT(
+                p.getId(),
+                p.getName(),
+                p.getKeyword(),
+                p.getMinPrice(),
+                p.getMaxPrice(),
+                p.getStatus(),
+                p.getCreatedAt()
+        );
     }
 }
