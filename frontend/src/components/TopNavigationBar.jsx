@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Plus, User, LogOut, Trophy, BarChart3, Users, Bookmark } from 'lucide-react';
+import { Plus, User, LogOut, Trophy, BarChart3, Users, Bookmark , BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function TopNavigationBar({
@@ -52,22 +52,12 @@ export default function TopNavigationBar({
                 )}
                 {isBuyer && (
                     <button
-                        onClick={() => onShowMyBids?.()}
+                        onClick={() => onShowMyBids?.(true)}
                         className="flex items-center gap-1 text-[#6B9E99] hover:text-[#2A9D8F] text-sm font-semibold transition-colors"
                         title={isAr ? 'مزايداتي' : 'My Bids'}
                     >
                         <Trophy className="w-4 h-4" />
                         <span className="hidden lg:inline">{isAr ? 'مزايداتي' : 'My Bids'}</span>
-                    </button>
-                )}
-                {isBuyer && (
-                    <button
-                        onClick={() => onShowWatchlist?.()}
-                        className="flex items-center gap-1 text-[#6B9E99] hover:text-[#2A9D8F] text-sm font-semibold transition-colors"
-                        title={isAr ? 'المفضلة' : 'Watchlist'}
-                    >
-                        <Bookmark className="w-4 h-4" />
-                        <span className="hidden lg:inline">{isAr ? 'المفضلة' : 'Watchlist'}</span>
                     </button>
                 )}
 

@@ -83,6 +83,10 @@ public class Auction {
     @OneToMany(mappedBy = "auction", cascade = CascadeType.ALL)
     private Set<Bid> bids;
 
+    @OneToMany(mappedBy = "auction", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<AutoBid> autoBids;
+
     @JsonProperty("sellerName")
     public String getSellerName() {
         if (seller == null || seller.getUser() == null) {
