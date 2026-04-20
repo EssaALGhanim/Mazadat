@@ -25,13 +25,17 @@ public class AuctionService {
 
     public List<Auction> getAllAuctions(){
         List<Auction> auctions = auctionRepository.findAll();
-        boolean hasUpdates = false;
-        for (Auction auction : auctions) {
-            hasUpdates = refreshAuctionOutcome(auction) || hasUpdates;
+        refreshAuctionOutcomes(auctions);
+        return auctions;
+    }
+
+    public List<Auction> searchAuctions(String query) {
+        if (query == null || query.isBlank()) {
+            return getAllAuctions();
         }
-        if (hasUpdates) {
-            auctionRepository.saveAll(auctions);
-        }
+
+        List<Auction> auctions = auctionRepository.searchByQuery(query.trim());
+        refreshAuctionOutcomes(auctions);
         return auctions;
     }
 
@@ -166,5 +170,15 @@ public class AuctionService {
             auction.setHighestBidderEmail(null);
         }
         return true;
+    }
+
+    private void refreshAuctionOutcomes(List<Auction> auctions) {
+        boolean hasUpdates = false;
+        for (Auction auction : auctions) {
+            hasUpdates = refreshAuctionOutcome(auction) || hasUpdates;
+        }
+        if (hasUpdates) {
+            auctionRepository.saveAll(auctions);
+        }
     }
 }

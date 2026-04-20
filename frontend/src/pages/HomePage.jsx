@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import TopNavigationBar from '../components/TopNavigationBar';
 import FilterSidebar from '../components/FilterSidebar';
 import MyBidsPage from './MyBidsPage';
 import WatchlistPage from './WatchlistPage';
-import { getAllAuctions } from '@/services/auctionService';
+import { getAllAuctions, searchAuctions } from '@/services/auctionService';
 import { getSellerAuctionHouse } from '@/services/auctionHouseService';
 import { getFeaturedAuctions } from '@/services/featuredService';
 
@@ -31,87 +31,32 @@ export default function HomePage() {
   const [showWatchlist, setShowWatchlist] = useState(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [featuredAuctionIds, setFeaturedAuctionIds] = useState([]);
+  const [activeSearchQuery, setActiveSearchQuery] = useState('');
+  const [priceBounds, setPriceBounds] = useState([0, 100000]);
   const [filters, setFilters] = useState({
     auctionHouse: '',
-    priceRange: [0, 1],
+    priceRange: [0, 100000],
     sortBy: 'newest',
     category: '',
     status: 'all',
     searchKeyword: '',
   });
 
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('user');
-      setCurrentUser(stored ? JSON.parse(stored) : null);
-    } catch {
-      setCurrentUser(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchAuctions();
-    fetchFeaturedAuctions();
-  }, []);
-
-  useEffect(() => {
-    if (currentUser?.role === 'SELLER') {
-      checkSellerAuctionHouse();
-    }
-  }, [currentUser]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [auctions, filters]);
-
-  const checkSellerAuctionHouse = async () => {
-    setCheckingAuctionHouse(true);
-    try {
-      const auctionHouse = await getSellerAuctionHouse();
-      setHasAuctionHouse(!!auctionHouse);
-    } catch {
-      setHasAuctionHouse(false);
-    } finally {
-      setCheckingAuctionHouse(false);
-    }
+  // Calculate actual price range from current auctions
+  const calculatePriceRange = (auctionsList) => {
+    if (auctionsList.length === 0) return [0, 100000];
+    const prices = auctionsList.map((a) => Number(a?.currentPrice) || Number(a?.startingPrice) || 0).filter((p) => p > 0);
+    if (prices.length === 0) return [0, 100000];
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    return [minPrice, maxPrice];
   };
 
-  const fetchAuctions = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getAllAuctions();
-      const auctionsList = Array.isArray(data) ? data : data?.data || data?.auctions || [];
-      const dynamicMax = Math.max(1, ...auctionsList.map((a) => Number(a?.currentPrice) || Number(a?.startingPrice) || 0));
-      setAuctions(auctionsList);
-      setFilters((prev) => ({
-        ...prev,
-        priceRange: [Math.max(0, Math.min(prev.priceRange[0], dynamicMax)), dynamicMax],
-      }));
-    } catch {
-      setError(isAr ? 'فشل تحميل المزادات' : 'Failed to load auctions');
-      setAuctions([]);
-      setFilteredAuctions([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchFeaturedAuctions = async () => {
-    try {
-      const response = await getFeaturedAuctions();
-      const featured = response?.data || [];
-      setFeaturedAuctionIds(featured.map((item) => item.auctionId));
-    } catch (err) {
-      console.error('Error fetching featured auctions:', err);
-      setFeaturedAuctionIds([]);
-    }
-  };
-
-  const applyFilters = () => {
+  // Define applyFilters early so it's available for useEffect dependencies
+  const applyFilters = useCallback(() => {
     const now = new Date();
     const isEndedAuction = (auction) => {
-      const endedByStatus = auction?.status === 'COMPLETED' || auction?.status === 'ENDED';
+      const endedByStatus = auction?.status === 'COMPLETED' || auction?.status === 'ENDED' || auction?.status === 'FAILED_BELOW_RESERVE';
       const endedByTime = auction?.endDate ? new Date(auction.endDate) <= now : false;
       return endedByStatus || endedByTime;
     };
@@ -121,21 +66,6 @@ export default function HomePage() {
     };
 
     let filtered = [...auctions];
-
-    // Search keyword filter
-    if (filters.searchKeyword) {
-      const keyword = filters.searchKeyword.toLowerCase().trim();
-      filtered = filtered.filter((a) => {
-        const title = (a.title || '').toLowerCase();
-        const description = (a.description || '').toLowerCase();
-        const sellerName = (a.sellerName || '').toLowerCase();
-        const auctionHouseName = (a.auctionHouseName || '').toLowerCase();
-        return title.includes(keyword) ||
-               description.includes(keyword) ||
-               sellerName.includes(keyword) ||
-               auctionHouseName.includes(keyword);
-      });
-    }
 
     if (filters.auctionHouse) {
       filtered = filtered.filter((a) => String(a.auctionHouseId) === String(filters.auctionHouse));
@@ -169,11 +99,98 @@ export default function HomePage() {
     }
 
     setFilteredAuctions(filtered);
+  }, [auctions, filters]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('user');
+      setCurrentUser(stored ? JSON.parse(stored) : null);
+    } catch {
+      setCurrentUser(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      await fetchAuctions();
+      fetchFeaturedAuctions();
+    };
+    loadInitialData();
+  }, []);
+
+  useEffect(() => {
+    if (currentUser?.role === 'SELLER') {
+      checkSellerAuctionHouse();
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (auctions.length > 0) {
+      applyFilters();
+    }
+  }, [auctions, filters, applyFilters]);
+
+  const checkSellerAuctionHouse = async () => {
+    setCheckingAuctionHouse(true);
+    try {
+      const auctionHouse = await getSellerAuctionHouse();
+      setHasAuctionHouse(!!auctionHouse);
+    } catch {
+      setHasAuctionHouse(false);
+    } finally {
+      setCheckingAuctionHouse(false);
+    }
   };
 
-  const handleActionComplete = () => {
-    fetchAuctions();
+  const fetchAuctions = async (query = '') => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = query ? await searchAuctions(query) : await getAllAuctions();
+      const auctionsList = Array.isArray(data) ? data : data?.data || data?.auctions || [];
+
+      // Calculate actual price range from fetched auctions
+      const [minPrice, maxPrice] = calculatePriceRange(auctionsList);
+
+      setAuctions(auctionsList);
+      setPriceBounds([minPrice, maxPrice]);
+
+      // Update filters with actual price range
+      setFilters((prev) => ({
+        ...prev,
+        priceRange: [minPrice, maxPrice],
+      }));
+    } catch (err) {
+      console.error('Error fetching auctions:', err);
+      setError(isAr ? 'فشل تحميل المزادات' : 'Failed to load auctions');
+      setAuctions([]);
+      setFilteredAuctions([]);
+      setPriceBounds([0, 100000]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchFeaturedAuctions = async () => {
+    try {
+      const response = await getFeaturedAuctions();
+      const featured = response?.data || [];
+      setFeaturedAuctionIds(featured.map((item) => item.auctionId));
+    } catch (err) {
+      console.error('Error fetching featured auctions:', err);
+      setFeaturedAuctionIds([]);
+    }
+   };
+
+   const handleActionComplete = () => {
+    fetchAuctions(activeSearchQuery);
     fetchFeaturedAuctions();
+  };
+
+  const handleSearchSubmit = async (keyword) => {
+    const normalizedKeyword = (keyword || '').trim();
+    setActiveSearchQuery(normalizedKeyword);
+    await fetchAuctions(normalizedKeyword);
   };
 
   const handleLogout = () => {
@@ -191,7 +208,6 @@ export default function HomePage() {
 
   const isSeller = currentUser?.role === 'SELLER';
   const isBuyer = currentUser?.role === 'BUYER';
-  const maxFilterPrice = Math.max(1, ...auctions.map((a) => Number(a?.currentPrice) || Number(a?.startingPrice) || 0));
 
   useEffect(() => {
     if (isSeller) {
@@ -240,7 +256,8 @@ export default function HomePage() {
       <div className="flex flex-1 overflow-hidden">
         <FilterSidebar
           onFiltersChange={setFilters}
-          maxPrice={maxFilterPrice}
+          onSearchSubmit={handleSearchSubmit}
+          priceBounds={priceBounds}
           isMobileOpen={mobileFilterOpen}
           onMobileClose={() => setMobileFilterOpen(false)}
         />
@@ -316,7 +333,11 @@ export default function HomePage() {
         </main>
       </div>
 
-      <CreateAuctionModal open={isModalOpen} onOpenChange={setIsModalOpen} onSuccess={fetchAuctions} />
+      <CreateAuctionModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onSuccess={() => fetchAuctions(activeSearchQuery)}
+      />
       <AuctionHouseCreationModal open={isAuctionHouseModalOpen} onOpenChange={setIsAuctionHouseModalOpen} onSuccess={checkSellerAuctionHouse} />
     </div>
   );

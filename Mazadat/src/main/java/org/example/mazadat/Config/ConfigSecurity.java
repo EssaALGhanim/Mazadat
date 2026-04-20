@@ -51,6 +51,7 @@ public class ConfigSecurity {
                     .requestMatchers("/api/v1/buyer/add").permitAll()
                     .requestMatchers("/api/v1/seller/add").permitAll()
                     .requestMatchers("/api/v1/auction/get/all").permitAll()
+                    .requestMatchers("/api/v1/auction/search").permitAll()
                     .requestMatchers("/api/v1/bid/get/all").permitAll()
                     .requestMatchers("/api/v1/seller/get/all").permitAll()
                     .requestMatchers("/api/v1/auctionhouse/get/all").permitAll()
