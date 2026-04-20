@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Trophy, ArrowLeft } from 'lucide-react';
 import { getBuyerBids, getWonBids, generateReceipt } from '@/services/bidService';
 import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirection';
+import TopNavigationBar from '../components/TopNavigationBar';
 
-export default function MyBidsPage({ onBack }) {
+export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
     const { i18n } = useTranslation('common');
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('all'); // 'all' or 'won'
     const [bids, setBids] = useState([]);
     const [wonBids, setWonBids] = useState([]);
@@ -89,26 +92,58 @@ export default function MyBidsPage({ onBack }) {
 
     const displayBids = activeTab === 'won' ? wonBids : bids;
 
-    return (
-        <div className="min-h-screen bg-[#F0F2F5]">
-            {/* Header */}
-            <header className="bg-white border-b border-[#C5E0DC] px-4 md:px-6 h-16 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-                <button
-                    onClick={onBack}
-                    className="flex items-center gap-2 text-[#6B9E99] hover:text-[#2A9D8F] font-semibold transition-colors"
-                >
-                    <ArrowLeft className="w-5 h-5" />
-                    {isAr ? 'رجوع' : 'Back'}
-                </button>
-                <h1 className="font-bold text-[#1A2E2C] text-lg">
-                    {isAr ? 'مزايداتي' : 'My Bids'}
-                </h1>
-                <div className="w-16 md:w-32" />
-            </header>
+    const isSeller = currentUser?.role === 'SELLER';
+    const isBuyer = currentUser?.role === 'BUYER';
 
-            <main className="container mx-auto px-4 py-8 max-w-5xl">
-                {/* Tabs */}
-                <div className="flex flex-wrap gap-2 mb-6 border-b border-[#C5E0DC] pb-2">
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        window.location.href = '/auth';
+    };
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-[#F0F2F5] to-[#E8EAF0] flex flex-col">
+            <TopNavigationBar
+                currentUser={currentUser}
+                isSeller={isSeller}
+                isBuyer={isBuyer}
+                onShowMyBids={() => {}}
+                onShowWatchlist={onShowWatchlist}
+                onCreateAuction={() => {}}
+                onLogout={handleLogout}
+            />
+
+            <main className="flex-1 overflow-y-auto">
+                <div className="container mx-auto px-4 py-6 max-w-7xl">
+                    {/* Page Header */}
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            {onBack && (
+                                <button
+                                    onClick={onBack}
+                                    className="p-2 rounded-lg bg-white border border-[#C5E0DC] text-[#2A9D8F] hover:bg-[#EAF7F5] transition-colors"
+                                    aria-label={isAr ? 'رجوع' : 'Go back'}
+                                >
+                                    <ArrowLeft className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />
+                                </button>
+                            )}
+                            <div className="flex items-center gap-2">
+                                <div className="p-2 rounded-lg bg-[#2A9D8F]/10">
+                                    <Trophy className="w-6 h-6 text-[#2A9D8F]" />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-bold text-[#1A2E2C]">
+                                        {isAr ? 'مزايداتي' : 'My Bids'}
+                                    </h1>
+                                    <p className="text-sm text-[#6B9E99]">
+                                        {isAr ? 'جميع مزايداتك في مكان واحد' : 'All your bids in one place'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex flex-wrap gap-2 mb-6 border-b border-[#C5E0DC] pb-2">
                     <button
                         onClick={() => setActiveTab('all')}
                         className={`px-4 py-2.5 rounded-lg font-bold transition-colors ${
@@ -255,6 +290,7 @@ export default function MyBidsPage({ onBack }) {
                         ))}
                     </div>
                 )}
+                </div>
             </main>
         </div>
     );

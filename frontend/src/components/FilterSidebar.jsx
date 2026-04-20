@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Sliders, RotateCcw } from 'lucide-react';
+import { X, Sliders, RotateCcw, Save, FolderOpen, Search } from 'lucide-react';
 import { getAllAuctionHouses } from '@/services/auctionHouseService';
 import { Slider } from '@/components/ui/slider';
+import SaveSearchModal from '@/components/savedSearch/SaveSearchModal';
+import ManageSavedSearchesModal from '@/components/savedSearch/ManageSavedSearchesModal';
 
 export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileClose, maxPrice = 100000 }) {
     const { i18n } = useTranslation('common');
@@ -16,6 +18,11 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
     const [sortBy, setSortBy] = useState('newest');
     const [category, setCategory] = useState('');
     const [status, setStatus] = useState('all');
+    const [searchKeyword, setSearchKeyword] = useState('');
+
+    // Saved search states
+    const [saveSearchModalOpen, setSaveSearchModalOpen] = useState(false);
+    const [manageSearchesModalOpen, setManageSearchesModalOpen] = useState(false);
     const sliderStep = Math.max(10, Math.round((Math.max(1, Number(maxPrice) || 1) / 200)));
     const normalizedMax = Math.max(1, Number(maxPrice) || 1);
 
@@ -54,9 +61,10 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
             priceRange,
             sortBy,
             category,
-            status
+            status,
+            searchKeyword
         });
-    }, [selectedHouse, priceRange, sortBy, category, status, onFiltersChange]);
+    }, [selectedHouse, priceRange, sortBy, category, status, searchKeyword, onFiltersChange]);
 
     const categories = [
         { value: '', label: isAr ? 'جميع الفئات' : 'All Categories' },
@@ -82,6 +90,25 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
         setSortBy('newest');
         setCategory('');
         setStatus('all');
+        setSearchKeyword('');
+    };
+
+    const getCurrentFilters = () => ({
+        auctionHouse: selectedHouse,
+        priceRange,
+        sortBy,
+        category,
+        status,
+        searchKeyword,
+    });
+
+    const loadFilters = (filters) => {
+        setSelectedHouse(filters.auctionHouse || '');
+        setPriceRange(clampRange(filters.priceRange || [0, normalizedMax]));
+        setSortBy(filters.sortBy || 'newest');
+        setCategory(filters.category || '');
+        setStatus(filters.status || 'all');
+        setSearchKeyword(filters.searchKeyword || '');
     };
 
     const FilterSection = ({ title, children }) => (
@@ -128,6 +155,38 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
                             className="p-2 hover:bg-[#F4FAFA] rounded-lg transition-colors"
                         >
                             <X className="w-5 h-5 text-[#6B9E99]" />
+                        </button>
+                    </div>
+
+                    {/* Search Input */}
+                    <div className="mb-6 pb-6 border-b border-[#C5E0DC]">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B9E99]" />
+                            <input
+                                type="text"
+                                value={searchKeyword}
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                                placeholder={isAr ? 'ابحث في المزادات...' : 'Search auctions...'}
+                                className="w-full pl-10 pr-4 py-3 border border-[#C5E0DC] rounded-lg text-sm text-[#1A2E2C] placeholder:text-[#6B9E99] focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white font-medium hover:border-[#2A9D8F] transition-colors"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Saved Search Actions */}
+                    <div className="grid grid-cols-2 gap-2 mb-6 pb-6 border-b border-[#C5E0DC]">
+                        <button
+                            onClick={() => setSaveSearchModalOpen(true)}
+                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white rounded-lg font-semibold transition-colors text-xs"
+                        >
+                            <Save className="w-4 h-4" />
+                            {isAr ? 'حفظ البحث' : 'Save Search'}
+                        </button>
+                        <button
+                            onClick={() => setManageSearchesModalOpen(true)}
+                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white border border-[#C5E0DC] hover:bg-[#F4FAFA] text-[#2A9D8F] rounded-lg font-semibold transition-colors text-xs"
+                        >
+                            <FolderOpen className="w-4 h-4" />
+                            {isAr ? 'عمليات البحث' : 'My Searches'}
                         </button>
                     </div>
 
@@ -276,6 +335,22 @@ export default function FilterSidebar({ onFiltersChange, isMobileOpen, onMobileC
                     </button>
                 </div>
             </aside>
+
+            {/* Modals */}
+            <SaveSearchModal
+                open={saveSearchModalOpen}
+                onOpenChange={setSaveSearchModalOpen}
+                currentFilters={getCurrentFilters()}
+                onSaveSuccess={() => {
+                    // Optional: Show success message
+                }}
+            />
+
+            <ManageSavedSearchesModal
+                open={manageSearchesModalOpen}
+                onOpenChange={setManageSearchesModalOpen}
+                onLoadSearch={loadFilters}
+            />
         </>
     );
 }
