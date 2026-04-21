@@ -27,7 +27,7 @@ export default function SellerDashboard() {
     const [isAuctionHouseModalOpen, setIsAuctionHouseModalOpen] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(null);
     const [deleteError, setDeleteError] = useState(null);
-    const [filterStatus, setFilterStatus] = useState('all'); // all, active, completed
+    const [filterStatus, setFilterStatus] = useState('all'); // all, pending, active, completed
     const [searchQuery, setSearchQuery] = useState('');
     const [currentSeller, setCurrentSeller] = useState(null);
     const [featureModalOpen, setFeatureModalOpen] = useState(false);
@@ -49,7 +49,6 @@ export default function SellerDashboard() {
     };
 
     const isLiveAuction = (auction) => getAuctionTiming(auction).isLive;
-    const isPendingAuction = (auction) => getAuctionTiming(auction).isPending;
     const isAuctionEnded = (auction) => getAuctionTiming(auction).isEnded;
 
     useEffect(() => {
@@ -161,6 +160,7 @@ export default function SellerDashboard() {
     };
 
     const filteredAuctions = auctions.filter(auction => {
+        if (filterStatus === 'pending' && !getAuctionTiming(auction).isPending) return false;
         if (filterStatus === 'active' && !isLiveAuction(auction)) return false;
         if (filterStatus === 'completed' && !isAuctionEnded(auction)) return false;
         
@@ -182,7 +182,7 @@ export default function SellerDashboard() {
     };
 
     const getAuctionStatus = (auction) => {
-        const { endDate, isEnded, isPending, isLive } = getAuctionTiming(auction);
+        const { isEnded, isPending, isLive } = getAuctionTiming(auction);
         if (auction.status === 'FAILED_BELOW_RESERVE') {
             return { label: isAr ? 'فشل - أقل من الحد الأدنى للبيع' : 'Failed - Below Reserve', color: 'text-red-700', bg: 'bg-red-100' };
         }
@@ -319,7 +319,7 @@ export default function SellerDashboard() {
                                 <div className="flex items-center gap-3">
                                     <ShieldPlus className="w-5 h-5 text-[#2A9D8F]" />
                                     <div>
-                                        <p className="font-semibold text-[#1A2E2C]">{isAr ? 'إدارة الفريق والصلاحيات' : 'Team & Permissions'}</p>
+                                        <p className="font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">{isAr ? 'إدارة الفريق والصلاحيات' : 'Team & Permissions'}</p>
                                         <p className="text-xs text-[#6B9E99]">{isAr ? 'إضافة أعضاء، إزالة أعضاء، وترقية مسؤولين' : 'Add members, remove members, and promote admins'}</p>
                                     </div>
                                 </div>
@@ -334,7 +334,7 @@ export default function SellerDashboard() {
                             {isSellerAdmin && (
                                 <div className="bg-white rounded-lg border border-[#C5E0DC] p-5 shadow-sm flex items-center justify-between gap-4">
                                     <div>
-                                        <p className="font-semibold text-[#1A2E2C]">{isAr ? 'إعدادات صالة المزاد' : 'Auction House Settings'}</p>
+                                        <p className="font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">{isAr ? 'إعدادات صالة المزاد' : 'Auction House Settings'}</p>
                                         <p className="text-xs text-[#6B9E99]">{isAr ? 'تحديث IBAN وبيانات وإعدادات الصالة' : 'Update IBAN, profile data, and settings'}</p>
                                     </div>
                                     <button
@@ -380,8 +380,8 @@ export default function SellerDashboard() {
                             {/* Filters, Search, and Create Button */}
                             <div className="flex flex-col xl:flex-row gap-4 mb-6 items-start xl:items-center justify-between">
                                 {/* Filters */}
-                                <div className="flex gap-2 shrink-0">
-                                    {['all', 'active', 'completed'].map((status) => (
+                                <div className="flex flex-wrap gap-2 shrink-0">
+                                    {['all', 'pending', 'active', 'completed'].map((status) => (
                                         <button
                                             key={status}
                                             onClick={() => setFilterStatus(status)}
@@ -392,6 +392,7 @@ export default function SellerDashboard() {
                                             }`}
                                         >
                                             {status === 'all' && (isAr ? 'جميع' : 'All')}
+                                            {status === 'pending' && (isAr ? 'قيد الانتظار' : 'Pending')}
                                             {status === 'active' && (isAr ? 'نشطة' : 'Active')}
                                             {status === 'completed' && (isAr ? 'منتهية' : 'Completed')}
                                         </button>
@@ -425,6 +426,7 @@ export default function SellerDashboard() {
                                 <div className="bg-white rounded-lg border border-[#C5E0DC] p-12 text-center">
                                     <p className="text-[#6B9E99] font-semibold text-lg">
                                         {filterStatus === 'all' && (isAr ? 'لا توجد مزادات' : 'No auctions yet')}
+                                        {filterStatus === 'pending' && (isAr ? 'لا توجد مزادات قيد الانتظار' : 'No pending auctions')}
                                         {filterStatus === 'active' && (isAr ? 'لا توجد مزادات نشطة' : 'No active auctions')}
                                         {filterStatus === 'completed' && (isAr ? 'لا توجد مزادات منتهية' : 'No completed auctions')}
                                     </p>
@@ -435,22 +437,22 @@ export default function SellerDashboard() {
                                         <table className="w-full">
                                             <thead className="bg-[#F4FAFA] border-b border-[#C5E0DC]">
                                                 <tr>
-                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-[#1A2E2C]">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
                                                         {isAr ? 'المزاد' : 'Auction'}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-[#1A2E2C]">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
                                                         {isAr ? 'الحالة' : 'Status'}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-[#1A2E2C]">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
                                                         {isAr ? 'السعر الحالي' : 'Current Price'}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-[#1A2E2C]">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
                                                         {isAr ? 'المزايدات' : 'Bids'}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-[#1A2E2C]">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
                                                         {isAr ? 'انتهاء' : 'Ends'}
                                                     </th>
-                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-[#1A2E2C]">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
                                                         {isAr ? 'الإجراءات' : 'Actions'}
                                                     </th>
                                                 </tr>
@@ -473,7 +475,7 @@ export default function SellerDashboard() {
                                                                         />
                                                                     )}
                                                                     <div>
-                                                                        <p className="font-semibold text-[#1A2E2C] line-clamp-1">
+                                                                        <p className="font-semibold text-[#1A2E2C] line-clamp-1 rtl:text-right ltr:text-left" dir={isAr ? 'rtl' : 'ltr'}>
                                                                             {auction.title}
                                                                         </p>
                                                                         <p className="text-xs text-[#6B9E99]">ID: {auction.id}</p>
@@ -491,7 +493,7 @@ export default function SellerDashboard() {
                                                                 </p>
                                                             </td>
                                                             <td className="px-6 py-4">
-                                                                <p className="font-semibold text-[#1A2E2C]">{auction.bidCount || 0}</p>
+                                                                <p className="font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">{auction.bidCount || 0}</p>
                                                             </td>
                                                             <td className="px-6 py-4">
                                                                 <div className="flex items-center gap-1">

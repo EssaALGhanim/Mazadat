@@ -20,7 +20,7 @@ export default function CountdownTimer({ targetDate, mode = 'end' }) {
     const pad = (n) => String(n).padStart(2, '0');
 
     return (
-        <div className="flex items-center gap-2 font-bold text-[#1A2E2C]" dir="ltr">
+        <div className="flex w-full items-center justify-center gap-2 font-bold text-[#1A2E2C]" dir="ltr">
             <Unit value={pad(days)} label={t('days')} />
             <Separator />
             <Unit value={pad(hours)} label={t('hours')} />

@@ -159,8 +159,9 @@ function LoginForm() {
 }
 
 function RegisterForm() {
-  const { t } = useTranslation('auth');
+  const { t, i18n } = useTranslation('auth');
   const navigate = useNavigate();
+  const isAr = i18n.language === 'ar';
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [role, setRole] = useState('buyer');
@@ -288,7 +289,7 @@ function RegisterForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="register-password" className="block w-full text-[#1A2E2C] rtl:text-right ltr:text-left">{t('password')}</Label>
-        <div className="relative">
+        <div className="relative" dir={isAr ? 'rtl' : 'ltr'}>
           <Input
             id="register-password"
             name="password"
@@ -296,8 +297,8 @@ function RegisterForm() {
             value={formData.password}
             onChange={handleChange}
             placeholder="••••••••"
-            dir="ltr"
-            className="h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C]"
+              dir={isAr ? 'rtl' : 'ltr'}
+              className="h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] rtl:text-right ltr:text-left"
           />
           <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99]">
             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -309,7 +310,7 @@ function RegisterForm() {
         <Label htmlFor="register-confirm-password" className="block w-full text-[#1A2E2C] rtl:text-right ltr:text-left">
           {t('confirmPassword')}
         </Label>
-        <div className="relative">
+        <div className="relative" dir={isAr ? 'rtl' : 'ltr'}>
           <Input
             id="register-confirm-password"
             name="confirmPassword"
@@ -317,7 +318,7 @@ function RegisterForm() {
             value={formData.confirmPassword}
             onChange={handleChange}
             placeholder="••••••••"
-            dir="ltr"
+            dir={isAr ? 'rtl' : 'ltr'}
             className="h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ltr:text-left rtl:text-right"
           />
           <button
@@ -363,14 +364,14 @@ function RegisterForm() {
 
 
       {/* Terms Checkbox */}
-      <div className="flex items-start gap-2">
+      <div className="flex items-start gap-2" dir={isAr ? 'rtl' : 'ltr'}>
         <Checkbox
           id="terms"
           checked={termsAccepted}
           onCheckedChange={(checked) => setTermsAccepted(checked)}
           className="mt-0.5 border-[#C5E0DC] data-[state=checked]:border-[#2A9D8F] data-[state=checked]:bg-[#2A9D8F]"
         />
-        <Label htmlFor="terms" className="cursor-pointer text-sm font-normal leading-relaxed text-[#6B9E99] rtl:text-right ltr:text-left">
+        <Label htmlFor="terms" dir={isAr ? 'rtl' : 'ltr'} className="cursor-pointer text-sm font-normal leading-relaxed text-[#6B9E99] rtl:text-right ltr:text-left">
           {t('agreeTo')}{' '}
           <a href="/policies" className="text-[#2A9D8F] underline underline-offset-4 transition-colors hover:text-[#3DBFB0]">
             {t('termsAndConditions')}
@@ -425,7 +426,7 @@ export default function AuthPage() {
 
       {/* Right Form Panel */}
       <div className="relative flex w-full flex-col items-center justify-center bg-[#F4FAFA] px-6 py-12 lg:w-1/2 lg:px-16">
-        <div className="absolute top-8 start-8 hidden lg:flex items-center gap-2 w-[120px]">
+        <div className="absolute top-4 start-8 hidden lg:flex items-center gap-2 w-[120px]">
           <span className="text-2xl font-bold text-[#2A9D8F]">{tCommon('brandName')}</span>
           <TrendingUp strokeWidth={3} className="h-6 w-6 text-[#2A9D8F]" />
         </div>
@@ -439,7 +440,7 @@ export default function AuthPage() {
 
         <div className="w-full max-w-md mt-6 lg:mt-0">
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="mb-8 grid h-12 w-full grid-cols-2 rounded-xl bg-white border border-[#C5E0DC] p-1">
+            <TabsList className="mt-4 mb-8 grid h-12 w-full grid-cols-2 rounded-xl bg-white border border-[#C5E0DC] p-1">
               <TabsTrigger
                 value="login"
                 className="rounded-lg text-base font-semibold text-[#6B9E99] transition-all data-[state=active]:bg-[#2A9D8F] data-[state=active]:text-white data-[state=active]:shadow-sm"

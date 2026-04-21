@@ -170,7 +170,7 @@ export default function AuctionDetailPage({ currentUser }) {
     const descriptionDir = resolveTextDirection(auction?.description || '');
 
     return (
-        <div className="min-h-screen bg-[#F0F2F5] py-8">
+        <div className="min-h-screen bg-[#F0F2F5] py-8" dir={isAr ? 'rtl' : 'ltr'}>
             <div className="container mx-auto px-4 max-w-6xl">
                 {/* Back Button */}
                 <button
@@ -315,7 +315,7 @@ export default function AuctionDetailPage({ currentUser }) {
                             <div className="grid grid-cols-2 gap-3 pt-4 border-t border-[#C5E0DC]">
                                 <div>
                                     <p className="text-xs text-[#6B9E99]">{isAr ? 'السعر الأولي' : 'Starting Price'}</p>
-                                    <p className="font-semibold text-[#1A2E2C]" dir="ltr">{startingPrice} ﷼</p>
+                                    <p className="font-semibold text-[#1A2E2C]" dir={isAr ? 'rtl' : 'ltr'}>{startingPrice} ﷼</p>
                                 </div>
                                 <div>
                                     <p className="text-xs text-[#6B9E99]">{isAr ? 'عدد المزايدات' : 'Bids'}</p>

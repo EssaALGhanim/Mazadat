@@ -238,7 +238,7 @@ export default function SellerTeamPage() {
 
                     {pendingInvitations.length > 0 && (
                         <div className="bg-[#EAF7F5] border border-[#2A9D8F] rounded-xl p-5 mb-6">
-                            <p className="font-semibold text-[#1A2E2C] mb-1">
+                            <p className="font-semibold text-[#1A2E2C] mb-1 rtl:text-right ltr:text-left">
                                 {isAr ? 'لديك دعوة للانضمام إلى صالة مزاد' : 'You have an invitation to join an Auction House'}
                             </p>
                             <p className="text-sm text-[#2A9D8F] mb-4">
@@ -257,14 +257,14 @@ export default function SellerTeamPage() {
 
                     {isAdmin && sentInvitations.length > 0 && (
                         <div className="bg-white border border-[#C5E0DC] rounded-xl p-5 mb-6 shadow-sm">
-                            <p className="font-semibold text-[#1A2E2C] mb-3">
+                            <p className="font-semibold text-[#1A2E2C] mb-3 rtl:text-right ltr:text-left">
                                 {isAr ? 'الدعوات المرسلة المعلّقة' : 'Pending Sent Invitations'}
                             </p>
                             <div className="space-y-2">
                                 {sentInvitations.map((invite) => (
                                     <div key={invite.email} className="flex items-center justify-between rounded-lg border border-[#E3ECEA] px-3 py-2">
                                         <div>
-                                            <p className="text-sm font-semibold text-[#1A2E2C]">{invite.username || '-'}</p>
+                                            <p className="text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">{invite.username || '-'}</p>
                                             <p className="text-xs text-[#6B9E99]">{invite.email}</p>
                                         </div>
                                         <button
@@ -339,7 +339,7 @@ export default function SellerTeamPage() {
                                     ) : (
                                         team.map((member) => (
                                             <tr key={member.sellerId} className="border-b border-[#C5E0DC] last:border-0">
-                                                <td className="px-4 py-3 text-sm font-semibold text-[#1A2E2C]">{member.username}</td>
+                                                        <td className="px-4 py-3 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">{member.username}</td>
                                                 <td className="px-4 py-3 text-sm text-[#6B9E99]">{member.email || '-'}</td>
                                                 <td className="px-4 py-3 text-sm">
                                                     {member.isAdmin ? (
