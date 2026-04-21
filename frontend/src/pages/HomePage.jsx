@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Menu } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CreateAuctionModal from '../components/createAuction/CreateAuctionModal';
 import AuctionHouseCreationModal from '../components/createAuction/AuctionHouseCreationModal';
 import AuctionCard from '../components/auction/AuctionCard';
@@ -18,6 +18,7 @@ export default function HomePage() {
   const { t, i18n } = useTranslation('common');
   const isAr = i18n.language === 'ar';
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [currentUser, setCurrentUser] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -122,6 +123,13 @@ export default function HomePage() {
       setCurrentUser(null);
     }
   }, []);
+
+  useEffect(() => {
+    if (location.state?.openWatchlist) {
+      setShowWatchlist(true);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
     const loadInitialData = async () => {

@@ -8,8 +8,8 @@ import ManageSavedSearchesModal from '@/components/savedSearch/ManageSavedSearch
 
 function FilterSection({ title, children }) {
     return (
-        <div className="pb-6 border-b border-[#C5E0DC]">
-            <h3 className="text-sm font-bold text-[#1A2E2C] mb-4 flex items-center gap-2">
+        <div className="mb-6 pb-7 border-b border-[#C5E0DC] last:mb-0 last:border-b-0">
+            <h3 className="text-sm font-bold text-[#1A2E2C] mb-5 flex items-center gap-2">
                 <Sliders className="w-4 h-4 text-[#2A9D8F]" />
                 {title}
             </h3>
@@ -201,24 +201,6 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                         </div>
                     </div>
 
-                    {/* Saved Search Actions */}
-                    <div className="grid grid-cols-2 gap-2 mb-6 pb-6 border-b border-[#C5E0DC]">
-                        <button
-                            onClick={() => setSaveSearchModalOpen(true)}
-                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white rounded-lg font-semibold transition-colors text-xs"
-                        >
-                            <Save className="w-4 h-4" />
-                            {isAr ? 'حفظ البحث' : 'Save Search'}
-                        </button>
-                        <button
-                            onClick={() => setManageSearchesModalOpen(true)}
-                            className="flex items-center justify-center gap-2 px-3 py-2.5 bg-white border border-[#C5E0DC] hover:bg-[#F4FAFA] text-[#2A9D8F] rounded-lg font-semibold transition-colors text-xs"
-                        >
-                            <FolderOpen className="w-4 h-4" />
-                            {isAr ? 'عمليات البحث' : 'My Searches'}
-                        </button>
-                    </div>
-
                     {/* Sorting Filter - Prominently placed */}
                     <FilterSection title={isAr ? 'ترتيب حسب' : 'Sort By'}>
                         <select
@@ -362,6 +344,24 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                             </div>
                         </div>
                     </FilterSection>
+
+                    {/* Saved Search Actions */}
+                    <div className="mx-auto mb-6 grid w-full max-w-xs grid-cols-2 gap-2 pb-6 border-b border-[#C5E0DC]">
+                        <button
+                            onClick={() => setSaveSearchModalOpen(true)}
+                            className="flex w-full items-center justify-center gap-2 px-3 py-2.5 bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white rounded-lg font-semibold transition-colors text-xs"
+                        >
+                            <Save className="w-4 h-4" />
+                            {isAr ? 'حفظ البحث' : 'Save Search'}
+                        </button>
+                        <button
+                            onClick={() => setManageSearchesModalOpen(true)}
+                            className="flex w-full items-center justify-center gap-2 px-3 py-2.5 bg-white border border-[#C5E0DC] hover:bg-[#F4FAFA] text-[#2A9D8F] rounded-lg font-semibold transition-colors text-xs"
+                        >
+                            <FolderOpen className="w-4 h-4" />
+                            {isAr ? 'عمليات البحث' : 'My Searches'}
+                        </button>
+                    </div>
 
                     {/* Reset Filters Button */}
                     <button

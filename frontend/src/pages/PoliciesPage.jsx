@@ -13,9 +13,8 @@ const sections = [
 ];
 
 export default function PoliciesPage() {
-    const { t, i18n } = useTranslation('policies');
+    const { t } = useTranslation('policies');
     const navigate = useNavigate();
-    const isAr = i18n.language === 'ar';
     const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
@@ -42,6 +41,7 @@ export default function PoliciesPage() {
                 isSeller={isSeller}
                 isBuyer={isBuyer}
                 onShowMyBids={() => navigate('/')}
+                onShowWatchlist={() => navigate('/', { state: { openWatchlist: true } })}
                 onCreateAuction={() => navigate('/seller-dashboard')}
                 onLogout={handleLogout}
             />
