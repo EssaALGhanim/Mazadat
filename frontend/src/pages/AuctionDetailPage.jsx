@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, User, Trophy, Download, Home } from 'lucide-react';
+import { ChevronLeft, ChevronRight, User, Trophy, Download, Home, X } from 'lucide-react';
 import CountdownTimer from '@/components/auction/CountdownTimer';
 import PlaceBidModal from '@/components/auction/PlaceBidModal';
+import AutoBidModal from '@/components/auction/AutoBidModal';
+import { useAutoBid } from '@/hooks/useAutoBid';
 import { placeBid, generateReceipt } from '@/services/bidService';
 import { getAuctionById } from '@/services/auctionService';
 import { resolveImageUrl } from '@/services/imageService';
@@ -22,9 +24,12 @@ export default function AuctionDetailPage({ currentUser }) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [bidModalOpen, setBidModalOpen] = useState(false);
     const [bidLoading, setBidLoading] = useState(false);
+    const [autoBidModalOpen, setAutoBidModalOpen] = useState(false);
     const [bidSubmitError, setBidSubmitError] = useState(null);
     const [isFeatured, setIsFeatured] = useState(false);
     const [featureLoading, setFeatureLoading] = useState(false);
+    
+    const { autoBid, cancelAutoBid, setAutoBid, isLoading: autoBidLoading } = useAutoBid(auctionId);
 
     // Fetch auction from API
     useEffect(() => {
@@ -208,11 +213,10 @@ export default function AuctionDetailPage({ currentUser }) {
                                         <button
                                             key={index}
                                             onClick={() => setCurrentImageIndex(index)}
-                                            className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                                                index === currentImageIndex
+                                            className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex
                                                     ? 'border-[#2A9D8F] ring-2 ring-[#2A9D8F]/30'
                                                     : 'border-[#C5E0DC] hover:border-[#2A9D8F]'
-                                            }`}
+                                                }`}
                                         >
                                             <ImageWithRetry
                                                 src={resolveImageUrl(image.url, image.createdAt || image.id)}
@@ -327,16 +331,48 @@ export default function AuctionDetailPage({ currentUser }) {
                             </div>
                         )}
 
+                        {/* Auto-Bid Indicator */}
+                        {canBid && autoBid && (
+                            <div className="bg-[#EAF7F5] border border-[#2A9D8F] rounded-xl p-3 shadow-sm flex items-center justify-between mb-4">
+                                <div>
+                                    <p className="text-xs text-[#2A9D8F] font-bold flex items-center gap-1">
+                                        <span className="w-1.5 h-1.5 bg-[#2A9D8F] rounded-full animate-pulse"></span>
+                                        {t('autoBid.active')}
+                                    </p>
+                                    <p className="text-sm text-[#1A2E2C] font-semibold mt-0.5">
+                                        {t('autoBid.activeMax')}: {autoBid.maxAmount} ر.س
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => cancelAutoBid()}
+                                    disabled={autoBidLoading}
+                                    className="p-1.5 bg-white text-[#E05252] hover:bg-[#E05252] hover:text-white rounded-lg transition-colors border border-[#E05252]/20"
+                                    title={t('autoBid.cancel')}
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        )}
+
                         {/* Action Buttons */}
                         <div className="bg-white rounded-xl border border-[#C5E0DC] p-4 shadow-sm space-y-2">
                             {canBid && (
-                                <button
-                                    onClick={() => setBidModalOpen(true)}
-                                    disabled={bidLoading}
-                                    className="w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 text-sm"
-                                >
-                                    {isAr ? '💰 مزايدة الآن' : '💰 Place Bid Now'}
-                                </button>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        onClick={() => setBidModalOpen(true)}
+                                        disabled={bidLoading}
+                                        className="w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 text-sm"
+                                    >
+                                        {isAr ? 'مزايدة الآن' : 'Place Bid Now'}
+                                    </button>
+                                    <button
+                                        onClick={() => setAutoBidModalOpen(true)}
+                                        disabled={bidLoading || autoBidLoading}
+                                        className="w-full bg-[#EAF7F5] hover:bg-[#D5EFEC] text-[#2A9D8F] border border-[#2A9D8F] px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 text-sm"
+                                    >
+                                        {isAr ? 'مزايدة تلقائية' : 'Auto-Bid'}
+                                    </button>
+                                </div>
                             )}
 
                             {isWinner && (
@@ -388,6 +424,18 @@ export default function AuctionDetailPage({ currentUser }) {
                 hasPreviousBid={hasBids}
                 onBidSubmit={handlePlaceBid}
                 loading={bidLoading}
+            />
+
+            {/* Auto Bid Modal */}
+            <AutoBidModal
+                open={autoBidModalOpen}
+                onOpenChange={setAutoBidModalOpen}
+                currentPrice={currentPrice}
+                minBid={minRequiredBid}
+                autoBid={autoBid}
+                apiLoading={autoBidLoading}
+                setAutoBid={setAutoBid}
+                cancelAutoBid={cancelAutoBid}
             />
         </div>
     );

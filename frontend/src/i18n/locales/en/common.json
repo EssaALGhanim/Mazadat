@@ -55,5 +55,20 @@
   "create": "Create",
   "auctionHouseNameRequired": "Auction house name is required",
   "auctionHouseCreationFailed": "Failed to create auction house",
-  "sizeBetween3And255": "Size must be between 3 and 255 characters"
+  "sizeBetween3And255": "Size must be between 3 and 255 characters",
+  "autoBid": {
+    "title": "Auto-Bid",
+    "description": "The system will automatically bid on your behalf up to the specified maximum amount",
+    "maxAmount": "Maximum Bid Amount",
+    "placeholder": "Enter max amount in SAR",
+    "enable": "Enable Auto-Bid",
+    "cancel": "Cancel",
+    "active": "Auto-Bid Active",
+    "activeMax": "Maximum",
+    "deactivate": "Deactivate Auto-Bid",
+    "errorMinAmount": "Amount must be greater than current highest bid",
+    "errorGeneric": "An error occurred, please try again",
+    "successSet": "Auto-bid enabled successfully",
+    "successCancelled": "Auto-bid cancelled successfully"
+  }
 }

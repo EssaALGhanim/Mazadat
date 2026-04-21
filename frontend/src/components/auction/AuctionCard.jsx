@@ -165,9 +165,9 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
                 </div>
             ) : (
                 <div className="w-full h-36 bg-[#F4FAFA] border-y border-[#C5E0DC] flex items-center justify-center">
-          <span className="text-[#C5E0DC] font-bold text-lg">
-            {isAr ? 'لا توجد صورة' : 'No Image'}
-          </span>
+                    <span className="text-[#C5E0DC] font-bold text-lg">
+                        {isAr ? 'لا توجد صورة' : 'No Image'}
+                    </span>
                 </div>
             )}
 
