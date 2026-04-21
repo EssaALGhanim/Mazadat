@@ -49,7 +49,13 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
 
     // Sync selected range when available bounds change (e.g., new search query)
     useEffect(() => {
-        setPriceRange((prev) => clampRange(prev));
+        setPriceRange((prev) => {
+            if (prev?.[0] === normalizedMin && prev?.[1] === normalizedMax) {
+                return prev;
+            }
+
+            return [normalizedMin, normalizedMax];
+        });
     }, [normalizedMin, normalizedMax]);
 
     // Load auction houses on mount

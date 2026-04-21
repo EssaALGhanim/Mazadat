@@ -22,7 +22,6 @@ function Slider({
   className,
 }: SliderProps) {
   const [isRTL, setIsRTL] = React.useState(false)
-  const [isDragging, setIsDragging] = React.useState(false)
 
   React.useEffect(() => {
     const updateRTL = () => {
@@ -52,32 +51,20 @@ function Slider({
     return [first, second]
   }, [value, normalizedMin, normalizedMax])
 
-  const [internalValues, setInternalValues] = React.useState<[number, number]>(safeValues)
-
-  React.useEffect(() => {
-    if (!isDragging) {
-      setInternalValues(safeValues)
-    }
-  }, [safeValues, isDragging])
-
   const handleChange = (nextValues: number[]) => {
     const nextRange: [number, number] = [nextValues[0], nextValues[1]]
-    setIsDragging(true)
-    setInternalValues(nextRange)
     onValueChange?.(nextRange)
   }
 
   const handleFinalChange = (nextValues: number[]) => {
     const nextRange: [number, number] = [nextValues[0], nextValues[1]]
-    setIsDragging(false)
-    setInternalValues(nextRange)
     onValueChange?.(nextRange)
   }
 
   return (
     <div className={cn('w-full py-2', className)} dir={isRTL ? 'rtl' : 'ltr'}>
       <Range
-        values={internalValues}
+        values={safeValues}
         step={step}
         min={normalizedMin}
         max={normalizedMax}
@@ -91,7 +78,7 @@ function Slider({
             style={{
               ...props.style,
               background: getTrackBackground({
-                values: internalValues,
+                values: safeValues,
                 colors: ['#D9EEEB', '#2A9D8F', '#D9EEEB'],
                 min: normalizedMin,
                 max: normalizedMax,

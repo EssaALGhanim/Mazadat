@@ -7,18 +7,16 @@ import AuctionHouseCreationModal from '../components/createAuction/AuctionHouseC
 import AuctionCard from '../components/auction/AuctionCard';
 import TopNavigationBar from '../components/TopNavigationBar';
 import FilterSidebar from '../components/FilterSidebar';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from '@/components/ui/pagination';
 import MyBidsPage from './MyBidsPage';
 import WatchlistPage from './WatchlistPage';
 import { getAllAuctions, searchAuctions } from '@/services/auctionService';
 import { getSellerAuctionHouse } from '@/services/auctionHouseService';
 import { getFeaturedAuctions } from '@/services/featuredService';
-import { useNow } from '@/hooks/useNow';
 
 export default function HomePage() {
   const { t, i18n } = useTranslation('common');
   const isAr = i18n.language === 'ar';
-  const now = useNow();
-  const nowDate = new Date(now);
   const navigate = useNavigate();
 
   const [currentUser, setCurrentUser] = useState(null);
@@ -35,6 +33,7 @@ export default function HomePage() {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [featuredAuctionIds, setFeaturedAuctionIds] = useState([]);
   const [activeSearchQuery, setActiveSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [priceBounds, setPriceBounds] = useState([0, 100000]);
   const [filters, setFilters] = useState({
     auctionHouse: '',
@@ -56,7 +55,7 @@ export default function HomePage() {
 
   // Define applyFilters early so it's available for useEffect dependencies
   const applyFilters = useCallback(() => {
-    const currentDate = nowDate;
+    const currentDate = new Date();
     const isEndedAuction = (auction) => {
       const endedByStatus = auction?.status === 'COMPLETED' || auction?.status === 'ENDED' || auction?.status === 'FAILED_BELOW_RESERVE';
       const endedByTime = auction?.endDate ? new Date(auction.endDate) <= currentDate : false;
@@ -113,7 +112,7 @@ export default function HomePage() {
     }
 
     setFilteredAuctions(filtered);
-  }, [auctions, filters, nowDate]);
+  }, [auctions, filters]);
 
   useEffect(() => {
     try {
@@ -143,6 +142,10 @@ export default function HomePage() {
       applyFilters();
     }
   }, [auctions, filters, applyFilters]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters.auctionHouse, filters.priceRange, filters.sortBy, filters.category, filters.status]);
 
   const checkSellerAuctionHouse = async () => {
     setCheckingAuctionHouse(true);
@@ -198,6 +201,7 @@ export default function HomePage() {
   const handleSearchSubmit = async (keyword) => {
     const normalizedKeyword = (keyword || '').trim();
     setActiveSearchQuery(normalizedKeyword);
+    setCurrentPage(1);
     await fetchAuctions(normalizedKeyword);
   };
 
@@ -216,6 +220,34 @@ export default function HomePage() {
 
   const isSeller = currentUser?.role === 'SELLER';
   const isBuyer = currentUser?.role === 'BUYER';
+  const auctionsPerPage = 24; // 6 rows x 4 cards per row on desktop
+  const totalAuctionPages = Math.max(1, Math.ceil(filteredAuctions.length / auctionsPerPage));
+  const safeCurrentPage = Math.min(currentPage, totalAuctionPages);
+  const paginatedAuctions = filteredAuctions.slice((safeCurrentPage - 1) * auctionsPerPage, safeCurrentPage * auctionsPerPage);
+  const showPagination = filteredAuctions.length > auctionsPerPage;
+
+  useEffect(() => {
+    if (currentPage !== safeCurrentPage) {
+      setCurrentPage(safeCurrentPage);
+    }
+  }, [currentPage, safeCurrentPage]);
+
+  const getVisiblePages = () => {
+    if (totalAuctionPages <= 7) {
+      return Array.from({ length: totalAuctionPages }, (_, index) => index + 1);
+    }
+
+    const pages = [1];
+    const left = Math.max(2, safeCurrentPage - 1);
+    const right = Math.min(totalAuctionPages - 1, safeCurrentPage + 1);
+
+    if (left > 2) pages.push('left-ellipsis');
+    for (let page = left; page <= right; page += 1) pages.push(page);
+    if (right < totalAuctionPages - 1) pages.push('right-ellipsis');
+    pages.push(totalAuctionPages);
+
+    return pages;
+  };
 
   useEffect(() => {
     if (isSeller) {
@@ -323,7 +355,7 @@ export default function HomePage() {
                     </h2>
                   )}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {filteredAuctions.map((auction) => (
+                      {paginatedAuctions.map((auction) => (
                       <div key={auction.id} onClick={() => navigate(`/auction/${auction.id}`)} className="cursor-pointer">
                         <AuctionCard
                           auction={auction}
@@ -334,6 +366,59 @@ export default function HomePage() {
                       </div>
                     ))}
                   </div>
+
+                    {showPagination && (
+                      <div className="mt-8">
+                        <Pagination>
+                          <PaginationContent className="flex-wrap justify-center">
+                            <PaginationItem>
+                              <PaginationPrevious
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setCurrentPage((page) => Math.max(1, page - 1));
+                                }}
+                              />
+                            </PaginationItem>
+
+                            {getVisiblePages().map((page, index) => {
+                              if (page === 'left-ellipsis' || page === 'right-ellipsis') {
+                                return (
+                                  <PaginationItem key={`${page}-${index}`}>
+                                    <PaginationEllipsis />
+                                  </PaginationItem>
+                                );
+                              }
+
+                              return (
+                                <PaginationItem key={page}>
+                                  <PaginationLink
+                                    href="#"
+                                    isActive={page === safeCurrentPage}
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      setCurrentPage(page);
+                                    }}
+                                  >
+                                    {page}
+                                  </PaginationLink>
+                                </PaginationItem>
+                              );
+                            })}
+
+                            <PaginationItem>
+                              <PaginationNext
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  setCurrentPage((page) => Math.min(totalAuctionPages, page + 1));
+                                }}
+                              />
+                            </PaginationItem>
+                          </PaginationContent>
+                        </Pagination>
+                      </div>
+                    )}
                 </div>
               </>
             )}
