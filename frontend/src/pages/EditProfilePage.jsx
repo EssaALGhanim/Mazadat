@@ -217,38 +217,38 @@ export default function EditProfilePage() {
 
                     <div className="space-y-5">
                         <div>
-                            <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('username')} *</label>
+                            <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm rtl:text-right ltr:text-left">{t('username')} *</label>
                             <input name="username" value={formData.username} onChange={handleChange} readOnly={!isEditMode} className={inputClass(errors.username)} />
                             {errors.username && <p className="text-[#E05252] text-sm mt-1">{errors.username}</p>}
                         </div>
 
                         <div>
-                            <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('email')} *</label>
+                            <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm rtl:text-right ltr:text-left">{t('email')} *</label>
                             <input name="email" type="email" value={formData.email} onChange={handleChange} readOnly={!isEditMode} className={inputClass(errors.email)} dir="ltr" />
                             {errors.email && <p className="text-[#E05252] text-sm mt-1">{errors.email}</p>}
                         </div>
 
                         <div>
-                            <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('phoneNumber') || 'Phone Number'} *</label>
+                            <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm rtl:text-right ltr:text-left">{t('phoneNumber') || 'Phone Number'} *</label>
                             <input name="phoneNumber" type="tel" value={formData.phoneNumber} onChange={handleChange} readOnly={!isEditMode} className={inputClass(errors.phoneNumber)} dir="ltr" placeholder="+9665XXXXXXXX" />
                             {errors.phoneNumber && <p className="text-[#E05252] text-sm mt-1">{errors.phoneNumber}</p>}
                         </div>
 
                         {!isEditMode ? (
                             <div>
-                                <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('password')}</label>
+                                <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm rtl:text-right ltr:text-left">{t('password')}</label>
                                 <input value="********" readOnly className={inputClass(false)} />
                             </div>
                         ) : (
                             <>
                                 <div>
-                                    <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('newPassword')} *</label>
+                                    <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm rtl:text-right ltr:text-left">{t('newPassword')} *</label>
                                     <input name="password" type="password" value={formData.password} onChange={handleChange} className={inputClass(errors.password)} dir="ltr" />
                                     {errors.password && <p className="text-[#E05252] text-sm mt-1">{errors.password}</p>}
                                 </div>
 
                                 <div>
-                                    <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm">{t('confirmPassword') || 'Confirm Password'} *</label>
+                                    <label className="block mb-2 font-semibold text-[#1A2E2C] text-sm rtl:text-right ltr:text-left">{t('confirmPassword') || 'Confirm Password'} *</label>
                                     <input name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} className={inputClass(errors.confirmPassword)} dir="ltr" />
                                     {errors.confirmPassword && <p className="text-[#E05252] text-sm mt-1">{errors.confirmPassword}</p>}
                                 </div>
