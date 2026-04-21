@@ -10,6 +10,7 @@ import { Eye, EyeOff, User, Store, TrendingUp } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { registerBuyer, registerSeller, login } from '@/services/authService';
 import { getSellerAuctionHouse } from '@/services/auctionHouseService';
+import { toast } from 'sonner';
 
 function GeometricPattern() {
   return (
@@ -37,7 +38,7 @@ async function handleSellerNoAuctionHouseNotice() {
   } catch (err) {
     if ((err?.message || '').toLowerCase().includes('not part of any auction house')) {
       localStorage.setItem('sellerNoAuctionHouseNotice', '1');
-      alert('You are not part of any Auction House yet / أنت غير منضم إلى أي صالة مزاد حالياً');
+      toast.error('You are not part of any Auction House yet / أنت غير منضم إلى أي صالة مزاد حالياً');
       return;
     }
     throw err;

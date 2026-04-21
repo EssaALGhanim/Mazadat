@@ -14,6 +14,7 @@ import { featureAuction } from '@/services/featuredService';
 import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirection';
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
 import { useNow } from '@/hooks/useNow';
+import { toast } from 'sonner';
 
 export default function AuctionDetailPage({ currentUser }) {
     const { t, i18n } = useTranslation('common');
@@ -125,9 +126,9 @@ export default function AuctionDetailPage({ currentUser }) {
             await placeBid(auction.id, amount);
             setBidModalOpen(false);
             // Refresh auction data - in real scenario you'd fetch updated data
-            alert(isAr ? 'تم تسجيل المزايدة بنجاح' : 'Bid placed successfully!');
+            toast.success(isAr ? 'تم تسجيل المزايدة بنجاح' : 'Bid placed successfully!');
         } catch (error) {
-            alert(error.message || t('actionFailed'));
+            toast.error(error.message || t('actionFailed'));
         } finally {
             setBidLoading(false);
         }
@@ -137,16 +138,16 @@ export default function AuctionDetailPage({ currentUser }) {
         const now = new Date();
         const endDate = new Date(auction.endDate);
         if (now < endDate) {
-            alert(isAr ? 'لا يمكن تحميل الإيصال قبل انتهاء المزاد' : 'Receipt can only be downloaded after the auction ends');
+            toast.error(isAr ? 'لا يمكن تحميل الإيصال قبل انتهاء المزاد' : 'Receipt can only be downloaded after the auction ends');
             return;
         }
 
         setBidLoading(true);
         try {
             await generateReceipt(auction.id);
-            alert(isAr ? 'تم تحميل الإيصال بنجاح' : 'Receipt downloaded successfully!');
+            toast.success(isAr ? 'تم تحميل الإيصال بنجاح' : 'Receipt downloaded successfully!');
         } catch (err) {
-            alert(err.message || (isAr ? 'فشل تحميل الإيصال' : 'Failed to generate receipt'));
+            toast.error(err.message || (isAr ? 'فشل تحميل الإيصال' : 'Failed to generate receipt'));
         } finally {
             setBidLoading(false);
         }
@@ -157,9 +158,9 @@ export default function AuctionDetailPage({ currentUser }) {
         try {
             await featureAuction(auction.id, featuredEndDate);
             setIsFeatured(true);
-            alert(isAr ? 'تم عرض المنتج بنجاح' : 'Product featured successfully!');
+            toast.success(isAr ? 'تم عرض المنتج بنجاح' : 'Product featured successfully!');
         } catch (error) {
-            alert(error.message || (isAr ? 'فشل عرض المنتج' : 'Failed to feature product'));
+            toast.error(error.message || (isAr ? 'فشل عرض المنتج' : 'Failed to feature product'));
             throw error;
         } finally {
             setFeatureLoading(false);

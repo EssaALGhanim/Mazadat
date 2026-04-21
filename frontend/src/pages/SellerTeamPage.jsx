@@ -18,6 +18,8 @@ import {
     leaveAuctionHouse,
 } from '@/services/auctionHouseService';
 import { deleteSellerById, getCurrentSellerProfile } from '@/services/userService';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { toast } from 'sonner';
 
 export default function SellerTeamPage() {
     const { i18n } = useTranslation('common');
@@ -34,6 +36,13 @@ export default function SellerTeamPage() {
     const [pendingInvitations, setPendingInvitations] = useState([]);
     const [hasAuctionHouse, setHasAuctionHouse] = useState(false);
     const [sentInvitations, setSentInvitations] = useState([]);
+    const [confirmDialog, setConfirmDialog] = useState({
+        open: false,
+        title: '',
+        description: '',
+        confirmText: '',
+        onConfirm: null,
+    });
 
     useEffect(() => {
         try {
@@ -89,8 +98,9 @@ export default function SellerTeamPage() {
             await addSellerToAuctionHouse(inviteEmail.trim());
             setInviteEmail('');
             await loadTeam();
+            toast.success(isAr ? 'تمت إضافة البائع' : 'Seller added successfully');
         } catch (err) {
-            alert(err.message || (isAr ? 'فشل إضافة البائع للفريق' : 'Failed to add seller to team'));
+            toast.error(err.message || (isAr ? 'فشل إضافة البائع للفريق' : 'Failed to add seller to team'));
         } finally {
             setSubmitting(false);
         }
@@ -101,8 +111,9 @@ export default function SellerTeamPage() {
         try {
             await promoteSellerToAdmin(email);
             await loadTeam();
+            toast.success(isAr ? 'تمت ترقية البائع' : 'Seller promoted successfully');
         } catch (err) {
-            alert(err.message || (isAr ? 'فشل ترقية البائع' : 'Failed to promote seller'));
+            toast.error(err.message || (isAr ? 'فشل ترقية البائع' : 'Failed to promote seller'));
         }
     };
 
@@ -110,8 +121,9 @@ export default function SellerTeamPage() {
         try {
             await acceptTeamInvitation();
             await loadTeam();
+            toast.success(isAr ? 'تم قبول الدعوة' : 'Invitation accepted');
         } catch (err) {
-            alert(err.message || (isAr ? 'فشل قبول الدعوة' : 'Failed to accept invitation'));
+            toast.error(err.message || (isAr ? 'فشل قبول الدعوة' : 'Failed to accept invitation'));
         }
     };
 
@@ -119,33 +131,48 @@ export default function SellerTeamPage() {
         try {
             await rejectTeamInvitation();
             await loadTeam();
+            toast.success(isAr ? 'تم رفض الدعوة' : 'Invitation rejected');
         } catch (err) {
-            alert(err.message || (isAr ? 'فشل رفض الدعوة' : 'Failed to reject invitation'));
+            toast.error(err.message || (isAr ? 'فشل رفض الدعوة' : 'Failed to reject invitation'));
         }
     };
 
     const handleRemove = async (email) => {
         if (!isAdmin) return;
-        const confirmed = window.confirm(isAr ? 'هل أنت متأكد من إزالة هذا المستخدم من الفريق؟' : 'Are you sure you want to remove this user from team?');
-        if (!confirmed) return;
-        try {
-            await removeSellerFromAuctionHouse(email);
-            await loadTeam();
-        } catch (err) {
-            alert(err.message || (isAr ? 'فشل إزالة المستخدم' : 'Failed to remove user'));
-        }
+        setConfirmDialog({
+            open: true,
+            title: isAr ? 'إزالة المستخدم' : 'Remove User',
+            description: isAr ? 'هل أنت متأكد من إزالة هذا المستخدم من الفريق؟' : 'Are you sure you want to remove this user from team?',
+            confirmText: isAr ? 'إزالة' : 'Remove',
+            onConfirm: async () => {
+                try {
+                    await removeSellerFromAuctionHouse(email);
+                    await loadTeam();
+                    toast.success(isAr ? 'تمت إزالة المستخدم' : 'User removed successfully');
+                } catch (err) {
+                    toast.error(err.message || (isAr ? 'فشل إزالة المستخدم' : 'Failed to remove user'));
+                }
+            },
+        });
     };
 
     const handleDeleteSeller = async (sellerId) => {
         if (!isAdmin) return;
-        const confirmed = window.confirm(isAr ? 'سيتم حذف حساب البائع نهائياً. هل تريد المتابعة؟' : 'This will permanently delete the seller account. Continue?');
-        if (!confirmed) return;
-        try {
-            await deleteSellerById(sellerId);
-            await loadTeam();
-        } catch (err) {
-            alert(err.message || (isAr ? 'فشل حذف البائع' : 'Failed to delete seller'));
-        }
+        setConfirmDialog({
+            open: true,
+            title: isAr ? 'حذف البائع' : 'Delete Seller',
+            description: isAr ? 'سيتم حذف حساب البائع نهائياً. هل تريد المتابعة؟' : 'This will permanently delete the seller account. Continue?',
+            confirmText: isAr ? 'حذف' : 'Delete',
+            onConfirm: async () => {
+                try {
+                    await deleteSellerById(sellerId);
+                    await loadTeam();
+                    toast.success(isAr ? 'تم حذف البائع' : 'Seller deleted successfully');
+                } catch (err) {
+                    toast.error(err.message || (isAr ? 'فشل حذف البائع' : 'Failed to delete seller'));
+                }
+            },
+        });
     };
 
     const handleDemote = async (email) => {
@@ -153,8 +180,9 @@ export default function SellerTeamPage() {
         try {
             await removeAuctionHouseAdminByEmail(email);
             await loadTeam();
+            toast.success(isAr ? 'تمت إزالة صلاحية المسؤول' : 'Admin role removed');
         } catch (err) {
-            alert(err.message || (isAr ? 'فشل إرجاع المسؤول إلى بائع' : 'Failed to demote admin'));
+            toast.error(err.message || (isAr ? 'فشل إرجاع المسؤول إلى بائع' : 'Failed to demote admin'));
         }
     };
 
@@ -163,8 +191,9 @@ export default function SellerTeamPage() {
         try {
             await cancelTeamInvitation(email);
             await loadTeam();
+            toast.success(isAr ? 'تم إلغاء الدعوة' : 'Invitation cancelled');
         } catch (err) {
-            alert(err.message || (isAr ? 'فشل إلغاء الدعوة' : 'Failed to cancel invitation'));
+            toast.error(err.message || (isAr ? 'فشل إلغاء الدعوة' : 'Failed to cancel invitation'));
         }
     };
 
@@ -175,20 +204,22 @@ export default function SellerTeamPage() {
 
     const handleLeaveAuctionHouse = async () => {
         if (!hasAuctionHouse) return;
-        const confirmed = window.confirm(
-            isAr
-                ? 'هل أنت متأكد من مغادرة صالة المزاد؟'
-                : 'Are you sure you want to leave this Auction House?'
-        );
-        if (!confirmed) return;
-
-        try {
-            await leaveAuctionHouse();
-            await loadTeam();
-            navigate('/seller-dashboard');
-        } catch (err) {
-            alert(err.message || (isAr ? 'فشل مغادرة صالة المزاد' : 'Failed to leave auction house'));
-        }
+        setConfirmDialog({
+            open: true,
+            title: isAr ? 'مغادرة صالة المزاد' : 'Leave Auction House',
+            description: isAr ? 'هل أنت متأكد من مغادرة صالة المزاد؟' : 'Are you sure you want to leave this Auction House?',
+            confirmText: isAr ? 'مغادرة' : 'Leave',
+            onConfirm: async () => {
+                try {
+                    await leaveAuctionHouse();
+                    await loadTeam();
+                    toast.success(isAr ? 'تمت مغادرة صالة المزاد' : 'Left auction house successfully');
+                    navigate('/seller-dashboard');
+                } catch (err) {
+                    toast.error(err.message || (isAr ? 'فشل مغادرة صالة المزاد' : 'Failed to leave auction house'));
+                }
+            },
+        });
     };
 
     if (currentUser?.role !== 'SELLER') {
@@ -203,6 +234,19 @@ export default function SellerTeamPage() {
                 isBuyer={false}
                 onCreateAuction={() => navigate('/seller-dashboard')}
                 onLogout={handleLogout}
+            />
+            <ConfirmDialog
+                open={confirmDialog.open}
+                onOpenChange={(open) => !open && setConfirmDialog({ open: false, title: '', description: '', confirmText: '', onConfirm: null })}
+                title={confirmDialog.title}
+                description={confirmDialog.description}
+                confirmText={confirmDialog.confirmText}
+                cancelText={isAr ? 'إلغاء' : 'Cancel'}
+                onConfirm={async () => {
+                    const action = confirmDialog.onConfirm;
+                    setConfirmDialog({ open: false, title: '', description: '', confirmText: '', onConfirm: null });
+                    await action?.();
+                }}
             />
 
             <main className="flex-1 overflow-y-auto">

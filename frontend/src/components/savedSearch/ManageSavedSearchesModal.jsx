@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Trash2, Edit2, Check, Search, Bookmark } from 'lucide-react';
 import { getSavedSearches, updateSavedSearch, deleteSavedSearch } from '@/services/savedSearchService';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { toast } from 'sonner';
 
 export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSearch }) {
   const { i18n } = useTranslation('common');
@@ -12,6 +14,7 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [deletingId, setDeletingId] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
     if (open) {
@@ -48,8 +51,9 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
       await fetchSearches();
       setEditingId(null);
       setEditName('');
+      toast.success(isAr ? 'تم تحديث الاسم' : 'Name updated successfully');
     } catch (err) {
-      alert(err.message || (isAr ? 'فشل تحديث الاسم' : 'Failed to update name'));
+      toast.error(err.message || (isAr ? 'فشل تحديث الاسم' : 'Failed to update name'));
     }
   };
 
@@ -59,20 +63,20 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      isAr
-        ? 'هل أنت متأكد من حذف عملية البحث المحفوظة هذه؟'
-        : 'Are you sure you want to delete this saved search?'
-    );
+    setDeleteConfirm(id);
+  };
 
-    if (!confirmed) return;
-
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
+    const id = deleteConfirm;
     setDeletingId(id);
+    setDeleteConfirm(null);
     try {
       await deleteSavedSearch(id);
       await fetchSearches();
+      toast.success(isAr ? 'تم حذف البحث' : 'Saved search deleted successfully');
     } catch (err) {
-      alert(err.message || (isAr ? 'فشل حذف البحث' : 'Failed to delete search'));
+      toast.error(err.message || (isAr ? 'فشل حذف البحث' : 'Failed to delete search'));
     } finally {
       setDeletingId(null);
     }
@@ -93,6 +97,15 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
 
   return (
     <>
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        title={isAr ? 'حذف عملية البحث' : 'Delete Saved Search'}
+        description={isAr ? 'هل أنت متأكد من حذف عملية البحث المحفوظة هذه؟' : 'Are you sure you want to delete this saved search?'}
+        confirmText={isAr ? 'حذف' : 'Delete'}
+        cancelText={isAr ? 'إلغاء' : 'Cancel'}
+        onConfirm={confirmDelete}
+      />
       {/* Overlay */}
       <div
         className="fixed inset-0 bg-black/50 z-50"

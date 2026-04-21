@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { ArrowLeft, Save } from 'lucide-react';
 import TopNavigationBar from '../components/TopNavigationBar';
 import { getSellerAuctionHouse, updateAuctionHouse } from '@/services/auctionHouseService';
@@ -77,7 +78,7 @@ export default function AuctionHouseSettingsPage() {
     setError(null);
     try {
       await updateAuctionHouse(form);
-      alert(isAr ? 'تم تحديث إعدادات صالة المزاد' : 'Auction House settings updated');
+      toast.success(isAr ? 'تم تحديث إعدادات صالة المزاد' : 'Auction House settings updated');
     } catch (err) {
       setError(err.message || (isAr ? 'فشل التحديث' : 'Update failed'));
     } finally {

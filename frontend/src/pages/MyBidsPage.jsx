@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { Trophy, ArrowLeft } from 'lucide-react';
-import { getBuyerBids, getWonBids, generateReceipt } from '@/services/bidService';
+import { getBuyerBids, getWonBids } from '@/services/bidService';
+import { generateReceipt } from '@/services/bidService';
+import { toast } from 'sonner';
 import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirection';
 import TopNavigationBar from '../components/TopNavigationBar';
 
 export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
     const { i18n } = useTranslation('common');
-    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('all'); // 'all' or 'won'
     const [bids, setBids] = useState([]);
     const [wonBids, setWonBids] = useState([]);
@@ -74,7 +74,7 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
         const endDate = new Date(auctionEndDate);
 
         if (now < endDate) {
-            alert(isAr ? 'لا يمكن تحميل الإيصال قبل انتهاء المزاد' : 'Receipt can only be downloaded after the auction ends');
+            toast.error(isAr ? 'لا يمكن تحميل الإيصال قبل انتهاء المزاد' : 'Receipt can only be downloaded after the auction ends');
             return;
         }
 
@@ -82,9 +82,9 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
         try {
             await generateReceipt(auctionId);
             setGeneratedReceipts(prev => new Set([...prev, auctionId]));
-            alert(isAr ? 'تم تحميل الإيصال بنجاح' : 'Receipt downloaded successfully!');
+            toast.success(isAr ? 'تم تحميل الإيصال بنجاح' : 'Receipt downloaded successfully!');
         } catch (err) {
-            alert(err.message || (isAr ? 'فشل تحميل الإيصال' : 'Failed to generate receipt'));
+            toast.error(err.message || (isAr ? 'فشل تحميل الإيصال' : 'Failed to generate receipt'));
         } finally {
             setGeneratingReceipt(null);
         }

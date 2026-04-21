@@ -10,12 +10,15 @@ import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirec
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
 import WatchlistButton from '@/components/watchlist/WatchlistButton';
 import { useNow } from '@/hooks/useNow';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { toast } from 'sonner';
 
 export default function AuctionCard({ auction, currentUser, onActionComplete, isFeatured = false }) {
     const { t, i18n } = useTranslation('common');
     const [loading, setLoading] = useState(false);
     const [bidModalOpen, setBidModalOpen] = useState(false);
     const [bidSubmitError, setBidSubmitError] = useState(null);
+    const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
     const isAr = i18n.language === 'ar';
     const now = useNow();
     const nowDate = new Date(now);
@@ -69,15 +72,13 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
     };
 
     const handleCancelAuction = async () => {
-        const confirmText = t('cancelAuctionConfirm');
-        if (!window.confirm(confirmText)) return;
-
         setLoading(true);
         try {
             await deleteAuction(auction.id);
             onActionComplete?.('cancel');
+            toast.success(isAr ? 'تم إلغاء المزاد' : 'Auction cancelled successfully');
         } catch {
-            alert(t('actionFailed'));
+            toast.error(t('actionFailed'));
         } finally {
             setLoading(false);
         }
@@ -89,16 +90,16 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
         const endDate = new Date(auction.endDate);
 
         if (now < endDate) {
-            alert(isAr ? 'لا يمكن تحميل الإيصال قبل انتهاء المزاد' : 'Receipt can only be downloaded after the auction ends');
+            toast.error(isAr ? 'لا يمكن تحميل الإيصال قبل انتهاء المزاد' : 'Receipt can only be downloaded after the auction ends');
             return;
         }
 
         setLoading(true);
         try {
             await generateReceipt(auction.id);
-            alert(isAr ? 'تم تحميل الإيصال بنجاح' : 'Receipt downloaded successfully!');
+            toast.success(isAr ? 'تم تحميل الإيصال بنجاح' : 'Receipt downloaded successfully!');
         } catch (err) {
-            alert(err.message || (isAr ? 'فشل تحميل الإيصال' : 'Failed to generate receipt'));
+            toast.error(err.message || (isAr ? 'فشل تحميل الإيصال' : 'Failed to generate receipt'));
         } finally {
             setLoading(false);
         }
@@ -294,7 +295,7 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                handleCancelAuction();
+                                setCancelConfirmOpen(true);
                             }}
                             disabled={loading}
                             className="flex-1 rounded-xl border border-[#E05252] bg-white px-3 py-2.5 text-xs font-bold text-[#E05252] transition-colors hover:bg-[#E05252] hover:text-white disabled:opacity-50"
@@ -339,6 +340,20 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
                 </div>
             </div>
 
+            <ConfirmDialog
+                open={cancelConfirmOpen}
+                onOpenChange={(open) => setCancelConfirmOpen(open)}
+                title={t('cancelAuction') || (isAr ? 'إلغاء المزاد' : 'Cancel Auction')}
+                description={t('cancelAuctionConfirm') || (isAr ? 'هل أنت متأكد من إلغاء هذا المزاد؟' : 'Are you sure you want to cancel this auction?')}
+                confirmText={isAr ? 'إلغاء' : 'Cancel'}
+                cancelText={isAr ? 'رجوع' : 'Back'}
+                onConfirm={() => {
+                    setCancelConfirmOpen(false);
+                    handleCancelAuction();
+                }}
+            />
+
+            {/* Bid Modal */}
             <PlaceBidModal
                 open={bidModalOpen}
                 onOpenChange={(isOpen) => {

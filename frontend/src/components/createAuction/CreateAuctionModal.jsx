@@ -9,6 +9,7 @@ import PricingScheduleStep from './PricingScheduleStep';
 import ReviewPublishStep from './ReviewPublishStep';
 import { createAuction, getAllAuctions } from '@/services/auctionService';
 import { uploadImages } from '@/services/imageService';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export default function CreateAuctionModal({ open, onOpenChange, onSuccess }) {
   const { t } = useTranslation('createAuction');
@@ -16,6 +17,7 @@ export default function CreateAuctionModal({ open, onOpenChange, onSuccess }) {
   const [isPublished, setIsPublished] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [closeConfirmOpen, setCloseConfirmOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -41,6 +43,7 @@ export default function CreateAuctionModal({ open, onOpenChange, onSuccess }) {
       });
       setIsPublished(false);
       setError(null);
+      setCloseConfirmOpen(false);
     }
   }, [open]);
 
@@ -94,13 +97,12 @@ export default function CreateAuctionModal({ open, onOpenChange, onSuccess }) {
       console.log('[CreateAuctionModal] Sending auction payload:', auctionPayload);
 
       const createResult = await createAuction(auctionPayload);
-      const createdAuctionId =
+      let targetAuctionId =
           createResult?.id
           ?? createResult?.auctionId
           ?? createResult?.data?.id
           ?? createResult?.data?.auctionId;
 
-      let targetAuctionId = createdAuctionId;
 
       if (!targetAuctionId) {
         const afterAuctions = await getAllAuctions();
@@ -135,17 +137,32 @@ export default function CreateAuctionModal({ open, onOpenChange, onSuccess }) {
     onOpenChange(false);
   };
 
+  const handleOpenChange = (val) => {
+    if (!val && !isPublished && (formData.title || formData.images.length > 0)) {
+      setCloseConfirmOpen(true);
+      return;
+    }
+    onOpenChange(val);
+  };
+
   return (
-      <Dialog.Root open={open} onOpenChange={(val) => {
-        if (!val && !isPublished && (formData.title || formData.images.length > 0)) {
-          const confirmClose = window.confirm(t('pageTitle') + '?');
-          if (!confirmClose) return;
-        }
-        onOpenChange(val);
-      }}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50 animate-in fade-in" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-4xl max-h-[90vh] bg-[#F4FAFA] rounded-xl shadow-xl z-50 overflow-hidden flex flex-col focus:outline-none animate-in zoom-in-95 duration-200">
+      <>
+      <ConfirmDialog
+        open={closeConfirmOpen}
+        onOpenChange={(isOpen) => setCloseConfirmOpen(isOpen)}
+        title={t('pageTitle')}
+        description={t('pageTitle') + '?'}
+        confirmText={t('discard') || 'Discard'}
+        cancelText={t('cancel') || 'Cancel'}
+        onConfirm={() => {
+          setCloseConfirmOpen(false);
+          onOpenChange(false);
+        }}
+      />
+      <Dialog.Root open={open} onOpenChange={handleOpenChange}>
+         <Dialog.Portal>
+           <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50 animate-in fade-in" />
+           <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-4xl max-h-[90vh] bg-[#F4FAFA] rounded-xl shadow-xl z-50 overflow-hidden flex flex-col focus:outline-none animate-in zoom-in-95 duration-200">
 
             {/* Header */}
             <div className="bg-white border-b border-[#C5E0DC] px-6 h-16 flex items-center justify-between shrink-0">
@@ -234,5 +251,6 @@ export default function CreateAuctionModal({ open, onOpenChange, onSuccess }) {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
-  );
-}
+      </>
+   );
+ }

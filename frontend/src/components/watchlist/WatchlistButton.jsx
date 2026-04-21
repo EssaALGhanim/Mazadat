@@ -3,6 +3,7 @@ import { Bookmark } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useWatchlist } from '@/contexts/WatchlistContext';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export default function WatchlistButton({ auctionId, variant = 'icon', className = '' }) {
   const { i18n } = useTranslation('common');
@@ -20,10 +21,10 @@ export default function WatchlistButton({ auctionId, variant = 'icon', className
     try {
       const result = await toggleWatchlist(auctionId);
       if (!result.success && result.error) {
-        alert(result.error);
+        toast.error(result.error);
       }
     } catch (err) {
-      alert(err.message || (isAr ? 'حدث خطأ' : 'An error occurred'));
+      toast.error(err.message || (isAr ? 'حدث خطأ' : 'An error occurred'));
     } finally {
       setLoading(false);
     }

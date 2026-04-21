@@ -14,6 +14,8 @@ import { getCurrentSellerProfile } from '@/services/userService';
 import { featureAuction } from '@/services/featuredService';
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
 import { useNow } from '@/hooks/useNow';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { toast } from 'sonner';
 
 export default function SellerDashboard() {
     const { t, i18n } = useTranslation('common');
@@ -33,6 +35,7 @@ export default function SellerDashboard() {
     const [featureModalOpen, setFeatureModalOpen] = useState(false);
     const [featureLoading, setFeatureLoading] = useState(false);
     const [selectedAuctionToFeature, setSelectedAuctionToFeature] = useState(null);
+    const [deleteConfirmAuction, setDeleteConfirmAuction] = useState(null);
     const isAr = i18n.language === 'ar';
     const now = useNow();
     const nowDate = new Date(now);
@@ -115,16 +118,15 @@ export default function SellerDashboard() {
 
     const handleDeleteAuction = async (auctionId) => {
         setDeleteError(null);
-        if (!window.confirm(isAr ? 'هل أنت متأكد من حذف هذا المزاد؟' : 'Are you sure you want to delete this auction?')) {
-            return;
-        }
-
         setDeleteLoading(auctionId);
         try {
             await deleteAuction(auctionId);
-            setAuctions(auctions.filter(a => a.id !== auctionId));
+            setAuctions((prev) => prev.filter((a) => a.id !== auctionId));
+            toast.success(isAr ? 'تم حذف المزاد' : 'Auction deleted successfully');
         } catch (err) {
-            setDeleteError(err?.message || (isAr ? 'فشل حذف المزاد' : 'Failed to delete auction'));
+            const message = err?.message || (isAr ? 'فشل حذف المزاد' : 'Failed to delete auction');
+            setDeleteError(message);
+            toast.error(message);
         } finally {
             setDeleteLoading(null);
         }
@@ -534,7 +536,7 @@ export default function SellerDashboard() {
                                                                         </button>
                                                                     )}
                                                                     <button
-                                                                        onClick={() => handleDeleteAuction(auction.id)}
+                                                                        onClick={() => setDeleteConfirmAuction(auction)}
                                                                         disabled={deleteLoading === auction.id}
                                                                         className="p-2 hover:bg-red-100 rounded-lg transition-colors text-red-600 disabled:opacity-50"
                                                                         title={isAr ? 'حذف' : 'Delete'}
@@ -569,6 +571,20 @@ export default function SellerDashboard() {
                 auctionEndDate={selectedAuctionToFeature?.endDate}
                 onFeature={handleFeatureAuction}
                 loading={featureLoading}
+            />
+            <ConfirmDialog
+                open={!!deleteConfirmAuction}
+                onOpenChange={(open) => !open && setDeleteConfirmAuction(null)}
+                title={isAr ? 'حذف المزاد' : 'Delete Auction'}
+                description={isAr ? 'هل أنت متأكد من حذف هذا المزاد؟' : 'Are you sure you want to delete this auction?'}
+                confirmText={isAr ? 'حذف' : 'Delete'}
+                cancelText={isAr ? 'إلغاء' : 'Cancel'}
+                onConfirm={() => {
+                    if (deleteConfirmAuction) {
+                        handleDeleteAuction(deleteConfirmAuction.id);
+                    }
+                    setDeleteConfirmAuction(null);
+                }}
             />
         </div>
     );
