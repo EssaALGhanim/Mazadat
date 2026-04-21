@@ -13,6 +13,7 @@ import { resolveImageUrl } from '@/services/imageService';
 import { featureAuction } from '@/services/featuredService';
 import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirection';
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
+import { useNow } from '@/hooks/useNow';
 
 export default function AuctionDetailPage({ currentUser }) {
     const { t, i18n } = useTranslation('common');
@@ -31,6 +32,8 @@ export default function AuctionDetailPage({ currentUser }) {
     const [isFeatured, setIsFeatured] = useState(false);
     const [featureLoading, setFeatureLoading] = useState(false);
     const [featureModalOpen, setFeatureModalOpen] = useState(false);
+    const now = useNow();
+    const nowDate = new Date(now);
 
     const { autoBid, cancelAutoBid, setAutoBid, isLoading: autoBidLoading } = useAutoBid(auctionId);
 
@@ -85,14 +88,17 @@ export default function AuctionDetailPage({ currentUser }) {
 
     const isBuyer = currentUser?.role === 'BUYER';
     const isSeller = currentUser?.role === 'SELLER';
-    const isActive = auction?.status === 'ACTIVE';
-    const isPending = auction?.status === 'PENDING';
+    const startDate = auction?.startDate ? new Date(auction.startDate) : null;
+    const endDate = auction?.endDate ? new Date(auction.endDate) : null;
+    const hasStarted = !startDate || startDate <= nowDate;
     const isEnded = auction?.status === 'COMPLETED' || auction?.status === 'ENDED';
     const isFailedBelowReserve = auction?.status === 'FAILED_BELOW_RESERVE';
-    const hasEndTimePassed = auction?.endDate && new Date(auction.endDate) < new Date();
+    const hasEndTimePassed = endDate && endDate < nowDate;
     const auctionEnded = isEnded || isFailedBelowReserve || hasEndTimePassed;
+    const isPendingAuction = auction?.status === 'PENDING' && !hasStarted && !auctionEnded;
+    const isLiveAuction = !auctionEnded && hasStarted && (auction?.status === 'ACTIVE' || auction?.status === 'PENDING');
 
-    const canBid = isBuyer && (isActive || isPending) && !auctionEnded;
+    const canBid = isBuyer && isLiveAuction;
     const currentPrice = Number(auction?.currentPrice);
     const startingPrice = Number(auction?.startingPrice);
     const hasBids = Number.isFinite(auction?.bidCount) ? auction.bidCount > 0 : (Number.isFinite(currentPrice) && Number.isFinite(startingPrice) ? currentPrice > startingPrice : !!currentPrice);
@@ -319,14 +325,27 @@ export default function AuctionDetailPage({ currentUser }) {
                         </div>
 
                         {/* Countdown or Status */}
-                        {(isActive || isPending) && !auctionEnded && (
+                        {isPendingAuction && auction?.startDate && (
+                            <div className="bg-[#FFF9E6] border border-[#FFD54D]/50 rounded-xl py-4 px-4 shadow-sm">
+                                <p className="text-sm font-semibold text-[#B8860B] mb-2">
+                                    {isAr ? 'قيد الانتظار' : 'Pending'}
+                                </p>
+                                <p className="text-xs font-semibold text-[#B8860B] mb-2">
+                                    {isAr ? 'يبدأ بعد' : 'Starts In'}
+                                </p>
+                                <CountdownTimer targetDate={auction.startDate} mode="start" />
+                            </div>
+                        )}
+
+                        {isLiveAuction && !auctionEnded && (
                             <div className="bg-white rounded-xl border border-[#C5E0DC] p-4 shadow-sm">
                                 <p className="text-sm font-semibold text-[#6B9E99] mb-2">
                                     {isAr ? 'الوقت المتبقي' : 'Time Left'}
                                 </p>
-                                <CountdownTimer endDate={auction.endDate} />
+                                <CountdownTimer targetDate={auction.endDate} mode="end" />
                             </div>
                         )}
+
 
                         {/* Auction Status */}
                         {auctionEnded && (
@@ -404,21 +423,21 @@ export default function AuctionDetailPage({ currentUser }) {
                                 </button>
                             )}
 
-                            {isSeller && !isFeatured && (
+                            {isSeller && isLiveAuction && !isFeatured && (
                                 <button
                                     onClick={() => setFeatureModalOpen(true)}
                                     disabled={featureLoading}
                                     className="w-full bg-gradient-to-r from-[#2A9D8F] to-[#1A7A6E] hover:from-[#1A7A6E] hover:to-[#0D5A52] text-white px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
                                 >
                                     <Zap className="w-4 h-4" />
-                                    {isAr ? 'عرض هذا المنتج' : 'Feature This Product'}
+                                    {t('featureThisAuction')}
                                 </button>
                             )}
 
                             {isSeller && isFeatured && (
                                 <div className="w-full bg-[#EAF7F5] border border-[#2A9D8F] text-[#2A9D8F] px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-sm">
                                     <Zap className="w-4 h-4" />
-                                    {isAr ? 'المنتج معروض حالياً' : 'Product is Featured'}
+                                    {t('featuredActive')}
                                 </div>
                             )}
 
@@ -479,6 +498,7 @@ export default function AuctionDetailPage({ currentUser }) {
                 open={featureModalOpen}
                 onOpenChange={setFeatureModalOpen}
                 auctionTitle={auction?.title}
+                auctionEndDate={auction?.endDate}
                 onFeature={handleFeatureAuction}
                 loading={featureLoading}
             />

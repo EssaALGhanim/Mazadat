@@ -1,15 +1,19 @@
 import { useCountdown } from '@/hooks/useCountdown';
 import { useTranslation } from 'react-i18next';
 
-export default function CountdownTimer({ endDate }) {
+export default function CountdownTimer({ targetDate, mode = 'end' }) {
     const { t } = useTranslation('common');
-    const { days, hours, minutes, seconds, expired } = useCountdown(endDate);
+    const { days, hours, minutes, seconds, expired } = useCountdown(targetDate);
 
     if (expired) {
+        if (mode === 'start') {
+            return null;
+        }
+
         return (
             <span className="text-[#E05252] font-bold text-sm">
-        {t('auctionEnded')}
-      </span>
+                {t('auctionEnded')}
+            </span>
         );
     }
 

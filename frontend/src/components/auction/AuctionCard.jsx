@@ -9,6 +9,7 @@ import { resolveImageUrl } from '@/services/imageService';
 import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirection';
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
 import WatchlistButton from '@/components/watchlist/WatchlistButton';
+import { useNow } from '@/hooks/useNow';
 
 export default function AuctionCard({ auction, currentUser, onActionComplete, isFeatured = false }) {
     const { t, i18n } = useTranslation('common');
@@ -16,20 +17,24 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
     const [bidModalOpen, setBidModalOpen] = useState(false);
     const [bidSubmitError, setBidSubmitError] = useState(null);
     const isAr = i18n.language === 'ar';
+    const now = useNow();
+    const nowDate = new Date(now);
 
     const isBuyer = currentUser?.role === 'BUYER';
     const isSeller = currentUser?.role === 'SELLER';
-    const isActive = auction?.status === 'ACTIVE';
-    const isPending = auction?.status === 'PENDING';
+    const startDate = auction?.startDate ? new Date(auction.startDate) : null;
+    const endDate = auction?.endDate ? new Date(auction.endDate) : null;
+    const hasStarted = !startDate || startDate <= nowDate;
     const isEnded = auction?.status === 'COMPLETED' || auction?.status === 'ENDED';
     const isFailedBelowReserve = auction?.status === 'FAILED_BELOW_RESERVE';
-    const hasStarted = !auction?.startDate || new Date(auction.startDate) <= new Date();
 
     // Check if auction time has passed
-    const hasEndTimePasssed = auction?.endDate && new Date(auction.endDate) < new Date();
+    const hasEndTimePasssed = endDate && endDate < nowDate;
     const auctionEnded = isEnded || isFailedBelowReserve || hasEndTimePasssed;
+    const isPendingAuction = auction?.status === 'PENDING' && !hasStarted && !auctionEnded;
+    const isLiveAuction = !auctionEnded && hasStarted && (auction?.status === 'ACTIVE' || auction?.status === 'PENDING');
 
-    const canBid = isBuyer && (isActive || isPending) && hasStarted && !auctionEnded;
+    const canBid = isBuyer && isLiveAuction;
     const currentPrice = Number(auction?.currentPrice);
     const startingPrice = Number(auction?.startingPrice);
     const hasBids = Number.isFinite(auction?.bidCount)
@@ -41,7 +46,7 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
     const minRequiredBid = hasBids
         ? Math.ceil(baseBid * 1.05)
         : Math.floor(startingPrice > 0 ? startingPrice : 0) + 1;
-    const canCancel = isSeller && (isActive || isPending) && !hasBids;
+    const canCancel = isSeller && (isLiveAuction || isPendingAuction) && !hasBids;
 
     // Determine if current user won the auction
     const isWinner = isBuyer && auctionEnded && hasBids && auction?.highestBidder === currentUser?.username;
@@ -114,13 +119,23 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
             )}
 
             {/* Live Auction Corner Badge */}
-            {!auctionEnded && !isFeatured && (
+            {isLiveAuction && !isFeatured && (
                 <div className="absolute top-2 end-2 z-10 bg-red-600 text-white rounded-full px-2.5 py-1 text-[10px] font-bold flex items-center gap-1.5 shadow-sm">
                     <span className="relative flex h-2 w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-200 opacity-75" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-red-100" />
                     </span>
                     {isAr ? 'مزاد مباشر' : 'Live Auction'}
+                </div>
+            )}
+
+            {/* Pending Auction Corner Badge */}
+            {isPendingAuction && !isFeatured && (
+                <div className="absolute top-2 end-2 z-10 bg-yellow-500 text-white rounded-full px-2.5 py-1 text-[10px] font-bold flex items-center gap-1.5 shadow-sm">
+                    <span className="relative flex h-2 w-2">
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-100" />
+                    </span>
+                    {isAr ? 'قيد الانتظار' : 'Pending'}
                 </div>
             )}
 
@@ -172,11 +187,19 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
             )}
 
             {/* Countdown Timer */}
-            {(isActive || isPending) && auction?.endDate && !auctionEnded && (
+            {isPendingAuction && auction?.startDate && (
+                <div className="px-3 pt-2.5 flex items-center gap-2 flex-wrap">
+                    <span className="text-[#B8860B] text-xs font-semibold">{isAr ? 'يبدأ بعد' : 'Starts In'}:</span>
+                    <div className="flex-1">
+                        <CountdownTimer targetDate={auction.startDate} mode="start" />
+                    </div>
+                </div>
+            )}
+            {isLiveAuction && auction?.endDate && !auctionEnded && (
                 <div className="px-3 pt-2.5 flex items-center gap-2 flex-wrap">
                     <span className="text-[#6B9E99] text-xs font-semibold">{t('timeLeft')}:</span>
                     <div className="flex-1">
-                        <CountdownTimer endDate={auction.endDate} />
+                        <CountdownTimer targetDate={auction.endDate} mode="end" />
                     </div>
                 </div>
             )}
@@ -229,9 +252,9 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
 
             {/* Interaction Bar - Bottom */}
             <div className="p-2.5 flex gap-2 bg-white border-t border-[#C5E0DC]">
-                {isBuyer && !hasStarted && !auctionEnded && (
+                {isBuyer && isPendingAuction && (
                     <p className="flex-1 text-xs font-semibold text-[#6B9E99] self-center">
-                        {isAr ? 'المزاد لم يبدأ بعد' : 'Auction has not started yet'}
+                        {isAr ? 'قيد الانتظار حتى يبدأ المزاد' : 'Auction is pending until it starts'}
                     </p>
                 )}
                 {canCancel && (

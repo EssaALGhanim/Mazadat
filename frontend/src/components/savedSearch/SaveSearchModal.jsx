@@ -100,7 +100,7 @@ export default function SaveSearchModal({ open, onOpenChange, currentFilters, on
                   <p>• {isAr ? 'الفئة:' : 'Category:'} {currentFilters.category}</p>
                 )}
                 {currentFilters?.status !== 'all' && (
-                  <p>• {isAr ? 'الحالة:' : 'Status:'} {currentFilters.status}</p>
+                  <p>• {isAr ? 'الحالة:' : 'Status:'} {currentFilters.status === 'pending' ? (isAr ? 'قيد الانتظار' : 'Pending') : currentFilters.status === 'active' ? (isAr ? 'نشط' : 'Active') : currentFilters.status === 'ended' ? (isAr ? 'منتهي' : 'Ended') : currentFilters.status}</p>
                 )}
                 {currentFilters?.sortBy !== 'newest' && (
                   <p>• {isAr ? 'الترتيب:' : 'Sort:'} {currentFilters.sortBy}</p>

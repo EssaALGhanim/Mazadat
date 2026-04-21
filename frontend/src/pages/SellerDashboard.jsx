@@ -6,15 +6,17 @@ import TopNavigationBar from '../components/TopNavigationBar';
 import CreateAuctionModal from '../components/createAuction/CreateAuctionModal';
 import AuctionHouseCreationModal from '../components/createAuction/AuctionHouseCreationModal';
 import FeatureAuctionModal from '../components/auction/FeatureAuctionModal';
+import CountdownTimer from '../components/auction/CountdownTimer';
 import { getSellerAuctionHouse } from '@/services/auctionHouseService';
 import { deleteAuction } from '@/services/auctionService';
 import { resolveImageUrl } from '@/services/imageService';
 import { getCurrentSellerProfile } from '@/services/userService';
 import { featureAuction } from '@/services/featuredService';
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
+import { useNow } from '@/hooks/useNow';
 
 export default function SellerDashboard() {
-    const { i18n } = useTranslation('common');
+    const { t, i18n } = useTranslation('common');
     const navigate = useNavigate();
     const [currentUser, setCurrentUser] = useState(null);
     const [auctionHouse, setAuctionHouse] = useState(null);
@@ -32,6 +34,23 @@ export default function SellerDashboard() {
     const [featureLoading, setFeatureLoading] = useState(false);
     const [selectedAuctionToFeature, setSelectedAuctionToFeature] = useState(null);
     const isAr = i18n.language === 'ar';
+    const now = useNow();
+    const nowDate = new Date(now);
+
+    const getAuctionTiming = (auction) => {
+        const startDate = auction?.startDate ? new Date(auction.startDate) : null;
+        const endDate = auction?.endDate ? new Date(auction.endDate) : null;
+        const hasStarted = !startDate || startDate <= nowDate;
+        const hasEndedByTime = !!endDate && endDate <= nowDate;
+        const isEnded = auction?.status === 'COMPLETED' || auction?.status === 'ENDED' || auction?.status === 'FAILED_BELOW_RESERVE' || hasEndedByTime;
+        const isPending = auction?.status === 'PENDING' && !hasStarted && !isEnded;
+        const isLive = !isEnded && hasStarted && (auction?.status === 'ACTIVE' || auction?.status === 'PENDING');
+        return { startDate, endDate, hasStarted, isEnded, isPending, isLive };
+    };
+
+    const isLiveAuction = (auction) => getAuctionTiming(auction).isLive;
+    const isPendingAuction = (auction) => getAuctionTiming(auction).isPending;
+    const isAuctionEnded = (auction) => getAuctionTiming(auction).isEnded;
 
     useEffect(() => {
         try {
@@ -120,6 +139,10 @@ export default function SellerDashboard() {
     const handleFeatureAuction = async (featuredEndDate) => {
         if (!selectedAuctionToFeature) return;
 
+        if (!isLiveAuction(selectedAuctionToFeature)) {
+            throw new Error(t('featureOnlyLiveAuction'));
+        }
+
         setFeatureLoading(true);
         try {
             await featureAuction(selectedAuctionToFeature.id, featuredEndDate);
@@ -137,15 +160,8 @@ export default function SellerDashboard() {
         }
     };
 
-
-    const isAuctionEnded = (auction) => {
-        const endedByStatus = auction?.status === 'COMPLETED' || auction?.status === 'ENDED' || auction?.status === 'FAILED_BELOW_RESERVE';
-        const endedByTime = auction?.endDate ? new Date(auction.endDate) <= new Date() : false;
-        return endedByStatus || endedByTime;
-    };
-
     const filteredAuctions = auctions.filter(auction => {
-        if (filterStatus === 'active' && isAuctionEnded(auction)) return false;
+        if (filterStatus === 'active' && !isLiveAuction(auction)) return false;
         if (filterStatus === 'completed' && !isAuctionEnded(auction)) return false;
         
         if (searchQuery.trim()) {
@@ -160,24 +176,26 @@ export default function SellerDashboard() {
 
     const stats = {
         total: auctions.length,
-        active: auctions.filter((a) => !isAuctionEnded(a)).length,
+        active: auctions.filter((a) => isLiveAuction(a)).length,
         completed: auctions.filter((a) => isAuctionEnded(a)).length,
         totalBids: auctions.reduce((sum, a) => sum + (a.bidCount || 0), 0)
     };
 
     const getAuctionStatus = (auction) => {
-        const now = new Date();
-        const endDate = new Date(auction.endDate);
+        const { endDate, isEnded, isPending, isLive } = getAuctionTiming(auction);
         if (auction.status === 'FAILED_BELOW_RESERVE') {
             return { label: isAr ? 'فشل - أقل من الحد الأدنى للبيع' : 'Failed - Below Reserve', color: 'text-red-700', bg: 'bg-red-100' };
         }
-        if (endDate < now) {
+        if (isEnded) {
             return { label: isAr ? 'منتهي' : 'Ended', color: 'text-red-600', bg: 'bg-red-50' };
         }
-        if (auction.status === 'PENDING') {
+        if (isPending) {
             return { label: isAr ? 'قيد الانتظار' : 'Pending', color: 'text-yellow-600', bg: 'bg-yellow-50' };
         }
-        return { label: isAr ? 'نشط' : 'Active', color: 'text-green-600', bg: 'bg-green-50' };
+        if (isLive) {
+            return { label: isAr ? 'نشط' : 'Active', color: 'text-green-600', bg: 'bg-green-50' };
+        }
+        return { label: isAr ? 'قيد الانتظار' : 'Pending', color: 'text-yellow-600', bg: 'bg-yellow-50' };
     };
 
     if (currentUser?.role !== 'SELLER') {
@@ -440,8 +458,9 @@ export default function SellerDashboard() {
                                             <tbody>
                                                 {filteredAuctions.map((auction) => {
                                                     const status = getAuctionStatus(auction);
-                                                    const endDate = new Date(auction.endDate);
-                                                    const daysLeft = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
+                                                    const { endDate, startDate, isPending } = getAuctionTiming(auction);
+                                                    const countdownTarget = isPending ? startDate : endDate;
+                                                    const countdownMode = isPending ? 'start' : 'end';
                                                     return (
                                                         <tr key={auction.id} className="border-b border-[#C5E0DC] hover:bg-[#F4FAFA] transition-colors">
                                                             <td className="px-6 py-4">
@@ -477,9 +496,12 @@ export default function SellerDashboard() {
                                                             <td className="px-6 py-4">
                                                                 <div className="flex items-center gap-1">
                                                                     <Clock className="w-4 h-4 text-[#6B9E99]" />
-                                                                    <p className="text-sm text-[#6B9E99]">
-                                                                        {daysLeft > 0 ? `${daysLeft}d` : 'Ended'}
-                                                                    </p>
+                                                                    <div className="text-sm text-[#6B9E99]">
+                                                                        <p className="font-semibold text-xs mb-1">
+                                                                            {isPending ? (isAr ? 'يبدأ بعد' : 'Starts In') : (isAr ? 'الوقت المتبقي' : 'Time Left')}
+                                                                        </p>
+                                                                        <CountdownTimer targetDate={countdownTarget} mode={countdownMode} />
+                                                                    </div>
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-4">
@@ -491,11 +513,11 @@ export default function SellerDashboard() {
                                                                     >
                                                                         <Eye className="w-4 h-4" />
                                                                     </button>
-                                                                    {!auction.isActivelyFeatured && (
+                                                                    {isLiveAuction(auction) && !auction.isActivelyFeatured && (
                                                                         <button
                                                                             onClick={() => handleOpenFeatureModal(auction)}
                                                                             className="p-2 hover:bg-yellow-100 rounded-lg transition-colors text-yellow-600"
-                                                                            title={isAr ? 'عرض' : 'Feature'}
+                                                                            title={t('featureAuction')}
                                                                         >
                                                                             <Zap className="w-4 h-4" />
                                                                         </button>
@@ -504,7 +526,7 @@ export default function SellerDashboard() {
                                                                         <button
                                                                             disabled
                                                                             className="p-2 bg-yellow-100 rounded-lg text-yellow-600 opacity-50"
-                                                                            title={isAr ? 'معروض' : 'Featured'}
+                                                                            title={t('featured')}
                                                                         >
                                                                             <Zap className="w-4 h-4" />
                                                                         </button>
@@ -542,6 +564,7 @@ export default function SellerDashboard() {
                 open={featureModalOpen}
                 onOpenChange={setFeatureModalOpen}
                 auctionTitle={selectedAuctionToFeature?.title}
+                auctionEndDate={selectedAuctionToFeature?.endDate}
                 onFeature={handleFeatureAuction}
                 loading={featureLoading}
             />

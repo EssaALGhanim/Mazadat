@@ -5,11 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.example.mazadat.Api.ApiException;
 import org.example.mazadat.DTOIN.AuctionHouseDTOIN;
 import org.example.mazadat.DTOOUT.SellerTeamMemberDTO;
+import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.AuctionHouse;
 import org.example.mazadat.Model.Seller;
+import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.AuctionHouseRepository;
 import org.example.mazadat.Repository.SellerRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,18 +27,36 @@ public class AuctionHouseService {
 
     private final AuctionHouseRepository auctionHouseRepository;
     private final SellerRepository sellerRepository;
+    private final AuctionRepository auctionRepository;
 
 
     public List<AuctionHouse> getAllAuctionHouses(){
         return auctionHouseRepository.findAll();
     }
 
+    @Transactional
     public AuctionHouse getSellerAuctionHouse(Integer SellerId){
         Seller seller = sellerRepository.findSellerById(SellerId);
         if (seller == null){
             throw new ApiException("Seller not found");
         }
-        return seller.getAuctionHouse();
+
+        AuctionHouse auctionHouse = seller.getAuctionHouse();
+        if (auctionHouse == null) {
+            return null;
+        }
+
+        boolean hasUpdates = false;
+        for (Auction auction : auctionHouse.getAuctions()) {
+            if (refreshAuctionLifecycle(auction)) {
+                hasUpdates = true;
+            }
+        }
+        if (hasUpdates) {
+            auctionRepository.saveAll(auctionHouse.getAuctions());
+        }
+
+        return auctionHouse;
     }
 
     public void addAuctionHouse(AuctionHouseDTOIN auctionHouseDTOIN, Integer SellerId){
@@ -362,6 +383,24 @@ public class AuctionHouseService {
         seller.setAuctionHouse(null);
         seller.setIsAdmin(false);
         sellerRepository.save(seller);
+    }
+
+    private boolean refreshAuctionLifecycle(Auction auction) {
+        if (auction == null || auction.getStartDate() == null || auction.getEndDate() == null) {
+            return false;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (auction.getStartDate().isAfter(now) || !now.isBefore(auction.getEndDate())) {
+            return false;
+        }
+
+        if ("PENDING".equals(auction.getStatus())) {
+            auction.setStatus("ACTIVE");
+            return true;
+        }
+
+        return false;
     }
 
     private String normalizeIban(String iban) {

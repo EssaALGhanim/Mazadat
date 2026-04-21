@@ -6,6 +6,18 @@ import { Slider } from '@/components/ui/slider';
 import SaveSearchModal from '@/components/savedSearch/SaveSearchModal';
 import ManageSavedSearchesModal from '@/components/savedSearch/ManageSavedSearchesModal';
 
+function FilterSection({ title, children }) {
+    return (
+        <div className="pb-6 border-b border-[#C5E0DC]">
+            <h3 className="text-sm font-bold text-[#1A2E2C] mb-4 flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-[#2A9D8F]" />
+                {title}
+            </h3>
+            {children}
+        </div>
+    );
+}
+
 export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobileOpen, onMobileClose, priceBounds = [0, 100000] }) {
     const { i18n } = useTranslation('common');
     const isAr = i18n.language === 'ar';
@@ -37,7 +49,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
 
     // Sync selected range when available bounds change (e.g., new search query)
     useEffect(() => {
-        setPriceRange(clampRange(priceBounds));
+        setPriceRange((prev) => clampRange(prev));
     }, [normalizedMin, normalizedMax]);
 
     // Load auction houses on mount
@@ -63,10 +75,9 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
             priceRange,
             sortBy,
             category,
-            status,
-            searchKeyword
+            status
         });
-    }, [selectedHouse, priceRange, sortBy, category, status, searchKeyword, onFiltersChange]);
+    }, [selectedHouse, priceRange, sortBy, category, status, onFiltersChange]);
 
     const categories = [
         { value: '', label: isAr ? 'جميع الفئات' : 'All Categories' },
@@ -114,19 +125,10 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
         setPriceRange(clampRange(filters.priceRange || [normalizedMin, normalizedMax]));
         setSortBy(filters.sortBy || 'newest');
         setCategory(filters.category || '');
-        setStatus(filters.status || 'all');
+        setStatus(filters.status === 'live' ? 'active' : (filters.status || 'all'));
         setSearchKeyword(filters.searchKeyword || '');
     };
 
-    const FilterSection = ({ title, children }) => (
-        <div className="pb-6 border-b border-[#C5E0DC]">
-            <h3 className="text-sm font-bold text-[#1A2E2C] mb-4 flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-[#2A9D8F]" />
-                {title}
-            </h3>
-            {children}
-        </div>
-    );
 
     return (
         <>
@@ -243,7 +245,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
 
                     {/* Status Filter */}
                     <FilterSection title={isAr ? 'حالة المزاد' : 'Auction Status'}>
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                             <button
                                 type="button"
                                 onClick={() => setStatus('all')}
@@ -255,12 +257,21 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setStatus('live')}
+                                onClick={() => setStatus('pending')}
                                 className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                                    status === 'live' ? 'bg-[#2A9D8F] text-white' : 'bg-[#F4FAFA] text-[#6B9E99] hover:bg-[#E2F1EF]'
+                                    status === 'pending' ? 'bg-[#2A9D8F] text-white' : 'bg-[#F4FAFA] text-[#6B9E99] hover:bg-[#E2F1EF]'
                                 }`}
                             >
-                                {isAr ? 'مباشر' : 'Live'}
+                                {isAr ? 'قيد الانتظار' : 'Pending'}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setStatus('active')}
+                                className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                                    status === 'active' ? 'bg-[#2A9D8F] text-white' : 'bg-[#F4FAFA] text-[#6B9E99] hover:bg-[#E2F1EF]'
+                                }`}
+                            >
+                                {isAr ? 'نشط' : 'Active'}
                             </button>
                             <button
                                 type="button"

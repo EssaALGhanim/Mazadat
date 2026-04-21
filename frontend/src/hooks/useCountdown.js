@@ -2,7 +2,12 @@ import { useState, useEffect } from 'react';
 
 export function useCountdown(endDate) {
     const calculate = () => {
-        const diff = new Date(endDate).getTime() - Date.now();
+        const target = new Date(endDate);
+        if (Number.isNaN(target.getTime())) {
+            return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
+        }
+
+        const diff = target.getTime() - Date.now();
         if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
 
         return {

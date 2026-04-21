@@ -12,10 +12,13 @@ import WatchlistPage from './WatchlistPage';
 import { getAllAuctions, searchAuctions } from '@/services/auctionService';
 import { getSellerAuctionHouse } from '@/services/auctionHouseService';
 import { getFeaturedAuctions } from '@/services/featuredService';
+import { useNow } from '@/hooks/useNow';
 
 export default function HomePage() {
-  const { i18n } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const isAr = i18n.language === 'ar';
+  const now = useNow();
+  const nowDate = new Date(now);
   const navigate = useNavigate();
 
   const [currentUser, setCurrentUser] = useState(null);
@@ -39,7 +42,6 @@ export default function HomePage() {
     sortBy: 'newest',
     category: '',
     status: 'all',
-    searchKeyword: '',
   });
 
   // Calculate actual price range from current auctions
@@ -54,14 +56,24 @@ export default function HomePage() {
 
   // Define applyFilters early so it's available for useEffect dependencies
   const applyFilters = useCallback(() => {
-    const now = new Date();
+    const currentDate = nowDate;
     const isEndedAuction = (auction) => {
       const endedByStatus = auction?.status === 'COMPLETED' || auction?.status === 'ENDED' || auction?.status === 'FAILED_BELOW_RESERVE';
-      const endedByTime = auction?.endDate ? new Date(auction.endDate) <= now : false;
+      const endedByTime = auction?.endDate ? new Date(auction.endDate) <= currentDate : false;
       return endedByStatus || endedByTime;
     };
+    const isPendingAuction = (auction) => {
+      if (isEndedAuction(auction)) return false;
+      if (auction?.status === 'PENDING') {
+        const startDate = auction?.startDate ? new Date(auction.startDate) : null;
+        return !startDate || startDate > currentDate;
+      }
+      return false;
+    };
     const isLiveAuction = (auction) => {
-      const liveStatus = auction?.status === 'ACTIVE' || auction?.status === 'PENDING';
+      const startDate = auction?.startDate ? new Date(auction.startDate) : null;
+      const hasStarted = !startDate || startDate <= currentDate;
+      const liveStatus = hasStarted && (auction?.status === 'ACTIVE' || auction?.status === 'PENDING');
       return liveStatus && !isEndedAuction(auction);
     };
 
@@ -80,7 +92,9 @@ export default function HomePage() {
       filtered = filtered.filter((a) => a.category === filters.category);
     }
 
-    if (filters.status === 'live') {
+    if (filters.status === 'pending') {
+      filtered = filtered.filter((a) => isPendingAuction(a));
+    } else if (filters.status === 'active' || filters.status === 'live') {
       filtered = filtered.filter((a) => isLiveAuction(a));
     } else if (filters.status === 'ended') {
       filtered = filtered.filter((a) => isEndedAuction(a));
@@ -99,7 +113,7 @@ export default function HomePage() {
     }
 
     setFilteredAuctions(filtered);
-  }, [auctions, filters]);
+  }, [auctions, filters, nowDate]);
 
   useEffect(() => {
     try {
@@ -154,12 +168,6 @@ export default function HomePage() {
 
       setAuctions(auctionsList);
       setPriceBounds([minPrice, maxPrice]);
-
-      // Update filters with actual price range
-      setFilters((prev) => ({
-        ...prev,
-        priceRange: [minPrice, maxPrice],
-      }));
     } catch (err) {
       console.error('Error fetching auctions:', err);
       setError(isAr ? 'فشل تحميل المزادات' : 'Failed to load auctions');
@@ -293,7 +301,7 @@ export default function HomePage() {
                   <div className="mb-8">
                     <h2 className="text-2xl font-bold text-[#1A2E2C] mb-4 flex items-center gap-2">
                       <span className="text-[#FFD700]">⭐</span>
-                      {isAr ? 'المزادات المميزة' : 'Featured Auctions'}
+                      {t('featuredAuctions')}
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       {filteredAuctions

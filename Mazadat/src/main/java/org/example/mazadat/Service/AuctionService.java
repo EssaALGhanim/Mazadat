@@ -25,6 +25,7 @@ public class AuctionService {
 
     public List<Auction> getAllAuctions(){
         List<Auction> auctions = auctionRepository.findAll();
+        refreshAuctionLifecycle(auctions);
         refreshAuctionOutcomes(auctions);
         return auctions;
     }
@@ -35,6 +36,7 @@ public class AuctionService {
         }
 
         List<Auction> auctions = auctionRepository.searchByQuery(query.trim());
+        refreshAuctionLifecycle(auctions);
         refreshAuctionOutcomes(auctions);
         return auctions;
     }
@@ -42,6 +44,9 @@ public class AuctionService {
     public Auction getAuctionById(Integer auctionId) {
         Auction auction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new ApiException("Auction not found"));
+        if (refreshAuctionLifecycle(auction)) {
+            auctionRepository.save(auction);
+        }
         if (refreshAuctionOutcome(auction)) {
             auctionRepository.save(auction);
         }
@@ -182,6 +187,34 @@ public class AuctionService {
         }
     }
 
+    private boolean refreshAuctionLifecycle(Auction auction) {
+        if (auction == null || auction.getStartDate() == null || auction.getEndDate() == null) {
+            return false;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (auction.getStartDate().isAfter(now) || !now.isBefore(auction.getEndDate())) {
+            return false;
+        }
+
+        if ("PENDING".equals(auction.getStatus())) {
+            auction.setStatus("ACTIVE");
+            return true;
+        }
+
+        return false;
+    }
+
+    private void refreshAuctionLifecycle(List<Auction> auctions) {
+        boolean hasUpdates = false;
+        for (Auction auction : auctions) {
+            hasUpdates = refreshAuctionLifecycle(auction) || hasUpdates;
+        }
+        if (hasUpdates) {
+            auctionRepository.saveAll(auctions);
+        }
+    }
+
     @Transactional
     public Auction featureAuction(Integer auctionId, Integer sellerId, LocalDateTime featuredEndDate) {
         Seller seller = sellerRepository.findById(sellerId)
@@ -195,8 +228,16 @@ public class AuctionService {
         }
 
         LocalDateTime now = LocalDateTime.now();
+        if (!isAuctionLive(auction, now)) {
+            throw new ApiException("Only live auctions can be featured");
+        }
+
         if (featuredEndDate.isBefore(now) || featuredEndDate.equals(now)) {
             throw new ApiException("Featured end date must be in the future");
+        }
+
+        if (auction.getEndDate() != null && featuredEndDate.isAfter(auction.getEndDate())) {
+            throw new ApiException("Featured end date cannot exceed the auction end date");
         }
 
         if (auction.getIsFeatured() && auction.getFeaturedEndDate() != null && auction.getFeaturedEndDate().isAfter(now)) {
@@ -235,5 +276,13 @@ public class AuctionService {
         sellerRepository.findById(sellerId)
                 .orElseThrow(() -> new ApiException("Seller not found"));
         return auctionRepository.findActiveFeaturedBySellerIdOrderByEndDate(sellerId);
+    }
+
+    private boolean isAuctionLive(Auction auction, LocalDateTime now) {
+        return auction != null
+                && auction.getStartDate() != null
+                && auction.getEndDate() != null
+                && !now.isBefore(auction.getStartDate())
+                && now.isBefore(auction.getEndDate());
     }
 }
