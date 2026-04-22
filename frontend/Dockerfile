@@ -3,11 +3,17 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+ARG VITE_API_URL=http://localhost:8080/api/v1
+ARG VITE_IMAGE_BASE_URL=http://localhost:8080
+
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_IMAGE_BASE_URL=${VITE_IMAGE_BASE_URL}
+
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
 # Copy source code
 COPY . .
