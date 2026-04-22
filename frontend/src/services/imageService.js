@@ -1,4 +1,6 @@
-const BASE_URL = 'http://localhost:8080';
+import { API_BASE_URL } from './apiClient';
+
+const IMAGE_BASE_URL = (import.meta.env.VITE_IMAGE_BASE_URL || API_BASE_URL.replace(/\/api\/v1$/, '')).replace(/\/$/, '');
 let imageVersion = Date.now();
 
 function getAuthHeader() {
@@ -18,7 +20,7 @@ export async function uploadImages(auctionId, images) {
         formData.append('files', img.file);
     });
 
-    const response = await fetch(`${BASE_URL}/api/v1/auction/${auctionId}/images`, {
+    const response = await fetch(`${API_BASE_URL}/auction/${auctionId}/images`, {
         method: 'POST',
         headers: {
             ...getAuthHeader(),
@@ -64,5 +66,5 @@ export function resolveImageUrl(imageUrl, cacheKey) {
 
     const separator = imageUrl.includes('?') ? '&' : '?';
     const version = encodeURIComponent(String(cacheKey ?? imageVersion));
-    return `${BASE_URL}${imageUrl}${separator}v=${version}`;
+    return `${IMAGE_BASE_URL}${imageUrl}${separator}v=${version}`;
 }

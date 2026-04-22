@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080/api/v1';
+export const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
 
 function getAuthHeader() {
     try {
@@ -30,7 +30,7 @@ async function request(method, path, body = null, config = {}) {
         ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
     };
 
-    const response = await fetch(`${BASE_URL}${path}`, options);
+    const response = await fetch(`${API_BASE_URL}${path}`, options);
 
     if (!response.ok) {
         let errorMessage = 'Request failed';
