@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.mazadat.Service.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,12 +38,13 @@ public class ConfigSecurity {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, DaoAuthenticationProvider daoAuthenticationProvider) throws Exception {
 
         http
+            .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
             .authenticationProvider(daoAuthenticationProvider)
             .authorizeHttpRequests(auth -> auth
                 // Allow all OPTIONS requests (CORS preflight)
-                    .requestMatchers("OPTIONS", "/**").permitAll()
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Admin endpoints
                     .requestMatchers("/api/v1/user/get/all").hasAuthority("ADMIN")
                 // Auth endpoints (authentication required)
