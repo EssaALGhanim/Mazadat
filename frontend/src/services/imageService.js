@@ -1,6 +1,7 @@
 import { API_BASE_URL } from './apiClient';
 
-const IMAGE_BASE_URL = (import.meta.env.VITE_IMAGE_BASE_URL || API_BASE_URL.replace(/\/api\/v1$/, '')).replace(/\/$/, '');
+const runtimeConfig = typeof window !== 'undefined' ? window.__MAZADAT_CONFIG__ : null;
+const IMAGE_BASE_URL = (runtimeConfig?.IMAGE_BASE_URL || import.meta.env.VITE_IMAGE_BASE_URL || API_BASE_URL.replace(/\/api\/v1$/, '')).replace(/\/$/, '');
 let imageVersion = Date.now();
 
 function getAuthHeader() {
