@@ -7,14 +7,17 @@ import org.example.mazadat.DTOIN.BuyerDTOIN;
 import org.example.mazadat.DTOIN.BuyerUpdateDTOIN;
 import org.example.mazadat.DTOIN.SearchPreferenceDTOIN;
 import org.example.mazadat.DTOOUT.SearchPreferenceDTOOUT;
+import org.example.mazadat.DTOOUT.WatchlistDTOOUT;
 import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.Buyer;
 import org.example.mazadat.Model.SearchPreference;
 import org.example.mazadat.Model.User;
+import org.example.mazadat.Model.Watchlist;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.BuyerRepository;
 import org.example.mazadat.Repository.SearchPreferenceRepository;
 import org.example.mazadat.Repository.UserRepository;
+import org.example.mazadat.Repository.WatchlistRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -29,6 +32,7 @@ public class BuyerService {
     private final UserRepository userRepository;
     private final AuctionRepository auctionRepository;
     private final SearchPreferenceRepository searchPreferenceRepository;
+    private final WatchlistRepository watchlistRepository;
 
 
     public void addBuyer(BuyerDTOIN buyerDTOIN){
@@ -178,5 +182,42 @@ public class BuyerService {
                 p.getStatus(),
                 p.getCreatedAt()
         );
+    }
+
+    public void addToWatchlist(Integer buyerId, Integer auctionId) {
+        Buyer buyer = buyerRepository.findById(buyerId)
+                .orElseThrow(() -> new ApiException("Buyer not found"));
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new ApiException("Auction not found"));
+
+        if (watchlistRepository.existsByBuyerIdAndAuctionId(buyerId, auctionId)) {
+            throw new ApiException("Auction already in watchlist");
+        }
+
+        Watchlist watchlist = new Watchlist();
+        watchlist.setBuyer(buyer);
+        watchlist.setAuction(auction);
+        watchlistRepository.save(watchlist);
+    }
+
+    public void removeFromWatchlist(Integer buyerId, Integer auctionId) {
+        Watchlist watchlist = watchlistRepository.findByBuyerIdAndAuctionId(buyerId, auctionId)
+                .orElseThrow(() -> new ApiException("Watchlist item not found"));
+        watchlistRepository.delete(watchlist);
+    }
+
+    public List<WatchlistDTOOUT> getMyWatchlist(Integer buyerId) {
+        return watchlistRepository.findByBuyerId(buyerId)
+                .stream()
+                .map(w -> new WatchlistDTOOUT(
+                        w.getId(),
+                        w.getAuction().getId(),
+                        w.getAuction().getTitle(),
+                        w.getAuction().getCurrentPrice(),
+                        w.getAuction().getStatus(),
+                        w.getAuction().getEndDate(),
+                        w.getAddedAt()
+                ))
+                .toList();
     }
 }
