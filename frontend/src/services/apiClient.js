@@ -1,4 +1,42 @@
-export const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
+// Try to get API URL from:
+// 1. Runtime config file (for production on Railway)
+// 2. Build-time environment variable (for local dev)
+// 3. Fallback default
+
+let API_BASE_URL_VALUE = null;
+
+async function getAPIBaseURL() {
+    if (API_BASE_URL_VALUE) {
+        return API_BASE_URL_VALUE;
+    }
+
+    // Try to fetch runtime config first
+    try {
+        const response = await fetch('/config.json');
+        if (response.ok) {
+            const config = await response.json();
+            if (config.API_URL) {
+                API_BASE_URL_VALUE = config.API_URL.replace(/\/$/, '');
+                console.log('[API] Using runtime config URL:', API_BASE_URL_VALUE);
+                return API_BASE_URL_VALUE;
+            }
+        }
+    } catch (e) {
+        console.log('[API] Runtime config not available, trying build-time env...');
+    }
+
+    // Fallback to build-time environment or default
+    API_BASE_URL_VALUE = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
+    console.log('[API] Using:', API_BASE_URL_VALUE);
+    return API_BASE_URL_VALUE;
+}
+
+// Initialize immediately
+(async () => {
+    await getAPIBaseURL();
+})();
+
+export const API_BASE_URL = () => API_BASE_URL_VALUE || (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
 
 function getAuthHeader() {
     try {
@@ -30,7 +68,8 @@ async function request(method, path, body = null, config = {}) {
         ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
     };
 
-    const response = await fetch(`${API_BASE_URL}${path}`, options);
+    const apiUrl = API_BASE_URL();
+    const response = await fetch(`${apiUrl}${path}`, options);
 
     if (!response.ok) {
         let errorMessage = 'Request failed';

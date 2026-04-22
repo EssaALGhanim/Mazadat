@@ -3,14 +3,6 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Accept build arguments from Railway
-ARG VITE_API_URL
-ARG VITE_IMAGE_BASE_URL
-
-# Set defaults if not provided
-ENV VITE_API_URL=${VITE_API_URL:-http://localhost:8080/api/v1}
-ENV VITE_IMAGE_BASE_URL=${VITE_IMAGE_BASE_URL:-http://localhost:8080}
-
 # Copy package files
 COPY package*.json ./
 
@@ -20,11 +12,18 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the application with default API URL
+# The actual URL will be injected at runtime
 RUN npm run build
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
+
+WORKDIR /app
+
+# Copy runtime config script
+COPY ./docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 # Copy custom nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
@@ -35,6 +34,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Expose port
 EXPOSE 80
 
-# Start nginx
+# Use custom entrypoint to inject environment variables
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
 
