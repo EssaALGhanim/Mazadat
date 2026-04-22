@@ -3,11 +3,11 @@
 // 2. Build-time environment variable (for local dev)
 // 3. Fallback default
 
-let API_BASE_URL_VALUE = null;
+export let API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
 
 async function getAPIBaseURL() {
-    if (API_BASE_URL_VALUE) {
-        return API_BASE_URL_VALUE;
+    if (API_BASE_URL) {
+        return API_BASE_URL;
     }
 
     // Try to fetch runtime config first
@@ -16,9 +16,9 @@ async function getAPIBaseURL() {
         if (response.ok) {
             const config = await response.json();
             if (config.API_URL) {
-                API_BASE_URL_VALUE = config.API_URL.replace(/\/$/, '');
-                console.log('[API] Using runtime config URL:', API_BASE_URL_VALUE);
-                return API_BASE_URL_VALUE;
+                API_BASE_URL = config.API_URL.replace(/\/$/, '');
+                console.log('[API] Using runtime config URL:', API_BASE_URL);
+                return API_BASE_URL;
             }
         }
     } catch (e) {
@@ -26,17 +26,15 @@ async function getAPIBaseURL() {
     }
 
     // Fallback to build-time environment or default
-    API_BASE_URL_VALUE = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
-    console.log('[API] Using:', API_BASE_URL_VALUE);
-    return API_BASE_URL_VALUE;
+    API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
+    console.log('[API] Using:', API_BASE_URL);
+    return API_BASE_URL;
 }
 
 // Initialize immediately
 (async () => {
     await getAPIBaseURL();
 })();
-
-export const API_BASE_URL = () => API_BASE_URL_VALUE || (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
 
 function getAuthHeader() {
     try {
@@ -68,8 +66,7 @@ async function request(method, path, body = null, config = {}) {
         ...(body ? { body: isFormData ? body : JSON.stringify(body) } : {}),
     };
 
-    const apiUrl = API_BASE_URL();
-    const response = await fetch(`${apiUrl}${path}`, options);
+    const response = await fetch(`${API_BASE_URL}${path}`, options);
 
     if (!response.ok) {
         let errorMessage = 'Request failed';
