@@ -11,7 +11,7 @@ echo "API URL: $API_URL"
 echo "Image URL: $IMAGE_URL"
 echo "======================================"
 
-# Create a config file that the frontend can read
+# Create config files that the frontend can read
 mkdir -p /usr/share/nginx/html
 cat > /usr/share/nginx/html/config.json <<EOF
 {
@@ -20,11 +20,23 @@ cat > /usr/share/nginx/html/config.json <<EOF
 }
 EOF
 
+cat > /usr/share/nginx/html/config.js <<EOF
+window.__MAZADAT_CONFIG__ = {
+  API_URL: "$API_URL",
+  IMAGE_BASE_URL: "$IMAGE_URL"
+};
+EOF
+
 if [ -f /usr/share/nginx/html/config.json ]; then
     echo "✓ Config file created successfully"
     cat /usr/share/nginx/html/config.json
 else
     echo "✗ ERROR: Failed to create config file"
+    exit 1
+fi
+
+if [ ! -f /usr/share/nginx/html/config.js ]; then
+    echo "✗ ERROR: Failed to create config.js"
     exit 1
 fi
 

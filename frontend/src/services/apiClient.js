@@ -1,40 +1,11 @@
 // Try to get API URL from:
-// 1. Runtime config file (for production on Railway)
-// 2. Build-time environment variable (for local dev)
+// 1. Runtime config injected before the app loads (production on Railway)
+// 2. Build-time environment variable (local dev)
 // 3. Fallback default
 
-export let API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
+const runtimeConfig = typeof window !== 'undefined' ? window.__MAZADAT_CONFIG__ : null;
 
-async function getAPIBaseURL() {
-    if (API_BASE_URL) {
-        return API_BASE_URL;
-    }
-
-    // Try to fetch runtime config first
-    try {
-        const response = await fetch('/config.json');
-        if (response.ok) {
-            const config = await response.json();
-            if (config.API_URL) {
-                API_BASE_URL = config.API_URL.replace(/\/$/, '');
-                console.log('[API] Using runtime config URL:', API_BASE_URL);
-                return API_BASE_URL;
-            }
-        }
-    } catch (e) {
-        console.log('[API] Runtime config not available, trying build-time env...');
-    }
-
-    // Fallback to build-time environment or default
-    API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
-    console.log('[API] Using:', API_BASE_URL);
-    return API_BASE_URL;
-}
-
-// Initialize immediately
-(async () => {
-    await getAPIBaseURL();
-})();
+export const API_BASE_URL = (runtimeConfig?.API_URL || import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
 
 function getAuthHeader() {
     try {

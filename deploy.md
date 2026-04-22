@@ -62,9 +62,6 @@ You will need these for the backend:
 ```env
 SPRING_PROFILES_ACTIVE=docker
 PORT=8080
-SPRING_DATASOURCE_URL=jdbc:mysql://${MYSQLHOST}:${MYSQLPORT}/${MYSQLDATABASE}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-SPRING_DATASOURCE_USERNAME=${MYSQLUSER}
-SPRING_DATASOURCE_PASSWORD=${MYSQLPASSWORD}
 SPRING_JPA_HIBERNATE_DDL_AUTO=update
 MAZADAT_STORAGE_MODE=s3
 MAZADAT_IMAGE_PUBLIC_BASE_URL=<your-bucket-public-url>
@@ -76,6 +73,8 @@ MAZADAT_S3_SECRET_KEY=<your-secret-key>
 MAZADAT_S3_PATH_PREFIX=images
 MAZADAT_CORS_ALLOWED_ORIGINS=<your-frontend-domain>
 ```
+
+⚠️ **CRITICAL:** Do NOT manually add `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER`, or `MYSQLPASSWORD`. Railway's MySQL database **automatically provides these** to your backend service. Just add the variables above.
 
 5. Deploy the backend service.
 
@@ -118,15 +117,20 @@ If Railway gives you a public bucket URL, use that as `MAZADAT_IMAGE_PUBLIC_BASE
 2. Set the service root directory to:
     - `frontend`
 3. Railway should detect `frontend/Dockerfile`.
-4. Add these environment variables:
+4. Add these environment variables to your frontend service:
 
 ```env
 VITE_API_URL=https://<your-backend-domain>/api/v1
 VITE_IMAGE_BASE_URL=https://<your-backend-domain>
-VITE_API_PROXY_TARGET=https://<your-backend-domain>
 ```
 
-If your bucket has its own public URL, you can use that instead for `VITE_IMAGE_BASE_URL`.
+Replace `<your-backend-domain>` with your actual Railway backend domain (e.g., `mazadat-backend-prod.railway.app`).
+
+⚠️ **How It Works:**
+- These variables are injected at **runtime** by the nginx entrypoint script
+- A `config.json` file is automatically created when the container starts
+- The frontend automatically reads this file to discover the correct API URL
+- No build-time configuration needed
 
 5. Deploy the frontend service.
 
