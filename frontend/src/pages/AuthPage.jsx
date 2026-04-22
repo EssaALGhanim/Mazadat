@@ -10,7 +10,6 @@ import { Eye, EyeOff, User, Store, TrendingUp } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { registerBuyer, registerSeller, login } from '@/services/authService';
 import { getSellerAuctionHouse } from '@/services/auctionHouseService';
-import { validatePassword, validatePhone, validateEmail } from '@/lib/validationHelpers';
 import { toast } from 'sonner';
 
 function GeometricPattern() {
@@ -177,79 +176,60 @@ function RegisterForm() {
     setError(null);
   };
 
-   const handleSubmit = async (e) => {
-     e.preventDefault();
-     if (!formData.username || !formData.email || !formData.password) {
-       setError(t('requiredFields'));
-       return;
-     }
-     if (!formData.phoneNumber) {
-       setError(t('requiredFields'));
-       return;
-     }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.username || !formData.email || !formData.password) {
+      setError(t('requiredFields'));
+      return;
+    }
+    if (!formData.phoneNumber) {
+      setError(t('requiredFields'));
+      return;
+    }
+    if (!/^\+9665\d{8}$/.test(formData.phoneNumber)) {
+      setError(t('invalidSaudiPhone') || 'Phone number must match +9665XXXXXXXX');
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError(t('passwordMismatch'));
+      return;
+    }
+    if (!termsAccepted) {
+      setError(t('acceptTerms'));
+      return;
+    }
 
-     // Validate email
-     const emailError = validateEmail(formData.email, t);
-     if (emailError) {
-       setError(emailError);
-       return;
-     }
+    setLoading(true);
+    try {
+      if (role === 'buyer') {
+        await registerBuyer({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          phoneNumber: formData.phoneNumber,
+        });
+      } else {
+        await registerSeller({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          phoneNumber: formData.phoneNumber,
+        });
+      }
 
-     // Validate phone with specific message
-     const phoneError = validatePhone(formData.phoneNumber, t);
-     if (phoneError) {
-       setError(phoneError);
-       return;
-     }
-
-     if (formData.password !== formData.confirmPassword) {
-       setError(t('passwordMismatch'));
-       return;
-     }
-
-     // Validate password with specific message
-     const passwordError = validatePassword(formData.password, t);
-     if (passwordError) {
-       setError(passwordError);
-       return;
-     }
-
-     if (!termsAccepted) {
-       setError(t('acceptTerms'));
-       return;
-     }
-
-     setLoading(true);
-     try {
-       if (role === 'buyer') {
-         await registerBuyer({
-           username: formData.username,
-           email: formData.email,
-           password: formData.password,
-           phoneNumber: formData.phoneNumber,
-         });
-       } else {
-         await registerSeller({
-           username: formData.username,
-           email: formData.email,
-           password: formData.password,
-           phoneNumber: formData.phoneNumber,
-         });
-       }
-
-       const user = await login(formData.username, formData.password);
-       if (user.role === 'SELLER') {
-         await handleSellerNoAuctionHouseNotice();
-         navigate('/seller-dashboard');
-       } else {
-         navigate('/');
-       }
-     } catch (err) {
-       setError(err.message || t('registerFailed'));
-     } finally {
-       setLoading(false);
-     }
-   };
+      const user = await login(formData.username, formData.password);
+      if (user.role === 'SELLER') {
+        await handleSellerNoAuctionHouseNotice();
+        navigate('/seller-dashboard');
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      setError(err.message || t('registerFailed'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <form className="flex flex-col gap-5" onSubmit={handleSubmit}>

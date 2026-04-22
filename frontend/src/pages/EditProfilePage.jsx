@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { User, Save, Home, Pencil, X } from 'lucide-react';
 import { getCurrentUserProfile, updateSellerProfile, updateBuyerProfile } from '@/services/userService';
 import TopNavigationBar from '../components/TopNavigationBar';
-import { validatePassword, validatePhone, validateEmail } from '@/lib/validationHelpers';
 
 export default function EditProfilePage() {
     const { t, i18n } = useTranslation('common');
@@ -64,19 +63,23 @@ export default function EditProfilePage() {
         if (payload.email !== undefined && !payload.email) newErrors.email = t('requiredField');
         if (payload.phoneNumber !== undefined && !payload.phoneNumber) newErrors.phoneNumber = t('requiredField');
 
-        const emailError = payload.email && validateEmail(payload.email, t);
-        if (emailError) newErrors.email = emailError;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (payload.email && !emailRegex.test(payload.email)) newErrors.email = t('profileInvalidEmail') || 'Invalid email format';
 
-        const phoneError = payload.phoneNumber && validatePhone(payload.phoneNumber, t);
-        if (phoneError) newErrors.phoneNumber = phoneError;
+        const phoneRegex = /^\+9665\d{8}$/;
+        if (payload.phoneNumber && !phoneRegex.test(payload.phoneNumber)) {
+            newErrors.phoneNumber = t('profileInvalidPhone') || 'Phone number must be +9665XXXXXXXX';
+        }
 
         if (payload.password && !formData.confirmPassword) newErrors.confirmPassword = t('requiredField');
         if (payload.password && formData.confirmPassword && payload.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = t('profilePasswordMismatch');
+            newErrors.confirmPassword = t('profilePasswordMismatch') || 'Passwords do not match';
         }
 
-        const passwordError = payload.password && validatePassword(payload.password, t);
-        if (passwordError) newErrors.password = passwordError;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,32}$/;
+        if (payload.password && !passwordRegex.test(payload.password)) {
+            newErrors.password = t('profileWeakPassword') || 'Password must be 8-32 chars with uppercase, lowercase, number, and symbol';
+        }
 
         return newErrors;
     };
