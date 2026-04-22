@@ -2,7 +2,16 @@ import { API_BASE_URL } from './apiClient';
 
 const runtimeConfig = typeof window !== 'undefined' ? window.__MAZADAT_CONFIG__ : null;
 const IMAGE_BASE_URL = (runtimeConfig?.IMAGE_BASE_URL || import.meta.env.VITE_IMAGE_BASE_URL || API_BASE_URL.replace(/\/api\/v1$/, '')).replace(/\/$/, '');
+const IMAGE_PROXY_URL = `${API_BASE_URL}/media/image`;
 let imageVersion = Date.now();
+
+const BACKEND_ORIGIN = (() => {
+    try {
+        return new URL(API_BASE_URL).origin;
+    } catch {
+        return '';
+    }
+})();
 
 function getAuthHeader() {
     try {
@@ -59,9 +68,28 @@ export async function uploadImages(auctionId, images) {
     }
 }
 
+function buildProxyImageUrl(imageUrl, cacheKey) {
+    const separator = IMAGE_PROXY_URL.includes('?') ? '&' : '?';
+    const version = encodeURIComponent(String(cacheKey ?? imageVersion));
+    return `${IMAGE_PROXY_URL}?url=${encodeURIComponent(imageUrl)}${separator}v=${version}`;
+}
+
 export function resolveImageUrl(imageUrl, cacheKey) {
     if (!imageUrl) return '';
+
+    if (imageUrl.startsWith('data:') || imageUrl.startsWith('blob:')) {
+        return imageUrl;
+    }
+
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+        try {
+            const parsed = new URL(imageUrl);
+            if (BACKEND_ORIGIN && parsed.origin !== BACKEND_ORIGIN) {
+                return buildProxyImageUrl(imageUrl, cacheKey);
+            }
+        } catch {
+            return buildProxyImageUrl(imageUrl, cacheKey);
+        }
         return imageUrl;
     }
 

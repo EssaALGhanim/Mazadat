@@ -52,6 +52,7 @@ public class ConfigSecurity {
                 // Public endpoints (no authentication required)
                     .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                     .requestMatchers("/images/**").permitAll()
+                    .requestMatchers("/api/v1/media/**").permitAll()
                     .requestMatchers("/api/v1/buyer/add").permitAll()
                     .requestMatchers("/api/v1/seller/add").permitAll()
                     .requestMatchers("/api/v1/auction/get/all").permitAll()

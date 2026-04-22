@@ -12,12 +12,15 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.example.mazadat.Api.ApiException;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +30,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ImageStorageService {
+
+    public record ImageAsset(byte[] bytes, String contentType) {}
 
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
             "image/jpeg",
@@ -126,6 +131,48 @@ public class ImageStorageService {
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
             throw new ApiException("Failed to delete image file: " + e.getMessage());
+        }
+    }
+
+    public ImageAsset load(String storedUrl) {
+        if (storedUrl == null || storedUrl.isBlank()) {
+            throw new ApiException("Image not found");
+        }
+
+        try {
+            if (shouldUseBucketStorage()) {
+                ensureBucketConfiguration();
+                String objectKey = extractObjectKey(storedUrl);
+                if (objectKey.isBlank()) {
+                    throw new ApiException("Image not found");
+                }
+
+                var response = s3Client.getObject(
+                        GetObjectRequest.builder()
+                                .bucket(bucketName)
+                                .key(objectKey)
+                                .build(),
+                        ResponseTransformer.toBytes());
+
+                String contentType = response.response().contentType();
+                return new ImageAsset(response.asByteArray(), contentType == null || contentType.isBlank() ? "application/octet-stream" : contentType);
+            }
+
+            String fileName = storedUrl.substring(storedUrl.lastIndexOf('/') + 1);
+            Path filePath = imageStorageLocation.resolve(fileName).normalize();
+            if (!Files.exists(filePath)) {
+                throw new ApiException("Image not found");
+            }
+
+            byte[] bytes = Files.readAllBytes(filePath);
+            String contentType = Files.probeContentType(filePath);
+            return new ImageAsset(bytes, contentType == null || contentType.isBlank() ? "application/octet-stream" : contentType);
+        } catch (ApiException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new ApiException("Failed to load image file: " + e.getMessage());
+        } catch (Exception e) {
+            throw new ApiException("Failed to load image file: " + e.getMessage());
         }
     }
 
