@@ -155,7 +155,7 @@ public class ImageStorageService {
                         ResponseTransformer.toBytes());
 
                 String contentType = response.response().contentType();
-                return new ImageAsset(response.asByteArray(), contentType == null || contentType.isBlank() ? "application/octet-stream" : contentType);
+                return new ImageAsset(response.asByteArray(), normalizeContentType(contentType, objectKey));
             }
 
             String fileName = storedUrl.substring(storedUrl.lastIndexOf('/') + 1);
@@ -166,7 +166,7 @@ public class ImageStorageService {
 
             byte[] bytes = Files.readAllBytes(filePath);
             String contentType = Files.probeContentType(filePath);
-            return new ImageAsset(bytes, contentType == null || contentType.isBlank() ? "application/octet-stream" : contentType);
+            return new ImageAsset(bytes, normalizeContentType(contentType, fileName));
         } catch (ApiException e) {
             throw e;
         } catch (IOException e) {
@@ -277,5 +277,23 @@ public class ImageStorageService {
             return "";
         }
         return filename.substring(index);
+    }
+
+    private String normalizeContentType(String contentType, String sourceName) {
+        if (contentType != null && !contentType.isBlank()) {
+            return contentType;
+        }
+
+        String lowerName = sourceName == null ? "" : sourceName.toLowerCase(Locale.ROOT);
+        if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg")) {
+            return "image/jpeg";
+        }
+        if (lowerName.endsWith(".png")) {
+            return "image/png";
+        }
+        if (lowerName.endsWith(".webp")) {
+            return "image/webp";
+        }
+        return "application/octet-stream";
     }
 }
