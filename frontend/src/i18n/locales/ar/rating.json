@@ -31,6 +31,19 @@
     "transactionNotCompleted": "هذه المعاملة لا تزال قيد الانتظار. يمكنك تقييم المشتري بمجرد اكتمال المعاملة.",
     "loadingFailed": "فشل في تحميل المعاملات.",
     "retryLoading": "إعادة محاولة"
+  },
+  "auctionHouse": {
+    "rateButton": "قيّم صالة المزاد",
+    "modalTitle": "تقييم صالة المزاد",
+    "ratingLabel": "التقييم",
+    "commentLabel": "تعليق (اختياري)",
+    "commentPlaceholder": "شارك تجربتك مع صالة المزاد هذه...",
+    "submitButton": "إرسال التقييم",
+    "submitting": "جاري الإرسال...",
+    "cancel": "إلغاء",
+    "successToast": "تم تقييم صالة المزاد بنجاح!",
+    "errorToast": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "selectRating": "يرجى اختيار نجمة واحدة على الأقل."
   }
 }
 

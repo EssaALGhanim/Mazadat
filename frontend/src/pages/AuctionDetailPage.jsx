@@ -17,6 +17,7 @@ import ImageWithRetry from '@/components/ui/ImageWithRetry';
 import { useNow } from '@/hooks/useNow';
 import { toast } from 'sonner';
 import WinnerBuyerRating from '@/components/rating/WinnerBuyerRating';
+import AuctionHouseRating from '@/components/rating/AuctionHouseRating';
 
 export default function AuctionDetailPage({ currentUser }) {
     const { t, i18n } = useTranslation('common');
@@ -368,6 +369,15 @@ export default function AuctionDetailPage({ currentUser }) {
                                     <Trophy className="w-5 h-5" />
                                     <p className="font-bold">{isAr ? '🎉 أنت الفائز!' : '🎉 You Won!'}</p>
                                 </div>
+                                {(auction?.auctionHouseId || auction?.auctionHouseName) && (
+                                    <AuctionHouseRating
+                                        auctionId={auctionId}
+                                        auctionHouseId={auction.auctionHouseId}
+                                        auctionHouseName={auction.auctionHouseName}
+                                        buyerUsername={currentUser?.username}
+                                        isAr={isAr}
+                                    />
+                                )}
                             </div>
                         )}
 
