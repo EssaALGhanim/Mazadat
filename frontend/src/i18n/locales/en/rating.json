@@ -1,0 +1,35 @@
+{
+  "page": {
+    "title": "Buyer Ratings",
+    "description": "Rate buyers after completed transactions to identify serious bidders and maintain buyer reliability records."
+  },
+  "form": {
+    "title": "Rate Buyer",
+    "ratingLabel": "Rating",
+    "commentLabel": "Review (Optional)",
+    "commentPlaceholder": "Share your experience with this buyer...",
+    "submitButton": "Submit Rating",
+    "submitting": "Submitting..."
+  },
+  "card": {
+    "title": "Rating Submitted",
+    "buyer": "Buyer",
+    "auction": "Auction",
+    "finalPrice": "Final Price",
+    "ratingLabel": "Your Rating",
+    "commentLabel": "Your Review",
+    "submittedOn": "Submitted on"
+  },
+  "validationMessages": {
+    "selectRating": "Please select at least one star."
+  },
+  "messages": {
+    "ratingSubmittedSuccess": "Buyer rating submitted successfully!",
+    "ratingSubmitFailed": "Failed to submit rating. Please try again.",
+    "noCompletedTransactions": "No completed transactions to rate yet.",
+    "transactionNotCompleted": "This transaction is still pending. You can rate the buyer once the transaction is completed.",
+    "loadingFailed": "Failed to load transactions.",
+    "retryLoading": "Retry"
+  }
+}
+

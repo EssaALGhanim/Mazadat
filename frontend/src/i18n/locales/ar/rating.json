@@ -1,0 +1,35 @@
+{
+  "page": {
+    "title": "تقييمات المشترين",
+    "description": "قيّم المشترين بعد اكتمال المعاملات لتحديد المزايدين الجادين والحفاظ على سجل موثوقية المشترين."
+  },
+  "form": {
+    "title": "تقييم المشتري",
+    "ratingLabel": "التقييم",
+    "commentLabel": "مراجعة (اختيارية)",
+    "commentPlaceholder": "شارك تجربتك مع هذا المشتري...",
+    "submitButton": "إرسال التقييم",
+    "submitting": "جاري الإرسال..."
+  },
+  "card": {
+    "title": "تم إرسال التقييم",
+    "buyer": "المشتري",
+    "auction": "المزاد",
+    "finalPrice": "السعر النهائي",
+    "ratingLabel": "تقييمك",
+    "commentLabel": "مراجعتك",
+    "submittedOn": "تم الإرسال في"
+  },
+  "validationMessages": {
+    "selectRating": "يرجى اختيار نجمة واحدة على الأقل."
+  },
+  "messages": {
+    "ratingSubmittedSuccess": "تم إرسال تقييم المشتري بنجاح!",
+    "ratingSubmitFailed": "فشل في إرسال التقييم. يرجى المحاولة مرة أخرى.",
+    "noCompletedTransactions": "لا توجد معاملات مكتملة لتقييمها حتى الآن.",
+    "transactionNotCompleted": "هذه المعاملة لا تزال قيد الانتظار. يمكنك تقييم المشتري بمجرد اكتمال المعاملة.",
+    "loadingFailed": "فشل في تحميل المعاملات.",
+    "retryLoading": "إعادة محاولة"
+  }
+}
+
