@@ -1,7 +1,8 @@
 {
   "page": {
     "title": "Buyer Ratings",
-    "description": "Rate buyers after completed transactions to identify serious bidders and maintain buyer reliability records."
+    "description": "Rate buyers after completed transactions to identify serious bidders and maintain buyer reliability records.",
+    "back": "Back"
   },
   "form": {
     "title": "Rate Buyer",

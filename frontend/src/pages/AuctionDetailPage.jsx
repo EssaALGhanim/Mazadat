@@ -16,6 +16,7 @@ import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirec
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
 import { useNow } from '@/hooks/useNow';
 import { toast } from 'sonner';
+import WinnerBuyerRating from '@/components/rating/WinnerBuyerRating';
 
 export default function AuctionDetailPage({ currentUser }) {
     const { t, i18n } = useTranslation('common');
@@ -460,7 +461,14 @@ export default function AuctionDetailPage({ currentUser }) {
                                         {isAr ? 'الفائز' : 'Winner'}
                                     </p>
                                 </div>
-                                <p className="text-[#1A2E2C] font-bold mb-2">{auction.highestBidder}</p>
+                                <div className={`flex items-center gap-2 mb-2 flex-wrap ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
+                                    <p className="text-[#1A2E2C] font-bold">{auction.highestBidder}</p>
+                                    <WinnerBuyerRating
+                                        auctionId={auctionId}
+                                        buyerUsername={auction.highestBidder}
+                                        isAr={isAr}
+                                    />
+                                </div>
                                 {auction.highestBidderEmail && (
                                     <p className="text-xs text-[#6B9E99]" dir="ltr">
                                         {isAr ? 'البريد الإلكتروني' : 'Email'}: {auction.highestBidderEmail}
