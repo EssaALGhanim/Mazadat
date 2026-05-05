@@ -1,4 +1,11 @@
-export const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
+// Try to get API URL from:
+// 1. Runtime config injected before the app loads (production on Railway)
+// 2. Build-time environment variable (local dev)
+// 3. Fallback default
+
+const runtimeConfig = typeof window !== 'undefined' ? window.__MAZADAT_CONFIG__ : null;
+
+export const API_BASE_URL = (runtimeConfig?.API_URL || import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1').replace(/\/$/, '');
 
 function getAuthHeader() {
     try {

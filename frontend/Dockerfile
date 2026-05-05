@@ -3,12 +3,6 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-ARG VITE_API_URL=http://localhost:8080/api/v1
-ARG VITE_IMAGE_BASE_URL=http://localhost:8080
-
-ENV VITE_API_URL=${VITE_API_URL}
-ENV VITE_IMAGE_BASE_URL=${VITE_IMAGE_BASE_URL}
-
 # Copy package files
 COPY package*.json ./
 
@@ -21,18 +15,28 @@ COPY . .
 # Build the application
 RUN npm run build
 
+# Verify build succeeded
+RUN test -f dist/index.html || (echo "ERROR: Build failed, index.html not found" && exit 1)
+
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
 
 # Copy custom nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 
+# Copy runtime config script
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 # Copy built files from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Verify files were copied
+RUN test -f /usr/share/nginx/html/index.html || (echo "ERROR: index.html not found" && exit 1)
 
 # Expose port
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Use custom entrypoint to inject environment variables
+ENTRYPOINT ["/docker-entrypoint.sh"]
 

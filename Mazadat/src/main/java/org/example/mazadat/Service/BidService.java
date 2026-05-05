@@ -15,6 +15,7 @@ import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.AutoBid;
 import org.example.mazadat.Model.Bid;
 import org.example.mazadat.Model.Buyer;
+import org.example.mazadat.Util.AppTime;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.AutoBidRepository;
 import org.example.mazadat.Repository.BidRepository;
@@ -85,12 +86,12 @@ public class BidService {
             throw new ApiException("Auction is not active");
         }
 
-        if (auction.getStartDate() != null && LocalDateTime.now().isBefore(auction.getStartDate())) {
+        if (auction.getStartDate() != null && AppTime.now().isBefore(auction.getStartDate())) {
             throw new ApiException("Auction has not started yet");
         }
 
         // Check if auction has ended
-        if (auction.getEndDate() != null && LocalDateTime.now().isAfter(auction.getEndDate())){
+        if (auction.getEndDate() != null && AppTime.now().isAfter(auction.getEndDate())){
             throw new ApiException("Auction has ended");
         }
 
@@ -127,7 +128,7 @@ public class BidService {
         auction.setHighestBidderEmail(buyer.getUser().getEmail());
 
         // Anti-sniping: extend auction by 5 minutes if bid is placed in the last 2 minutes
-        if (auction.getEndDate() != null && !LocalDateTime.now().isBefore(auction.getEndDate().minusMinutes(2))) {
+        if (auction.getEndDate() != null && !AppTime.now().isBefore(auction.getEndDate().minusMinutes(2))) {
             auction.setEndDate(auction.getEndDate().plusMinutes(5));
         }
 
@@ -244,7 +245,7 @@ public class BidService {
             throw new ApiException("Auction is not active");
         }
 
-        if (auction.getStartDate() != null && LocalDateTime.now().isBefore(auction.getStartDate())) {
+        if (auction.getStartDate() != null && AppTime.now().isBefore(auction.getStartDate())) {
             throw new ApiException("Auction has not started yet");
         }
 
