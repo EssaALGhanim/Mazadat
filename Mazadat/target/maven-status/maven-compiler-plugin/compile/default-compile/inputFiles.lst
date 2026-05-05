@@ -9,6 +9,8 @@ C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\ex
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Controller\BidController.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Controller\BuyerController.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Controller\ImageController.java
+C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Controller\NotificationController.java
+C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Controller\OtpController.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Controller\ReceiptController.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Controller\SellerController.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Controller\UserController.java
@@ -18,12 +20,15 @@ C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\ex
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOIN\BidDTOIN.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOIN\BuyerDTOIN.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOIN\BuyerUpdateDTOIN.java
+C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOIN\FeatureAuctionDTOIN.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOIN\SearchPreferenceDTOIN.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOIN\SellerDTOIN.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOIN\SellerUpdateDTOIN.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOOUT\AutoBidDTOOUT.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOOUT\BidDTOOUT.java
+C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOOUT\FeaturedAuctionDTOOUT.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOOUT\ImageDTOOUT.java
+C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOOUT\NotificationDTOOUT.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOOUT\SearchPreferenceDTOOUT.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOOUT\SellerTeamMemberDTO.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\DTOOUT\UserDTOOUT.java
@@ -36,6 +41,7 @@ C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\ex
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Model\Bid.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Model\Buyer.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Model\Image.java
+C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Model\Notification.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Model\Receipt.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Model\SearchPreference.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Model\Seller.java
@@ -46,7 +52,9 @@ C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\ex
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Repository\AutoBidRepository.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Repository\BidRepository.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Repository\BuyerRepository.java
+C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Repository\FeaturedRepository.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Repository\ImageRepository.java
+C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Repository\NotificationRepository.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Repository\ReceiptRepository.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Repository\SearchPreferenceRepository.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Repository\SellerRepository.java
@@ -56,9 +64,12 @@ C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\ex
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\AuctionService.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\BidService.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\BuyerService.java
+C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\EmailService.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\ImageService.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\ImageStorageService.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\MyUserDetailsService.java
+C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\NotificationService.java
+C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\OtpService.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\ReceiptService.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\SellerService.java
 C:\Users\Essa\OneDrive - RiyadhBoys\Desktop\Mazadat\Mazadat\src\main\java\org\example\mazadat\Service\UserService.java

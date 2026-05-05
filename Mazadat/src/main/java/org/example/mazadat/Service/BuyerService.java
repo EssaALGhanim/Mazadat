@@ -29,6 +29,7 @@ public class BuyerService {
     private final UserRepository userRepository;
     private final AuctionRepository auctionRepository;
     private final SearchPreferenceRepository searchPreferenceRepository;
+    private final OtpService otpService;
 
 
     public void addBuyer(BuyerDTOIN buyerDTOIN){
@@ -54,6 +55,7 @@ public class BuyerService {
         userRepository.save(user);
         buyerRepository.save(buyer);
 
+        otpService.sendOtpToNewUser(user.getEmail(), user.getUsername());
     }
 
     public Buyer getCurrentBuyer(Integer buyerId) {

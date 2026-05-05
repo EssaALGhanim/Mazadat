@@ -6,8 +6,10 @@ import org.example.mazadat.DTOIN.AuctionDTOIN;
 import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.AuctionHouse;
 import org.example.mazadat.Model.Seller;
+import org.example.mazadat.Model.User;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.SellerRepository;
+import org.example.mazadat.Repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,9 @@ public class AuctionService {
     private final AuctionRepository auctionRepository;
     private final SellerRepository sellerRepository;
     private final ImageService imageService;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
+    private final EmailService emailService;
 
 
     public List<Auction> getAllAuctions(){
@@ -173,8 +178,26 @@ public class AuctionService {
         if (failedBelowReserve) {
             auction.setHighestBidder(null);
             auction.setHighestBidderEmail(null);
+        } else {
+            notifyWinner(auction);
         }
         return true;
+    }
+
+    private void notifyWinner(Auction auction) {
+        String winnerUsername = auction.getHighestBidder();
+        String winnerEmail = auction.getHighestBidderEmail();
+        if (winnerUsername == null) return;
+
+        User winner = userRepository.findUserByUsername(winnerUsername);
+        if (winner != null && !notificationService.wonNotificationExists(winner.getId(), auction.getId())) {
+            String messageEn = "Congratulations! You won the auction \"" + auction.getTitle() + "\" with a bid of SAR " + String.format("%.2f", auction.getCurrentPrice()) + ".";
+            String messageAr = "تهانينا! لقد فزت بمزاد \"" + auction.getTitle() + "\" بسعر " + String.format("%.2f", auction.getCurrentPrice()) + " ريال سعودي.";
+            notificationService.createNotification(winner, messageEn, messageAr, "WON", "/auction/" + auction.getId());
+        }
+        if (winnerEmail != null) {
+            emailService.sendWonBidEmail(winnerEmail, winnerUsername, auction.getTitle(), auction.getCurrentPrice());
+        }
     }
 
     private void refreshAuctionOutcomes(List<Auction> auctions) {
