@@ -55,6 +55,7 @@ public class ConfigSecurity {
                     .requestMatchers("/api/v1/media/**").permitAll()
                     .requestMatchers("/api/v1/buyer/add").permitAll()
                     .requestMatchers("/api/v1/seller/add").permitAll()
+                    .requestMatchers("/api/v1/auth/otp/**").permitAll()
                     .requestMatchers("/api/v1/auction/get/all").permitAll()
                     .requestMatchers("/api/v1/auction/search").permitAll()
                     .requestMatchers("/api/v1/bid/get/all").permitAll()
@@ -74,6 +75,8 @@ public class ConfigSecurity {
                     .requestMatchers("/api/v1/bid/add").authenticated()
                     .requestMatchers("/api/v1/receipt/generate/**").authenticated()
                     .requestMatchers("/api/v1/receipt/delete/**").authenticated()
+                // Notification endpoints (authenticated)
+                    .requestMatchers("/api/v1/notifications/**").authenticated()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout

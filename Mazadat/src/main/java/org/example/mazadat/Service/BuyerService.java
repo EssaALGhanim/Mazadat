@@ -41,6 +41,7 @@ public class BuyerService {
     private final WatchlistRepository watchlistRepository;
     private final BuyerRatingRepository buyerRatingRepository;
     private final SellerRepository sellerRepository;
+    private final OtpService otpService;
 
 
     public void addBuyer(BuyerDTOIN buyerDTOIN){
@@ -66,6 +67,7 @@ public class BuyerService {
         userRepository.save(user);
         buyerRepository.save(buyer);
 
+        otpService.sendOtpToNewUser(user.getEmail(), user.getUsername());
     }
 
     public Buyer getCurrentBuyer(Integer buyerId) {
