@@ -1,26 +1,28 @@
 import { useTranslation } from 'react-i18next';
-import { Plus, User, LogOut, Trophy, BarChart3, Users, Bookmark , BookOpen } from 'lucide-react';
+import { Plus, User, LogOut, Trophy, BarChart3, Users, Bookmark, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function TopNavigationBar({
     isSeller,
     isBuyer,
+    isAdmin = false,
     onShowMyBids,
     onShowWatchlist,
     onCreateAuction,
     onLogout,
     disableCreateAuction = false
 }) {
-    const { i18n } = useTranslation('common');
+    const { t, i18n } = useTranslation('common');
     const navigate = useNavigate();
     const isAr = i18n.language === 'ar';
+    const homePath = isAdmin ? '/admin' : isSeller ? '/seller-dashboard' : '/';
 
     return (
         <header className="bg-white border-b border-[#C5E0DC] px-4 md:px-6 h-16 flex items-center justify-between sticky top-0 z-50 shadow-sm">
             {/* Logo and Home */}
             <div className="flex items-center gap-4">
                 <button
-                    onClick={() => isSeller ? navigate('/seller-dashboard') : navigate('/')}
+                    onClick={() => navigate(homePath)}
                     className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                     title={isAr ? 'الرئيسية' : 'Home'}
                 >
@@ -48,6 +50,16 @@ export default function TopNavigationBar({
                     >
                         <Users className="w-4 h-4" />
                         <span className="hidden lg:inline">{isAr ? 'الفريق' : 'Team'}</span>
+                    </button>
+                )}
+                {isAdmin && (
+                    <button
+                        onClick={() => navigate('/admin')}
+                        className="flex items-center gap-1 text-[#6B9E99] hover:text-[#2A9D8F] text-sm font-semibold transition-colors"
+                        title={t('admin.title')}
+                    >
+                        <ShieldCheck className="w-4 h-4" />
+                        <span className="hidden lg:inline">{t('admin.navLabel')}</span>
                     </button>
                 )}
                 {isBuyer && (
@@ -126,4 +138,3 @@ export default function TopNavigationBar({
         </header>
     );
 }
-
