@@ -14,3 +14,19 @@ next.user-config.*
 node_modules
 .next/
 .DS_Store
+
+# IDE folders and files
+.idea/
+.vscode/
+.vs/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.jshintrc
+.env.local
