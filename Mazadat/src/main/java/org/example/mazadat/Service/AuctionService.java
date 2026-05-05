@@ -7,6 +7,7 @@ import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.AuctionHouse;
 import org.example.mazadat.Model.Seller;
 import org.example.mazadat.Model.User;
+import org.example.mazadat.Util.AppTime;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.SellerRepository;
 import org.example.mazadat.Repository.UserRepository;
@@ -152,7 +153,7 @@ public class AuctionService {
             return;
         }
 
-        if (startDate.isBefore(LocalDateTime.now())) {
+        if (startDate.isBefore(AppTime.now())) {
             throw new ApiException("Start date cannot be in the past");
         }
 
@@ -162,7 +163,7 @@ public class AuctionService {
     }
 
     private boolean refreshAuctionOutcome(Auction auction) {
-        if (auction == null || auction.getEndDate() == null || LocalDateTime.now().isBefore(auction.getEndDate())) {
+        if (auction == null || auction.getEndDate() == null || AppTime.now().isBefore(auction.getEndDate())) {
             return false;
         }
 
@@ -215,7 +216,7 @@ public class AuctionService {
             return false;
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = AppTime.now();
         if (auction.getStartDate().isAfter(now) || !now.isBefore(auction.getEndDate())) {
             return false;
         }
@@ -250,7 +251,7 @@ public class AuctionService {
             throw new ApiException("You can only feature your own auctions");
         }
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = AppTime.now();
         if (!isAuctionLive(auction, now)) {
             throw new ApiException("Only live auctions can be featured");
         }

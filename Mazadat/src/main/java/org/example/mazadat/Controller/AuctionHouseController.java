@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.mazadat.Api.ApiResponse;
 import org.example.mazadat.DTOIN.AuctionHouseDTOIN;
+import org.example.mazadat.DTOIN.AuctionHouseRatingDTOIN;
 import org.example.mazadat.Model.AuctionHouse;
 import org.example.mazadat.Model.User;
 import org.example.mazadat.Service.AuctionHouseService;
@@ -127,4 +128,16 @@ public class AuctionHouseController {
         return ResponseEntity.status(HttpStatus.OK.value()).body(new ApiResponse("Admin was removed successfully"));
     }
 
+    @PostMapping("/rate")
+    public ResponseEntity<?> submitAuctionHouseRating(@RequestBody @Valid AuctionHouseRatingDTOIN dto,
+                                                      @AuthenticationPrincipal User user) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                auctionHouseService.submitAuctionHouseRating(user.getId(), dto));
+    }
+
+    @GetMapping("/rate/check/{auctionId}")
+    public ResponseEntity<?> checkAuctionHouseRating(@PathVariable Integer auctionId,
+                                                     @AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(auctionHouseService.checkAuctionHouseRating(user.getId(), auctionId));
+    }
 }

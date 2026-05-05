@@ -4,17 +4,26 @@ import java.util.List;
 
 import org.example.mazadat.Api.ApiException;
 import org.example.mazadat.DTOIN.BuyerDTOIN;
+import org.example.mazadat.DTOIN.BuyerRatingDTOIN;
 import org.example.mazadat.DTOIN.BuyerUpdateDTOIN;
 import org.example.mazadat.DTOIN.SearchPreferenceDTOIN;
+import org.example.mazadat.DTOOUT.RatingCheckDTOOUT;
 import org.example.mazadat.DTOOUT.SearchPreferenceDTOOUT;
+import org.example.mazadat.DTOOUT.WatchlistDTOOUT;
 import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.Buyer;
+import org.example.mazadat.Model.BuyerRating;
 import org.example.mazadat.Model.SearchPreference;
+import org.example.mazadat.Model.Seller;
 import org.example.mazadat.Model.User;
+import org.example.mazadat.Model.Watchlist;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.BuyerRepository;
+import org.example.mazadat.Repository.BuyerRatingRepository;
 import org.example.mazadat.Repository.SearchPreferenceRepository;
+import org.example.mazadat.Repository.SellerRepository;
 import org.example.mazadat.Repository.UserRepository;
+import org.example.mazadat.Repository.WatchlistRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -29,6 +38,9 @@ public class BuyerService {
     private final UserRepository userRepository;
     private final AuctionRepository auctionRepository;
     private final SearchPreferenceRepository searchPreferenceRepository;
+    private final WatchlistRepository watchlistRepository;
+    private final BuyerRatingRepository buyerRatingRepository;
+    private final SellerRepository sellerRepository;
     private final OtpService otpService;
 
 
@@ -180,5 +192,99 @@ public class BuyerService {
                 p.getStatus(),
                 p.getCreatedAt()
         );
+    }
+
+    public void addToWatchlist(Integer buyerId, Integer auctionId) {
+        Buyer buyer = buyerRepository.findById(buyerId)
+                .orElseThrow(() -> new ApiException("Buyer not found"));
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new ApiException("Auction not found"));
+
+        if (watchlistRepository.existsByBuyerIdAndAuctionId(buyerId, auctionId)) {
+            throw new ApiException("Auction already in watchlist");
+        }
+
+        Watchlist watchlist = new Watchlist();
+        watchlist.setBuyer(buyer);
+        watchlist.setAuction(auction);
+        watchlistRepository.save(watchlist);
+    }
+
+    public void removeFromWatchlist(Integer buyerId, Integer auctionId) {
+        Watchlist watchlist = watchlistRepository.findByBuyerIdAndAuctionId(buyerId, auctionId)
+                .orElseThrow(() -> new ApiException("Watchlist item not found"));
+        watchlistRepository.delete(watchlist);
+    }
+
+    public List<WatchlistDTOOUT> getMyWatchlist(Integer buyerId) {
+        return watchlistRepository.findByBuyerId(buyerId)
+                .stream()
+                .map(w -> new WatchlistDTOOUT(
+                        w.getId(),
+                        w.getAuction().getId(),
+                        w.getAuction().getTitle(),
+                        w.getAuction().getCurrentPrice(),
+                        w.getAuction().getStatus(),
+                        w.getAuction().getEndDate(),
+                        w.getAddedAt()
+                ))
+                .toList();
+    }
+
+    public RatingCheckDTOOUT submitBuyerRating(Integer sellerId, BuyerRatingDTOIN dto) {
+        Seller seller = sellerRepository.findSellerById(sellerId);
+        if (seller == null) {
+            throw new ApiException("Seller not found");
+        }
+
+        Auction auction = auctionRepository.findById(dto.getAuctionId()).orElse(null);
+        if (auction == null) {
+            throw new ApiException("Auction not found");
+        }
+
+        if (!"ENDED".equalsIgnoreCase(auction.getStatus())) {
+            throw new ApiException("Auction has not ended yet");
+        }
+
+        if (auction.getAuctionHouse() == null
+                || seller.getAuctionHouse() == null
+                || !auction.getAuctionHouse().getId().equals(seller.getAuctionHouse().getId())) {
+            throw new ApiException("You are not authorized to rate buyers for this auction");
+        }
+
+        String highestBidderUsername = auction.getHighestBidder();
+        if (highestBidderUsername == null || highestBidderUsername.isBlank()) {
+            throw new ApiException("This auction has no winner");
+        }
+
+        User winnerUser = userRepository.findUserByUsername(highestBidderUsername);
+        if (winnerUser == null) {
+            throw new ApiException("Winner user not found");
+        }
+
+        Buyer winnerBuyer = buyerRepository.findById(winnerUser.getId()).orElse(null);
+        if (winnerBuyer == null) {
+            throw new ApiException("Winner buyer not found");
+        }
+
+        if (buyerRatingRepository.findByAuctionId(dto.getAuctionId()).isPresent()) {
+            throw new ApiException("This auction has already been rated");
+        }
+
+        BuyerRating rating = new BuyerRating();
+        rating.setSeller(seller);
+        rating.setBuyer(winnerBuyer);
+        rating.setAuction(auction);
+        rating.setRating(dto.getRating());
+        rating.setComment(dto.getComment());
+        buyerRatingRepository.save(rating);
+
+        return new RatingCheckDTOOUT(true, rating.getRating(), rating.getComment());
+    }
+
+    public RatingCheckDTOOUT checkBuyerRating(Integer auctionId) {
+        return buyerRatingRepository.findByAuctionId(auctionId)
+                .map(r -> new RatingCheckDTOOUT(true, r.getRating(), r.getComment()))
+                .orElse(new RatingCheckDTOOUT(false, null, null));
     }
 }

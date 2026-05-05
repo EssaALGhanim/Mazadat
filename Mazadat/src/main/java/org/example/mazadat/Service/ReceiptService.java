@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.mazadat.Api.ApiException;
 import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.Buyer;
+import org.example.mazadat.Util.AppTime;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.BuyerRepository;
 import org.springframework.core.io.ClassPathResource;
@@ -49,7 +50,7 @@ public class ReceiptService {
         }
 
         // Verify auction has ended
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = AppTime.now();
         if (auction.getEndDate() != null && now.isBefore(auction.getEndDate())) {
             throw new ApiException("Auction has not ended yet. Receipt can only be downloaded after the auction ends.");
         }
@@ -124,7 +125,7 @@ public class ReceiptService {
             doc.add(title);
 
             // Receipt date
-            String formattedDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            String formattedDate = AppTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             Paragraph dateP = new Paragraph(renderText(texts.receiptGeneratedLabel() + " " + formattedDate, arabic))
                     .setTextAlignment(TextAlignment.CENTER)
                     .setMarginBottom(20);

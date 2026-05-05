@@ -329,7 +329,7 @@ export default function SellerDashboard() {
                                     onClick={() => navigate('/seller/team')}
                                     className="bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-4 py-2 rounded-lg text-sm font-semibold"
                                 >
-                                    {isAr ? 'فتح صفحة الفريق' : 'Open Team Page'}
+                                    {isAr ? 'فتح' : 'Open'}
                                 </button>
                             </div>
 
@@ -337,13 +337,13 @@ export default function SellerDashboard() {
                                 <div className="bg-white rounded-lg border border-[#C5E0DC] p-5 shadow-sm flex items-center justify-between gap-4">
                                     <div>
                                         <p className="font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">{isAr ? 'إعدادات صالة المزاد' : 'Auction House Settings'}</p>
-                                        <p className="text-xs text-[#6B9E99]">{isAr ? 'تحديث IBAN وبيانات وإعدادات الصالة' : 'Update IBAN, profile data, and settings'}</p>
+                                        <p className="text-xs text-[#6B9E99]">{isAr ? 'تحديث IBAN والبيانات' : 'Update IBAN & profile'}</p>
                                     </div>
                                     <button
                                         onClick={() => navigate('/seller/settings')}
                                         className="bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-4 py-2 rounded-lg text-sm font-semibold"
                                     >
-                                        {isAr ? 'فتح الإعدادات' : 'Open Settings'}
+                                        {isAr ? 'فتح' : 'Open'}
                                     </button>
                                 </div>
                             )}
