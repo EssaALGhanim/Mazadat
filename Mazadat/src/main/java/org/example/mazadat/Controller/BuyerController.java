@@ -3,6 +3,7 @@ package org.example.mazadat.Controller;
 
 import org.example.mazadat.Api.ApiResponse;
 import org.example.mazadat.DTOIN.BuyerDTOIN;
+import org.example.mazadat.DTOIN.BuyerRatingDTOIN;
 import org.example.mazadat.DTOIN.BuyerUpdateDTOIN;
 import org.example.mazadat.DTOIN.SearchPreferenceDTOIN;
 import org.example.mazadat.Model.User;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 
 @RestController
 @RequestMapping("/api/v1/buyer")
@@ -66,5 +68,17 @@ public class BuyerController {
     @GetMapping("/search-preferences/apply/{preferenceId}")
     public ResponseEntity<?> applySearchPreference(@PathVariable Integer preferenceId, @AuthenticationPrincipal User user) {
         return ResponseEntity.status(HttpStatus.OK.value()).body(buyerService.applySearchPreference(user.getId(), preferenceId));
+    }
+
+    @PostMapping("/rate")
+    public ResponseEntity<?> submitBuyerRating(@RequestBody @Valid BuyerRatingDTOIN dto,
+                                               @AuthenticationPrincipal User user) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                buyerService.submitBuyerRating(user.getId(), dto));
+    }
+
+    @GetMapping("/rate/check/{auctionId}")
+    public ResponseEntity<?> checkBuyerRating(@PathVariable Integer auctionId) {
+        return ResponseEntity.ok(buyerService.checkBuyerRating(auctionId));
     }
 }

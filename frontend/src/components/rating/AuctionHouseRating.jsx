@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Star, X, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
 import StarRating from './StarRating';
+import { checkAuctionHouseRating, submitAuctionHouseRating } from '../../services/auctionHouseRatingService';
 
 // One rating per buyer per auction (keyed by auctionId + auctionHouseId + buyerUsername).
 // Using auctionId in the key means even if a buyer wins in two different auctions from the
@@ -28,12 +29,31 @@ export default function AuctionHouseRating({
 
     useEffect(() => {
         if (!auctionId || !buyerUsername || !houseKey) return;
+        // First check localStorage for instant display
         try {
             const stored = localStorage.getItem(storageKey(auctionId, houseKey, buyerUsername));
-            if (stored) setSavedRating(JSON.parse(stored));
+            if (stored) {
+                setSavedRating(JSON.parse(stored));
+                return;
+            }
         } catch {
             // ignore corrupted localStorage
         }
+        // Then check server
+        checkAuctionHouseRating(auctionId)
+            .then((res) => {
+                if (res.data?.rated) {
+                    const data = { rating: res.data.rating, comment: res.data.comment };
+                    setSavedRating(data);
+                    try {
+                        localStorage.setItem(
+                            storageKey(auctionId, houseKey, buyerUsername),
+                            JSON.stringify(data)
+                        );
+                    } catch { /* ignore */ }
+                }
+            })
+            .catch(() => { /* server check failure is non-critical */ });
     }, [auctionId, houseKey, buyerUsername]);
 
     const openModal = () => {
@@ -45,7 +65,7 @@ export default function AuctionHouseRating({
 
     const closeModal = () => setModalOpen(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (rating === 0) {
             setError(isAr ? 'يرجى اختيار نجمة واحدة على الأقل' : 'Please select at least one star.');
@@ -53,6 +73,12 @@ export default function AuctionHouseRating({
         }
         setSubmitting(true);
         try {
+            await submitAuctionHouseRating({
+                auctionId,
+                auctionHouseId,
+                rating,
+                comment: comment.trim() || null,
+            });
             const data = {
                 rating,
                 comment: comment.trim() || null,
@@ -63,8 +89,9 @@ export default function AuctionHouseRating({
             setSavedRating(data);
             setModalOpen(false);
             toast.success(isAr ? 'تم تقييم صالة المزاد بنجاح' : 'Auction house rated successfully!');
-        } catch {
-            toast.error(isAr ? 'حدث خطأ. يرجى المحاولة مرة أخرى' : 'An error occurred. Please try again.');
+        } catch (err) {
+            const msg = err?.response?.data?.message || (isAr ? 'حدث خطأ. يرجى المحاولة مرة أخرى' : 'An error occurred. Please try again.');
+            toast.error(msg);
         } finally {
             setSubmitting(false);
         }

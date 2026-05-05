@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Star, X } from 'lucide-react';
 import { toast } from 'sonner';
 import StarRating from './StarRating';
+import { checkBuyerRating, submitBuyerRating } from '../../services/buyerRatingService';
 
 const storageKey = (auctionId, buyerUsername) =>
     `buyerRating_${auctionId}_${buyerUsername}`;
@@ -16,12 +17,28 @@ export default function WinnerBuyerRating({ auctionId, buyerUsername, isAr }) {
 
     useEffect(() => {
         if (!auctionId || !buyerUsername) return;
+        // Check localStorage first for instant display
         try {
             const stored = localStorage.getItem(storageKey(auctionId, buyerUsername));
-            if (stored) setSavedRating(JSON.parse(stored));
+            if (stored) {
+                setSavedRating(JSON.parse(stored));
+                return;
+            }
         } catch {
             // ignore parse errors
         }
+        // Then check server
+        checkBuyerRating(auctionId)
+            .then((res) => {
+                if (res.data?.rated) {
+                    const data = { rating: res.data.rating, comment: res.data.comment };
+                    setSavedRating(data);
+                    try {
+                        localStorage.setItem(storageKey(auctionId, buyerUsername), JSON.stringify(data));
+                    } catch { /* ignore */ }
+                }
+            })
+            .catch(() => { /* server check failure is non-critical */ });
     }, [auctionId, buyerUsername]);
 
     const openModal = () => {
@@ -33,7 +50,7 @@ export default function WinnerBuyerRating({ auctionId, buyerUsername, isAr }) {
 
     const closeModal = () => setModalOpen(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (rating === 0) {
             setError(isAr ? 'يرجى اختيار نجمة واحدة على الأقل' : 'Please select at least one star.');
@@ -41,6 +58,11 @@ export default function WinnerBuyerRating({ auctionId, buyerUsername, isAr }) {
         }
         setSubmitting(true);
         try {
+            await submitBuyerRating({
+                auctionId,
+                rating,
+                comment: comment.trim() || null,
+            });
             const data = {
                 rating,
                 comment: comment.trim() || null,
@@ -50,8 +72,9 @@ export default function WinnerBuyerRating({ auctionId, buyerUsername, isAr }) {
             setSavedRating(data);
             setModalOpen(false);
             toast.success(isAr ? 'تم إرسال التقييم بنجاح' : 'Rating submitted successfully!');
-        } catch {
-            toast.error(isAr ? 'حدث خطأ. يرجى المحاولة مرة أخرى' : 'An error occurred. Please try again.');
+        } catch (err) {
+            const msg = err?.response?.data?.message || (isAr ? 'حدث خطأ. يرجى المحاولة مرة أخرى' : 'An error occurred. Please try again.');
+            toast.error(msg);
         } finally {
             setSubmitting(false);
         }
