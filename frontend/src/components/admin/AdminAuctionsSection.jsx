@@ -8,6 +8,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
+const STABLE_SECTION_MIN_HEIGHT = 'min-h-[440px]';
+const columnWidths = {
+    id: 'w-[72px]',
+    title: 'w-[200px]',
+    seller: 'w-[130px]',
+    auctionHouse: 'w-[160px]',
+    status: 'w-[110px]',
+    currentPrice: 'w-[130px]',
+    bidCount: 'w-[70px]',
+    endDate: 'w-[130px]',
+    actions: 'w-[96px]',
+};
+
 function EmptyState({ title, description }) {
     return (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#C5E0DC] bg-[#F8FCFB] px-6 py-12 text-center">
@@ -88,13 +101,43 @@ export default function AdminAuctionsSection({
                 </div>
             </CardHeader>
 
-            <CardContent className="p-6">
+            <CardContent className={`p-6 ${STABLE_SECTION_MIN_HEIGHT}`}>
                 {loading ? (
-                    <div className="space-y-3">
-                        {[...Array(6)].map((_, index) => (
-                            <Skeleton key={index} className="h-12 w-full bg-[#EAF3F1]" />
-                        ))}
-                    </div>
+                    <Table className="table-fixed">
+                        <TableHeader>
+                            <TableRow className="border-[#E4EFED] hover:bg-transparent">
+                                <TableHead className={`${columnWidths.id} text-[#6B9E99]`}>{t('admin.auctions.columns.id')}</TableHead>
+                                <TableHead className={`${columnWidths.title} text-[#6B9E99]`}>{t('admin.auctions.columns.title')}</TableHead>
+                                <TableHead className={`${columnWidths.seller} text-[#6B9E99]`}>{t('admin.auctions.columns.seller')}</TableHead>
+                                <TableHead className={`${columnWidths.auctionHouse} text-[#6B9E99]`}>{t('admin.auctions.columns.auctionHouse')}</TableHead>
+                                <TableHead className={`${columnWidths.status} text-[#6B9E99]`}>{t('admin.auctions.columns.status')}</TableHead>
+                                <TableHead className={`${columnWidths.currentPrice} text-[#6B9E99]`}>{t('admin.auctions.columns.currentPrice')}</TableHead>
+                                <TableHead className={`${columnWidths.bidCount} text-[#6B9E99]`}>{t('admin.auctions.columns.bidCount')}</TableHead>
+                                <TableHead className={`${columnWidths.endDate} text-[#6B9E99]`}>{t('admin.auctions.columns.endDate')}</TableHead>
+                                <TableHead className={`${columnWidths.actions} text-right text-[#6B9E99]`}>{t('admin.auctions.columns.actions')}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {[...Array(6)].map((_, index) => (
+                                <TableRow key={index} className="border-[#EEF5F3]">
+                                    <TableCell className={columnWidths.id}><Skeleton className="h-5 w-12 bg-[#EAF3F1]" /></TableCell>
+                                    <TableCell className={columnWidths.title}><Skeleton className="h-5 w-36 bg-[#EAF3F1]" /></TableCell>
+                                    <TableCell className={columnWidths.seller}><Skeleton className="h-5 w-24 bg-[#EAF3F1]" /></TableCell>
+                                    <TableCell className={columnWidths.auctionHouse}><Skeleton className="h-5 w-28 bg-[#EAF3F1]" /></TableCell>
+                                    <TableCell className={columnWidths.status}><Skeleton className="h-5 w-20 bg-[#EAF3F1]" /></TableCell>
+                                    <TableCell className={columnWidths.currentPrice}><Skeleton className="h-5 w-24 bg-[#EAF3F1]" /></TableCell>
+                                    <TableCell className={columnWidths.bidCount}><Skeleton className="h-5 w-10 bg-[#EAF3F1]" /></TableCell>
+                                    <TableCell className={columnWidths.endDate}><Skeleton className="h-5 w-24 bg-[#EAF3F1]" /></TableCell>
+                                    <TableCell className={columnWidths.actions}>
+                                        <div className="flex justify-end gap-2">
+                                            <Skeleton className="h-8 w-8 shrink-0 bg-[#EAF3F1]" />
+                                            <Skeleton className="h-8 w-8 shrink-0 bg-[#EAF3F1]" />
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 ) : error ? (
                     <EmptyState title={t('admin.errors.auctionsLoadTitle')} description={error} />
                 ) : !hasAuctions ? (
@@ -102,18 +145,18 @@ export default function AdminAuctionsSection({
                 ) : !hasResults ? (
                     <EmptyState title={t('admin.auctions.emptySearchTitle')} description={t('admin.auctions.emptySearchDescription')} />
                 ) : (
-                    <Table>
+                    <Table className="table-fixed">
                         <TableHeader>
                             <TableRow className="border-[#E4EFED] hover:bg-transparent">
-                                <TableHead className="text-[#6B9E99]">{t('admin.auctions.columns.id')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('admin.auctions.columns.title')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('admin.auctions.columns.seller')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('admin.auctions.columns.auctionHouse')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('admin.auctions.columns.status')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('admin.auctions.columns.currentPrice')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('admin.auctions.columns.bidCount')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('admin.auctions.columns.endDate')}</TableHead>
-                                <TableHead className="text-right text-[#6B9E99]">{t('admin.auctions.columns.actions')}</TableHead>
+                                <TableHead className={`${columnWidths.id} text-[#6B9E99]`}>{t('admin.auctions.columns.id')}</TableHead>
+                                <TableHead className={`${columnWidths.title} text-[#6B9E99]`}>{t('admin.auctions.columns.title')}</TableHead>
+                                <TableHead className={`${columnWidths.seller} text-[#6B9E99]`}>{t('admin.auctions.columns.seller')}</TableHead>
+                                <TableHead className={`${columnWidths.auctionHouse} text-[#6B9E99]`}>{t('admin.auctions.columns.auctionHouse')}</TableHead>
+                                <TableHead className={`${columnWidths.status} text-[#6B9E99]`}>{t('admin.auctions.columns.status')}</TableHead>
+                                <TableHead className={`${columnWidths.currentPrice} text-[#6B9E99]`}>{t('admin.auctions.columns.currentPrice')}</TableHead>
+                                <TableHead className={`${columnWidths.bidCount} text-[#6B9E99]`}>{t('admin.auctions.columns.bidCount')}</TableHead>
+                                <TableHead className={`${columnWidths.endDate} text-[#6B9E99]`}>{t('admin.auctions.columns.endDate')}</TableHead>
+                                <TableHead className={`${columnWidths.actions} text-right text-[#6B9E99]`}>{t('admin.auctions.columns.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -121,37 +164,40 @@ export default function AdminAuctionsSection({
                                 const statusMeta = getAuctionStatusMeta(auction);
                                 return (
                                     <TableRow key={auction.id} className="border-[#EEF5F3]">
-                                        <TableCell className="font-medium text-[#1A2E2C]">#{auction.id}</TableCell>
-                                        <TableCell className="max-w-[220px] truncate text-[#1A2E2C]">{auction.title || '—'}</TableCell>
-                                        <TableCell className="max-w-[160px] truncate text-[#5F7D79]">{auction.sellerName || '—'}</TableCell>
-                                        <TableCell className="max-w-[160px] truncate text-[#5F7D79]">{auction.auctionHouseName || '—'}</TableCell>
-                                        <TableCell>
-                                            <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusMeta.bgClass} ${statusMeta.textClass}`}>
-                                                {statusMeta.label}
+                                        <TableCell className={`${columnWidths.id} font-medium text-[#1A2E2C]`}>#{auction.id}</TableCell>
+                                        <TableCell className={`${columnWidths.title} truncate text-[#1A2E2C]`}>{auction.title || '—'}</TableCell>
+                                        <TableCell className={`${columnWidths.seller} truncate text-[#5F7D79]`}>{auction.sellerName || '—'}</TableCell>
+                                        <TableCell className={`${columnWidths.auctionHouse} truncate text-[#5F7D79]`}>{auction.auctionHouseName || '—'}</TableCell>
+                                        <TableCell className={columnWidths.status}>
+                                            <span className={`inline-flex max-w-full truncate rounded-full px-2 py-1 text-xs font-semibold ${statusMeta.bgClass} ${statusMeta.textClass}`}>
+                                                {getCompactStatusLabel(statusMeta.code, t)}
                                             </span>
                                         </TableCell>
-                                        <TableCell className="text-[#1A2E2C]">{formatCurrency(auction.currentPrice ?? auction.startingPrice, i18n.language)}</TableCell>
-                                        <TableCell className="text-[#5F7D79]">{auction.bidCount ?? 0}</TableCell>
-                                        <TableCell className="text-[#5F7D79]">{formatDate(auction.endDate, i18n.language)}</TableCell>
-                                        <TableCell>
-                                            <div className="flex justify-end gap-2">
+                                        <TableCell className={`${columnWidths.currentPrice} text-[#1A2E2C]`}>{formatCurrency(auction.currentPrice ?? auction.startingPrice, i18n.language)}</TableCell>
+                                        <TableCell className={`${columnWidths.bidCount} text-[#5F7D79]`}>{auction.bidCount ?? 0}</TableCell>
+                                        <TableCell className={`${columnWidths.endDate} text-[#5F7D79]`}>{formatDate(auction.endDate, i18n.language)}</TableCell>
+                                        <TableCell className={columnWidths.actions}>
+                                            <div className="flex justify-end gap-1.5">
                                                 <Button
                                                     variant="outline"
-                                                    size="sm"
-                                                    className="border-[#C5E0DC] text-[#1A2E2C]"
+                                                    size="icon-sm"
+                                                    className="shrink-0 border-[#C5E0DC] text-[#1A2E2C]"
+                                                    title={t('admin.actions.view')}
                                                     onClick={() => onInspectAuction(auction)}
                                                 >
                                                     <Eye className="h-4 w-4" />
-                                                    <span>{t('admin.actions.view')}</span>
+                                                    <span className="sr-only">{t('admin.actions.view')}</span>
                                                 </Button>
                                                 <Button
                                                     variant="destructive"
-                                                    size="sm"
+                                                    size="icon-sm"
+                                                    className="shrink-0 bg-[#E05252] text-white hover:bg-[#C73F3F]"
                                                     disabled={deletingAuctionId === auction.id}
+                                                    title={deletingAuctionId === auction.id ? t('admin.actions.deleting') : t('admin.actions.delete')}
                                                     onClick={() => onDeleteAuction(auction)}
                                                 >
                                                     <Trash2 className="h-4 w-4" />
-                                                    <span>{deletingAuctionId === auction.id ? t('admin.actions.deleting') : t('admin.actions.delete')}</span>
+                                                    <span className="sr-only">{deletingAuctionId === auction.id ? t('admin.actions.deleting') : t('admin.actions.delete')}</span>
                                                 </Button>
                                             </div>
                                         </TableCell>
@@ -184,4 +230,20 @@ function formatCurrency(value, locale) {
         currency: 'SAR',
         maximumFractionDigits: 0,
     }).format(Number(value));
+}
+
+function getCompactStatusLabel(code, t) {
+    if (code === 'FAILED_BELOW_RESERVE') {
+        return t('admin.status.failedCompact');
+    }
+
+    if (code === 'ENDED') {
+        return t('admin.status.ended');
+    }
+
+    if (code === 'PENDING') {
+        return t('admin.status.pending');
+    }
+
+    return t('admin.status.active');
 }

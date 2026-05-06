@@ -37,6 +37,6 @@ RUN test -f /usr/share/nginx/html/index.html || (echo "ERROR: index.html not fou
 # Expose port
 EXPOSE 80
 
-# Use custom entrypoint to inject environment variables
-ENTRYPOINT ["/docker-entrypoint.sh"]
-
+# Use custom entrypoint to inject environment variables.
+# Invoking it via /bin/sh is more robust across Docker host/file setups.
+ENTRYPOINT ["/bin/sh", "/docker-entrypoint.sh"]

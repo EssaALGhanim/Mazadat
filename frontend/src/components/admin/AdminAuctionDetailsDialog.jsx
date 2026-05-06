@@ -23,10 +23,13 @@ export default function AdminAuctionDetailsDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[90vh] overflow-y-auto border-[#D7E8E5] bg-[#FCFEFD] sm:max-w-4xl" dir={i18n.dir()}>
-                <DialogHeader className="text-start">
-                    <DialogTitle className="text-[#1A2E2C]">{t('admin.auctions.detailsTitle')}</DialogTitle>
-                    <DialogDescription className="text-[#6B9E99]">
+            <DialogContent
+                className="max-h-[90vh] overflow-y-auto border-[#A8CFC8] bg-gradient-to-br from-[#F1FBF8] via-[#FBFEFD] to-[#EEF6FF] shadow-[0_24px_70px_rgba(26,46,44,0.22)] sm:max-w-4xl"
+                dir={i18n.dir()}
+            >
+                <DialogHeader className="rounded-2xl border border-[#D8ECE8] bg-gradient-to-r from-[#1A7A6E] to-[#4F9EA2] px-5 py-4 text-start shadow-sm">
+                    <DialogTitle className="text-white">{t('admin.auctions.detailsTitle')}</DialogTitle>
+                    <DialogDescription className="text-white/80">
                         {t('admin.auctions.detailsDescription')}
                     </DialogDescription>
                 </DialogHeader>
@@ -94,7 +97,7 @@ export default function AdminAuctionDetailsDialog({
 
 function DetailCard({ label, value }) {
     return (
-        <div className="rounded-xl border border-[#E4EFED] bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-[#D7E8E5] bg-[#F8FCFB] p-4 shadow-sm">
             <p className="text-sm font-medium text-[#6B9E99]">{label}</p>
             <div className="mt-2 break-words text-base font-semibold text-[#1A2E2C]">{value}</div>
         </div>
