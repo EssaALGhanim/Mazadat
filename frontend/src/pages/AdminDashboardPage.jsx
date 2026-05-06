@@ -17,6 +17,7 @@ import {
     getAdminAuctionById,
     getAdminAuctions,
     getAdminDashboardStats,
+    getAdminPreviewEnabled,
     getAdminUserById,
     getAdminUsers,
     isAdminIntegrationPendingError,
@@ -35,8 +36,15 @@ const initialStats = {
 
 export default function AdminDashboardPage() {
     const { t, i18n } = useTranslation('common');
-    const isAr = i18n.language === 'ar';
-    const [currentUser, setCurrentUser] = useState(null);
+    const [currentUser] = useState(() => {
+        try {
+            const stored = localStorage.getItem('user');
+            return stored ? JSON.parse(stored) : null;
+        } catch {
+            return null;
+        }
+    });
+    const [previewMode] = useState(() => getAdminPreviewEnabled());
     const [stats, setStats] = useState(initialStats);
     const [users, setUsers] = useState([]);
     const [auctions, setAuctions] = useState([]);
@@ -55,15 +63,6 @@ export default function AdminDashboardPage() {
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, type: null, item: null });
     const [deletingUserId, setDeletingUserId] = useState(null);
     const [deletingAuctionId, setDeletingAuctionId] = useState(null);
-
-    useEffect(() => {
-        try {
-            const stored = localStorage.getItem('user');
-            setCurrentUser(stored ? JSON.parse(stored) : null);
-        } catch {
-            setCurrentUser(null);
-        }
-    }, []);
 
     const computeStats = useCallback((usersList, auctionsList) => ({
         totalUsers: usersList.length,
@@ -269,6 +268,13 @@ export default function AdminDashboardPage() {
                         <p className="mt-2 max-w-3xl text-[#6B9E99]">
                             {t('admin.subtitle')}
                         </p>
+                        <div className="mt-4 min-h-[76px]">
+                            {previewMode ? (
+                                <div className="rounded-xl border border-[#F0D9A7] bg-[#FFF8E8] px-4 py-3 text-sm text-[#8A6A21]">
+                                    {t('admin.previewMode')}
+                                </div>
+                            ) : null}
+                        </div>
                     </div>
 
                     <Card className="border-[#D7E8E5] bg-white shadow-sm lg:w-[320px]">

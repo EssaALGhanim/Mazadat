@@ -8,6 +8,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
+const STABLE_SECTION_MIN_HEIGHT = 'min-h-[440px]';
+const columnWidths = {
+    id: 'w-[90px]',
+    username: 'w-[190px]',
+    email: 'w-[240px]',
+    role: 'w-[120px]',
+    created: 'w-[150px]',
+    updated: 'w-[150px]',
+    actions: 'w-[132px]',
+};
+
 function EmptyState({ title, description }) {
     return (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-[#C5E0DC] bg-[#F8FCFB] px-6 py-12 text-center">
@@ -86,13 +97,51 @@ export default function AdminUsersSection({
                 </div>
             </CardHeader>
 
-            <CardContent className="p-6">
+            <CardContent className={`p-6 ${STABLE_SECTION_MIN_HEIGHT}`}>
                 {loading ? (
-                    <div className="space-y-3">
-                        {[...Array(6)].map((_, index) => (
-                            <Skeleton key={index} className="h-12 w-full bg-[#EAF3F1]" />
-                        ))}
-                    </div>
+                    <Table className="table-fixed">
+                        <TableHeader>
+                            <TableRow className="border-[#E4EFED] hover:bg-transparent">
+                                <TableHead className={`${columnWidths.id} text-[#6B9E99]`}>{t('admin.users.columns.id')}</TableHead>
+                                <TableHead className={`${columnWidths.username} text-[#6B9E99]`}>{t('username')}</TableHead>
+                                <TableHead className={`${columnWidths.email} text-[#6B9E99]`}>{t('email')}</TableHead>
+                                <TableHead className={`${columnWidths.role} text-[#6B9E99]`}>{t('admin.users.columns.role')}</TableHead>
+                                <TableHead className={`${columnWidths.created} text-[#6B9E99]`}>{t('admin.users.columns.created')}</TableHead>
+                                <TableHead className={`${columnWidths.updated} text-[#6B9E99]`}>{t('admin.users.columns.updated')}</TableHead>
+                                <TableHead className={`${columnWidths.actions} text-right text-[#6B9E99]`}>{t('admin.users.columns.actions')}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {[...Array(6)].map((_, index) => (
+                                <TableRow key={index} className="border-[#EEF5F3]">
+                                    <TableCell className={columnWidths.id}>
+                                        <Skeleton className="h-5 w-12 bg-[#EAF3F1]" />
+                                    </TableCell>
+                                    <TableCell className={columnWidths.username}>
+                                        <Skeleton className="h-5 w-28 bg-[#EAF3F1]" />
+                                    </TableCell>
+                                    <TableCell className={columnWidths.email}>
+                                        <Skeleton className="h-5 w-40 bg-[#EAF3F1]" />
+                                    </TableCell>
+                                    <TableCell className={columnWidths.role}>
+                                        <Skeleton className="h-5 w-16 bg-[#EAF3F1]" />
+                                    </TableCell>
+                                    <TableCell className={columnWidths.created}>
+                                        <Skeleton className="h-5 w-24 bg-[#EAF3F1]" />
+                                    </TableCell>
+                                    <TableCell className={columnWidths.updated}>
+                                        <Skeleton className="h-5 w-24 bg-[#EAF3F1]" />
+                                    </TableCell>
+                                    <TableCell className={columnWidths.actions}>
+                                        <div className="flex justify-end gap-2">
+                                            <Skeleton className="h-8 w-8 shrink-0 bg-[#EAF3F1]" />
+                                            <Skeleton className="h-8 w-8 shrink-0 bg-[#EAF3F1]" />
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 ) : error ? (
                     <EmptyState title={t('admin.errors.usersLoadTitle')} description={error} />
                 ) : !hasUsers ? (
@@ -100,16 +149,16 @@ export default function AdminUsersSection({
                 ) : !hasResults ? (
                     <EmptyState title={t('admin.users.emptySearchTitle')} description={t('admin.users.emptySearchDescription')} />
                 ) : (
-                    <Table>
+                    <Table className="table-fixed">
                         <TableHeader>
                             <TableRow className="border-[#E4EFED] hover:bg-transparent">
-                                <TableHead className="text-[#6B9E99]">{t('admin.users.columns.id')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('username')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('email')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('admin.users.columns.role')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('admin.users.columns.created')}</TableHead>
-                                <TableHead className="text-[#6B9E99]">{t('admin.users.columns.updated')}</TableHead>
-                                <TableHead className="text-right text-[#6B9E99]">{t('admin.users.columns.actions')}</TableHead>
+                                <TableHead className={`${columnWidths.id} text-[#6B9E99]`}>{t('admin.users.columns.id')}</TableHead>
+                                <TableHead className={`${columnWidths.username} text-[#6B9E99]`}>{t('username')}</TableHead>
+                                <TableHead className={`${columnWidths.email} text-[#6B9E99]`}>{t('email')}</TableHead>
+                                <TableHead className={`${columnWidths.role} text-[#6B9E99]`}>{t('admin.users.columns.role')}</TableHead>
+                                <TableHead className={`${columnWidths.created} text-[#6B9E99]`}>{t('admin.users.columns.created')}</TableHead>
+                                <TableHead className={`${columnWidths.updated} text-[#6B9E99]`}>{t('admin.users.columns.updated')}</TableHead>
+                                <TableHead className={`${columnWidths.actions} text-right text-[#6B9E99]`}>{t('admin.users.columns.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -117,31 +166,34 @@ export default function AdminUsersSection({
                                 const userId = user?.id ?? user?.Id;
                                 return (
                                     <TableRow key={userId} className="border-[#EEF5F3]">
-                                        <TableCell className="font-medium text-[#1A2E2C]">#{userId}</TableCell>
-                                        <TableCell className="max-w-[180px] truncate text-[#1A2E2C]">{user?.username || '-'}</TableCell>
-                                        <TableCell className="max-w-[220px] truncate text-[#5F7D79]">{user?.email || '—'}</TableCell>
-                                        <TableCell className="text-[#1A2E2C]">{t(`admin.roles.${String(user?.role || '').toLowerCase()}`, user?.role || '—')}</TableCell>
-                                        <TableCell className="text-[#5F7D79]">{formatDate(user?.createdAt, i18n.language)}</TableCell>
-                                        <TableCell className="text-[#5F7D79]">{formatDate(user?.updatedAt, i18n.language)}</TableCell>
-                                        <TableCell>
+                                        <TableCell className={`${columnWidths.id} font-medium text-[#1A2E2C]`}>#{userId}</TableCell>
+                                        <TableCell className={`${columnWidths.username} truncate text-[#1A2E2C]`}>{user?.username || '-'}</TableCell>
+                                        <TableCell className={`${columnWidths.email} truncate text-[#5F7D79]`}>{user?.email || '—'}</TableCell>
+                                        <TableCell className={`${columnWidths.role} text-[#1A2E2C]`}>{t(`admin.roles.${String(user?.role || '').toLowerCase()}`, user?.role || '—')}</TableCell>
+                                        <TableCell className={`${columnWidths.created} text-[#5F7D79]`}>{formatDate(user?.createdAt, i18n.language)}</TableCell>
+                                        <TableCell className={`${columnWidths.updated} text-[#5F7D79]`}>{formatDate(user?.updatedAt, i18n.language)}</TableCell>
+                                        <TableCell className={columnWidths.actions}>
                                             <div className="flex justify-end gap-2">
                                                 <Button
                                                     variant="outline"
-                                                    size="sm"
-                                                    className="border-[#C5E0DC] text-[#1A2E2C]"
+                                                    size="icon-sm"
+                                                    className="shrink-0 border-[#C5E0DC] text-[#1A2E2C]"
+                                                    title={t('admin.actions.view')}
                                                     onClick={() => onInspectUser(user)}
                                                 >
                                                     <Eye className="h-4 w-4" />
-                                                    <span>{t('admin.actions.view')}</span>
+                                                    <span className="sr-only">{t('admin.actions.view')}</span>
                                                 </Button>
                                                 <Button
                                                     variant="destructive"
-                                                    size="sm"
+                                                    size="icon-sm"
+                                                    className="shrink-0 bg-[#E05252] text-white hover:bg-[#C73F3F]"
                                                     disabled={deletingUserId === userId}
+                                                    title={deletingUserId === userId ? t('admin.actions.deleting') : t('admin.actions.delete')}
                                                     onClick={() => onDeleteUser(user)}
                                                 >
                                                     <Trash2 className="h-4 w-4" />
-                                                    <span>{deletingUserId === userId ? t('admin.actions.deleting') : t('admin.actions.delete')}</span>
+                                                    <span className="sr-only">{deletingUserId === userId ? t('admin.actions.deleting') : t('admin.actions.delete')}</span>
                                                 </Button>
                                             </div>
                                         </TableCell>

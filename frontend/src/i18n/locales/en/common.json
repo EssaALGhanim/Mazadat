@@ -71,6 +71,7 @@
     "badge": "Platform Admin",
     "title": "Admin Dashboard",
     "subtitle": "Monitor platform activity, review users, inspect listings, and keep marketplace operations under control.",
+    "previewMode": "Preview mode is enabled. Admin access is being bypassed on the frontend for testing, and users data may be mocked if the backend denies access.",
     "navLabel": "Admin",
     "loggedInAs": "Signed in as",
     "tabs": {
@@ -148,7 +149,8 @@
       "pending": "Pending",
       "active": "Active",
       "ended": "Ended",
-      "failedBelowReserve": "Failed Below Reserve"
+      "failedBelowReserve": "Failed Below Reserve",
+      "failedCompact": "Reserve Fail"
     },
     "filters": {
       "allRoles": "All Roles",
