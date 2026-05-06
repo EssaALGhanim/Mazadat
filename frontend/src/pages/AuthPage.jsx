@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, User, Store, TrendingUp } from 'lucide-react';
+import { Eye, EyeOff, User, Store, TrendingUp, ShieldCheck, Mail } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { registerBuyer, registerSeller, login } from '@/services/authService';
 import { getSellerAuctionHouse } from '@/services/auctionHouseService';
+import { sendOtp, verifyOtp } from '@/services/notificationService';
 import { toast } from 'sonner';
 
 function GeometricPattern() {
@@ -31,6 +32,120 @@ function GeometricPattern() {
   );
 }
 
+function OtpModal({ maskedEmail, identifier, onVerified, onCancel, isAr }) {
+  const [code, setCode] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const inputs = useRef([]);
+
+  const handleChange = (val, idx) => {
+    if (!/^\d*$/.test(val)) return;
+    const digits = code.split('');
+    digits[idx] = val.slice(-1);
+    const next = digits.join('').padEnd(6, '').slice(0, 6);
+    setCode(next.trimEnd());
+    setError(null);
+    if (val && idx < 5) inputs.current[idx + 1]?.focus();
+  };
+
+  const handleKeyDown = (e, idx) => {
+    if (e.key === 'Backspace' && !code[idx] && idx > 0) {
+      inputs.current[idx - 1]?.focus();
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (code.length < 6) { setError(isAr ? 'أدخل الرمز المكون من 6 أرقام' : 'Enter the 6-digit code'); return; }
+    setLoading(true);
+    try {
+      await verifyOtp(identifier, code);
+      onVerified();
+    } catch (err) {
+      setError(err.message || (isAr ? 'رمز غير صحيح' : 'Invalid code'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      await sendOtp(identifier);
+      toast.success(isAr ? 'تم إعادة إرسال الرمز' : 'Code resent to your email');
+      setCode('');
+      setError(null);
+    } catch (err) {
+      toast.error(err.message || (isAr ? 'فشل إعادة الإرسال' : 'Failed to resend'));
+    } finally {
+      setResending(false);
+    }
+  };
+
+  const codeArr = Array.from({ length: 6 }, (_, i) => code[i] || '');
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center gap-5" dir={isAr ? 'rtl' : 'ltr'}>
+        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#EAF7F5]">
+          <ShieldCheck className="w-7 h-7 text-[#2A9D8F]" />
+        </div>
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-[#1A2E2C]">{isAr ? 'التحقق من البريد الإلكتروني' : 'Email Verification'}</h3>
+          <p className="mt-1 text-sm text-[#6B9E99] flex items-center justify-center gap-1">
+            <Mail className="w-4 h-4" />
+            {isAr ? `تم إرسال رمز التحقق إلى ${maskedEmail}` : `Code sent to ${maskedEmail}`}
+          </p>
+        </div>
+        {error && (
+          <div className="w-full bg-red-50 border border-[#E05252] text-[#E05252] rounded-lg px-3 py-2 text-sm text-center font-semibold">
+            {error}
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="flex flex-col items-center gap-5 w-full">
+          <div className="flex gap-2 justify-center" dir="ltr">
+            {codeArr.map((digit, idx) => (
+              <input
+                key={idx}
+                ref={(el) => { inputs.current[idx] = el; }}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                value={digit}
+                onChange={(e) => handleChange(e.target.value, idx)}
+                onKeyDown={(e) => handleKeyDown(e, idx)}
+                className="w-11 h-13 text-center text-xl font-bold border-2 rounded-lg outline-none transition-all text-[#1A2E2C] border-[#C5E0DC] focus:border-[#2A9D8F] focus:ring-2 focus:ring-[#2A9D8F]/30 bg-white"
+                style={{ height: '52px' }}
+              />
+            ))}
+          </div>
+          <Button
+            type="submit"
+            disabled={loading || code.length < 6}
+            className="w-full h-11 rounded-lg bg-[#2A9D8F] text-base font-semibold text-white hover:bg-[#1A7A6E] disabled:opacity-50"
+          >
+            {loading ? '...' : (isAr ? 'تحقق' : 'Verify')}
+          </Button>
+        </form>
+        <div className="flex items-center gap-3 text-sm text-[#6B9E99]">
+          <span>{isAr ? 'لم تستلم الرمز؟' : "Didn't receive it?"}</span>
+          <button
+            onClick={handleResend}
+            disabled={resending}
+            className="text-[#2A9D8F] font-semibold hover:underline disabled:opacity-50"
+          >
+            {resending ? '...' : (isAr ? 'إعادة إرسال' : 'Resend')}
+          </button>
+        </div>
+        <button onClick={onCancel} className="text-xs text-[#6B9E99] hover:text-[#1A2E2C] transition-colors">
+          {isAr ? 'إلغاء' : 'Cancel'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 async function handleSellerNoAuctionHouseNotice() {
   try {
     await getSellerAuctionHouse();
@@ -46,13 +161,17 @@ async function handleSellerNoAuctionHouseNotice() {
 }
 
 function LoginForm() {
-  const { t } = useTranslation('auth');
+  const { t, i18n } = useTranslation('auth');
+  const isAr = i18n.language === 'ar';
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [otpStep, setOtpStep] = useState(false);
+  const [maskedEmail, setMaskedEmail] = useState('');
+  const [pendingUser, setPendingUser] = useState(null);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -68,12 +187,10 @@ function LoginForm() {
     setLoading(true);
     try {
       const user = await login(formData.username, formData.password);
-      if (user.role === 'SELLER') {
-        await handleSellerNoAuctionHouseNotice();
-        navigate('/seller-dashboard');
-      } else {
-        navigate('/');
-      }
+      setPendingUser(user);
+      const res = await sendOtp(formData.username);
+      setMaskedEmail(res?.data?.maskedEmail || '');
+      setOtpStep(true);
     } catch (err) {
       console.error('[LoginForm] Login error:', err);
       setError(err.message || t('loginFailed'));
@@ -82,80 +199,111 @@ function LoginForm() {
     }
   };
 
+  const handleOtpVerified = async () => {
+    setOtpStep(false);
+    try {
+      if (pendingUser?.role === 'SELLER') {
+        await handleSellerNoAuctionHouseNotice();
+        navigate('/seller-dashboard');
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      navigate('/');
+    }
+  };
+
+  const handleOtpCancel = () => {
+    setOtpStep(false);
+    setPendingUser(null);
+    localStorage.removeItem('user');
+  };
+
   return (
-    <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
-      {error && (
-        <div className="bg-red-50 border border-[#E05252] text-[#E05252] rounded-lg px-4 py-3 text-sm font-semibold">
-          {error}
-        </div>
-      )}
-
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="login-username" className="block w-full text-[#1A2E2C] rtl:text-right ltr:text-left">
-          {t('username')}
-        </Label>
-        <Input
-          id="login-username"
-          name="username"
-          type="text"
-          value={formData.username}
-          onChange={handleChange}
-          placeholder={t('namePlaceholder')}
-          className="h-11 rounded-lg border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 rtl:text-right ltr:text-left"
+    <>
+      {otpStep && (
+        <OtpModal
+          maskedEmail={maskedEmail}
+          identifier={formData.username}
+          onVerified={handleOtpVerified}
+          onCancel={handleOtpCancel}
+          isAr={isAr}
         />
-      </div>
+      )}
+      <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+        {error && (
+          <div className="bg-red-50 border border-[#E05252] text-[#E05252] rounded-lg px-4 py-3 text-sm font-semibold">
+            {error}
+          </div>
+        )}
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="login-password" className="block w-full text-[#1A2E2C] rtl:text-right ltr:text-left">
-          {t('password')}
-        </Label>
-        <div className="relative">
-          <Input
-            id="login-password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="••••••••"
-            dir="ltr"
-            className="h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ltr:text-left rtl:text-right"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99] transition-colors hover:text-[#1A2E2C]"
-            aria-label={showPassword ? t('hidePassword') : t('showPassword')}
-          >
-            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-          </button>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="remember"
-            checked={rememberMe}
-            onCheckedChange={(checked) => setRememberMe(checked)}
-            className="border-[#C5E0DC] data-[state=checked]:border-[#2A9D8F] data-[state=checked]:bg-[#2A9D8F]"
-          />
-          <Label htmlFor="remember" className="cursor-pointer text-sm font-normal text-[#6B9E99]">
-            {t('rememberMe')}
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="login-username" className="block w-full text-[#1A2E2C] rtl:text-right ltr:text-left">
+            {t('username')}
           </Label>
+          <Input
+            id="login-username"
+            name="username"
+            type="text"
+            value={formData.username}
+            onChange={handleChange}
+            placeholder={t('namePlaceholder')}
+            className="h-11 rounded-lg border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 rtl:text-right ltr:text-left"
+          />
         </div>
-        <a href="#" className="text-sm text-[#2A9D8F] underline-offset-4 transition-colors hover:text-[#3DBFB0] hover:underline">
-          {t('forgotPassword')}
-        </a>
-      </div>
 
-      <Button
-        type="submit"
-        disabled={loading}
-        className="mt-2 h-12 rounded-lg bg-[#2A9D8F] text-lg font-semibold text-white shadow-md transition-all hover:bg-[#1A7A6E] hover:shadow-lg disabled:opacity-50"
-      >
-        {loading ? '...' : t('login')}
-      </Button>
-    </form>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="login-password" className="block w-full text-[#1A2E2C] rtl:text-right ltr:text-left">
+            {t('password')}
+          </Label>
+          <div className="relative">
+            <Input
+              id="login-password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              dir="ltr"
+              className="h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ltr:text-left rtl:text-right"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99] transition-colors hover:text-[#1A2E2C]"
+              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+            >
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="remember"
+              checked={rememberMe}
+              onCheckedChange={(checked) => setRememberMe(checked)}
+              className="border-[#C5E0DC] data-[state=checked]:border-[#2A9D8F] data-[state=checked]:bg-[#2A9D8F]"
+            />
+            <Label htmlFor="remember" className="cursor-pointer text-sm font-normal text-[#6B9E99]">
+              {t('rememberMe')}
+            </Label>
+          </div>
+          <a href="#" className="text-sm text-[#2A9D8F] underline-offset-4 transition-colors hover:text-[#3DBFB0] hover:underline">
+            {t('forgotPassword')}
+          </a>
+        </div>
+
+        <Button
+          type="submit"
+          disabled={loading}
+          className="mt-2 h-12 rounded-lg bg-[#2A9D8F] text-lg font-semibold text-white shadow-md transition-all hover:bg-[#1A7A6E] hover:shadow-lg disabled:opacity-50"
+        >
+          {loading ? '...' : t('login')}
+        </Button>
+      </form>
+    </>
   );
 }
 
@@ -170,6 +318,9 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({ username: '', email: '', password: '', confirmPassword: '', phoneNumber: '' });
+  const [otpStep, setOtpStep] = useState(false);
+  const [maskedEmail, setMaskedEmail] = useState('');
+  const [pendingUser, setPendingUser] = useState(null);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -218,12 +369,10 @@ function RegisterForm() {
       }
 
       const user = await login(formData.username, formData.password);
-      if (user.role === 'SELLER') {
-        await handleSellerNoAuctionHouseNotice();
-        navigate('/seller-dashboard');
-      } else {
-        navigate('/');
-      }
+      setPendingUser(user);
+      // OTP was already sent by the backend on registration; show verification step
+      setMaskedEmail(formData.email.charAt(0) + '***' + formData.email.substring(formData.email.indexOf('@')));
+      setOtpStep(true);
     } catch (err) {
       setError(err.message || t('registerFailed'));
     } finally {
@@ -231,7 +380,37 @@ function RegisterForm() {
     }
   };
 
+  const handleOtpVerified = async () => {
+    setOtpStep(false);
+    try {
+      if (pendingUser?.role === 'SELLER') {
+        await handleSellerNoAuctionHouseNotice();
+        navigate('/seller-dashboard');
+      } else {
+        navigate('/');
+      }
+    } catch {
+      navigate('/');
+    }
+  };
+
+  const handleOtpCancel = () => {
+    setOtpStep(false);
+    setPendingUser(null);
+    localStorage.removeItem('user');
+  };
+
   return (
+    <>
+      {otpStep && (
+        <OtpModal
+          maskedEmail={maskedEmail}
+          identifier={formData.email}
+          onVerified={handleOtpVerified}
+          onCancel={handleOtpCancel}
+          isAr={isAr}
+        />
+      )}
     <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
       {error && (
         <div className="bg-red-50 border border-[#E05252] text-[#E05252] rounded-lg px-4 py-3 text-sm font-semibold">
@@ -392,6 +571,7 @@ function RegisterForm() {
         {loading ? '...' : t('createAccount')}
       </Button>
     </form>
+    </>
   );
 }
 

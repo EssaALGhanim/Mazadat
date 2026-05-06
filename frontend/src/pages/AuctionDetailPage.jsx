@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, User, Trophy, Download, Home, X, Zap } from 'lucide-react';
+import { ChevronLeft, ChevronRight, User, Trophy, Download, Home, X, Zap, Star } from 'lucide-react';
 import CountdownTimer from '@/components/auction/CountdownTimer';
 import PlaceBidModal from '@/components/auction/PlaceBidModal';
 import AutoBidModal from '@/components/auction/AutoBidModal';
@@ -16,6 +16,9 @@ import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirec
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
 import { useNow } from '@/hooks/useNow';
 import { toast } from 'sonner';
+import WinnerBuyerRating from '@/components/rating/WinnerBuyerRating';
+import AuctionHouseRating from '@/components/rating/AuctionHouseRating';
+import { getAuctionHouseRatings } from '@/services/auctionHouseRatingService';
 
 export default function AuctionDetailPage({ currentUser }) {
     const { t, i18n } = useTranslation('common');
@@ -34,6 +37,8 @@ export default function AuctionDetailPage({ currentUser }) {
     const [isFeatured, setIsFeatured] = useState(false);
     const [featureLoading, setFeatureLoading] = useState(false);
     const [featureModalOpen, setFeatureModalOpen] = useState(false);
+    const [houseRatings, setHouseRatings] = useState(null);
+    const [ratingsModalOpen, setRatingsModalOpen] = useState(false);
     const now = useNow();
     const nowDate = new Date(now);
 
@@ -61,6 +66,19 @@ export default function AuctionDetailPage({ currentUser }) {
             fetchAuction();
         }
     }, [auctionId, isAr]);
+
+    useEffect(() => {
+        const fetchHouseRatings = async () => {
+            if (!auction?.auctionHouseId) return;
+            try {
+                const res = await getAuctionHouseRatings(auction.auctionHouseId);
+                setHouseRatings(res);
+            } catch {
+                // silently ignore
+            }
+        };
+        fetchHouseRatings();
+    }, [auction?.auctionHouseId]);
 
     if (loading) {
         return (
@@ -285,8 +303,36 @@ export default function AuctionDetailPage({ currentUser }) {
                                 </div>
                             </div>
                             <div className="pt-3 border-t border-[#C5E0DC]">
-                                <p className="text-xs text-[#6B9E99]">{isAr ? 'صالة المزاد' : 'Auction House'}</p>
-                                <p className="font-semibold text-[#1A2E2C]">{auction?.auctionHouseName}</p>
+                                <p className="text-xs text-[#6B9E99] mb-1">{isAr ? 'صالة المزاد' : 'Auction House'}</p>
+                                <div className="flex items-center justify-between flex-wrap gap-2">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <p className="font-semibold text-[#1A2E2C]">{auction?.auctionHouseName}</p>
+                                        {houseRatings && houseRatings.totalRatings > 0 && (
+                                            <div className="flex items-center gap-1">
+                                                <Star className="w-3.5 h-3.5 text-[#F4A736] fill-[#F4A736]" />
+                                                <span className="text-sm font-bold text-[#1A2E2C]">
+                                                    {houseRatings.averageRating.toFixed(1)}
+                                                </span>
+                                                <span className="text-xs text-[#6B9E99]">
+                                                    ({houseRatings.totalRatings} {isAr ? 'تقييم' : 'ratings'})
+                                                </span>
+                                            </div>
+                                        )}
+                                        {houseRatings && houseRatings.totalRatings === 0 && (
+                                            <span className="text-xs text-[#6B9E99]">
+                                                {isAr ? 'لا يوجد تقييم' : 'No ratings yet'}
+                                            </span>
+                                        )}
+                                    </div>
+                                    {houseRatings && houseRatings.totalRatings > 0 && (
+                                        <button
+                                            onClick={() => setRatingsModalOpen(true)}
+                                            className="text-xs text-[#2A9D8F] hover:text-[#1A7A6E] font-semibold underline underline-offset-2 transition-colors"
+                                        >
+                                            {isAr ? 'عرض التعليقات' : 'Show Comments'}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -367,6 +413,15 @@ export default function AuctionDetailPage({ currentUser }) {
                                     <Trophy className="w-5 h-5" />
                                     <p className="font-bold">{isAr ? '🎉 أنت الفائز!' : '🎉 You Won!'}</p>
                                 </div>
+                                {(auction?.auctionHouseId || auction?.auctionHouseName) && (
+                                    <AuctionHouseRating
+                                        auctionId={auctionId}
+                                        auctionHouseId={auction.auctionHouseId}
+                                        auctionHouseName={auction.auctionHouseName}
+                                        buyerUsername={currentUser?.username}
+                                        isAr={isAr}
+                                    />
+                                )}
                             </div>
                         )}
 
@@ -460,7 +515,14 @@ export default function AuctionDetailPage({ currentUser }) {
                                         {isAr ? 'الفائز' : 'Winner'}
                                     </p>
                                 </div>
-                                <p className="text-[#1A2E2C] font-bold mb-2">{auction.highestBidder}</p>
+                                <div className={`flex items-center gap-2 mb-2 flex-wrap ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
+                                    <p className="text-[#1A2E2C] font-bold">{auction.highestBidder}</p>
+                                    <WinnerBuyerRating
+                                        auctionId={auctionId}
+                                        buyerUsername={auction.highestBidder}
+                                        isAr={isAr}
+                                    />
+                                </div>
                                 {auction.highestBidderEmail && (
                                     <p className="text-xs text-[#6B9E99]" dir="ltr">
                                         {isAr ? 'البريد الإلكتروني' : 'Email'}: {auction.highestBidderEmail}
@@ -504,6 +566,87 @@ export default function AuctionDetailPage({ currentUser }) {
                 onFeature={handleFeatureAuction}
                 loading={featureLoading}
             />
+
+            {/* Auction House Ratings Modal */}
+            {ratingsModalOpen && houseRatings && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                    onClick={() => setRatingsModalOpen(false)}
+                >
+                    <div
+                        className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col"
+                        dir={isAr ? 'rtl' : 'ltr'}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between p-5 border-b border-[#C5E0DC]">
+                            <div>
+                                <h2 className="font-bold text-[#1A2E2C] text-lg">
+                                    {isAr ? 'تقييمات صالة المزاد' : 'Auction House Reviews'}
+                                </h2>
+                                <p className="text-sm text-[#6B9E99] mt-0.5">
+                                    {auction?.auctionHouseName}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setRatingsModalOpen(false)}
+                                className="p-2 rounded-lg hover:bg-[#F0F2F5] transition-colors"
+                            >
+                                <X className="w-5 h-5 text-[#6B9E99]" />
+                            </button>
+                        </div>
+
+                        {/* Average Summary */}
+                        <div className="flex items-center gap-3 px-5 py-4 bg-[#F4FAFA] border-b border-[#C5E0DC]">
+                            <div className="text-4xl font-bold text-[#2A9D8F]">
+                                {houseRatings.averageRating.toFixed(1)}
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-0.5 mb-1">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <Star
+                                            key={star}
+                                            className={`w-4 h-4 ${star <= Math.round(houseRatings.averageRating) ? 'text-[#F4A736] fill-[#F4A736]' : 'text-[#C5E0DC] fill-[#C5E0DC]'}`}
+                                        />
+                                    ))}
+                                </div>
+                                <p className="text-xs text-[#6B9E99]">
+                                    {houseRatings.totalRatings} {isAr ? 'تقييم' : 'ratings'}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Ratings List */}
+                        <div className="overflow-y-auto flex-1 divide-y divide-[#C5E0DC]">
+                            {houseRatings.ratings.map((r, idx) => (
+                                <div key={idx} className="px-5 py-4">
+                                    <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-full bg-[#EAF7F5] flex items-center justify-center">
+                                                <User className="w-4 h-4 text-[#2A9D8F]" />
+                                            </div>
+                                            <span className="font-semibold text-sm text-[#1A2E2C]">{r.buyerUsername}</span>
+                                        </div>
+                                        <div className="flex items-center gap-0.5">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <Star
+                                                    key={star}
+                                                    className={`w-3.5 h-3.5 ${star <= r.rating ? 'text-[#F4A736] fill-[#F4A736]' : 'text-[#C5E0DC] fill-[#C5E0DC]'}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {r.comment && (
+                                        <p className="text-sm text-[#1A2E2C] leading-relaxed">
+                                            {r.comment}
+                                        </p>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
