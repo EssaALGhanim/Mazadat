@@ -14,6 +14,8 @@ public class UserDTOOUT {
 
     private Integer Id;
     private String username;
+    private String email;
+    private String phoneNumber;
     private String role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

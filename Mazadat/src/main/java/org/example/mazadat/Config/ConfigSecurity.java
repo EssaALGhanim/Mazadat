@@ -88,6 +88,8 @@ public class ConfigSecurity {
                     .requestMatchers("/api/v1/seller/update").authenticated()
                     .requestMatchers("/api/v1/seller/delete").authenticated()
                     .requestMatchers("/api/v1/seller/delete/**").authenticated()
+                // Report endpoints (authenticated users)
+                    .requestMatchers("/api/v1/report").authenticated()
                 // Buyer endpoints (authenticated - buyers)
                     .requestMatchers("/api/v1/bid/add").authenticated()
                     .requestMatchers("/api/v1/receipt/generate/**").authenticated()

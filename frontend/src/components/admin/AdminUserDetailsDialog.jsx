@@ -26,7 +26,7 @@ export default function AdminUserDetailsDialog({
             >
                 <DialogHeader className="rounded-2xl border border-[#D8ECE8] bg-gradient-to-r from-[#1A7A6E] to-[#4F9EA2] px-5 py-4 text-start shadow-sm">
                     <DialogTitle className="text-white">{t('admin.users.detailsTitle')}</DialogTitle>
-                    <DialogDescription className="text-white/80">
+                    <DialogDescription className="text-white/80 text-start">
                         {t('admin.users.detailsDescription')}
                     </DialogDescription>
                 </DialogHeader>

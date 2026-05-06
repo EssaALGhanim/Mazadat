@@ -35,7 +35,7 @@ export default function AdminOverviewSection({ stats, loading }) {
                 return (
                     <Card key={card.key} className="border-[#D7E8E5] bg-white shadow-sm">
                         <CardContent className="flex items-start justify-between p-6">
-                            <div>
+                            <div className="text-start">
                                 <p className="text-sm font-medium text-[#6B9E99]">{card.label}</p>
                                 {loading ? (
                                     <Skeleton className="mt-3 h-9 w-24 bg-[#E6F1EF]" />

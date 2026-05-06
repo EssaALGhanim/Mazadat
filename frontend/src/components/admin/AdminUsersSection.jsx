@@ -63,12 +63,12 @@ export default function AdminUsersSection({
     const hasResults = filteredUsers.length > 0;
 
     return (
-        <Card className="border-[#D7E8E5] bg-white shadow-sm">
+        <Card dir={isAr ? 'rtl' : 'ltr'} className="border-[#D7E8E5] bg-white shadow-sm">
             <CardHeader className="gap-4 border-b border-[#E4EFED]">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                        <CardTitle className="text-[#1A2E2C]">{t('admin.users.title')}</CardTitle>
-                        <CardDescription className="text-[#6B9E99]">
+                        <CardTitle className="text-start text-[#1A2E2C]">{t('admin.users.title')}</CardTitle>
+                        <CardDescription className="text-start text-[#6B9E99]">
                             {t('admin.users.description')}
                         </CardDescription>
                     </div>
@@ -102,13 +102,13 @@ export default function AdminUsersSection({
                     <Table className="table-fixed">
                         <TableHeader>
                             <TableRow className="border-[#E4EFED] hover:bg-transparent">
-                                <TableHead className={`${columnWidths.id} text-[#6B9E99]`}>{t('admin.users.columns.id')}</TableHead>
-                                <TableHead className={`${columnWidths.username} text-[#6B9E99]`}>{t('username')}</TableHead>
-                                <TableHead className={`${columnWidths.email} text-[#6B9E99]`}>{t('email')}</TableHead>
-                                <TableHead className={`${columnWidths.role} text-[#6B9E99]`}>{t('admin.users.columns.role')}</TableHead>
-                                <TableHead className={`${columnWidths.created} text-[#6B9E99]`}>{t('admin.users.columns.created')}</TableHead>
-                                <TableHead className={`${columnWidths.updated} text-[#6B9E99]`}>{t('admin.users.columns.updated')}</TableHead>
-                                <TableHead className={`${columnWidths.actions} text-right text-[#6B9E99]`}>{t('admin.users.columns.actions')}</TableHead>
+                                <TableHead className={`${columnWidths.id} text-start text-[#6B9E99]`}>{t('admin.users.columns.id')}</TableHead>
+                                <TableHead className={`${columnWidths.username} text-start text-[#6B9E99]`}>{t('username')}</TableHead>
+                                <TableHead className={`${columnWidths.email} text-start text-[#6B9E99]`}>{t('email')}</TableHead>
+                                <TableHead className={`${columnWidths.role} text-start text-[#6B9E99]`}>{t('admin.users.columns.role')}</TableHead>
+                                <TableHead className={`${columnWidths.created} text-start text-[#6B9E99]`}>{t('admin.users.columns.created')}</TableHead>
+                                <TableHead className={`${columnWidths.updated} text-start text-[#6B9E99]`}>{t('admin.users.columns.updated')}</TableHead>
+                                <TableHead className={`${columnWidths.actions} text-end text-[#6B9E99]`}>{t('admin.users.columns.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -152,13 +152,13 @@ export default function AdminUsersSection({
                     <Table className="table-fixed">
                         <TableHeader>
                             <TableRow className="border-[#E4EFED] hover:bg-transparent">
-                                <TableHead className={`${columnWidths.id} text-[#6B9E99]`}>{t('admin.users.columns.id')}</TableHead>
-                                <TableHead className={`${columnWidths.username} text-[#6B9E99]`}>{t('username')}</TableHead>
-                                <TableHead className={`${columnWidths.email} text-[#6B9E99]`}>{t('email')}</TableHead>
-                                <TableHead className={`${columnWidths.role} text-[#6B9E99]`}>{t('admin.users.columns.role')}</TableHead>
-                                <TableHead className={`${columnWidths.created} text-[#6B9E99]`}>{t('admin.users.columns.created')}</TableHead>
-                                <TableHead className={`${columnWidths.updated} text-[#6B9E99]`}>{t('admin.users.columns.updated')}</TableHead>
-                                <TableHead className={`${columnWidths.actions} text-right text-[#6B9E99]`}>{t('admin.users.columns.actions')}</TableHead>
+                                <TableHead className={`${columnWidths.id} text-start text-[#6B9E99]`}>{t('admin.users.columns.id')}</TableHead>
+                                <TableHead className={`${columnWidths.username} text-start text-[#6B9E99]`}>{t('username')}</TableHead>
+                                <TableHead className={`${columnWidths.email} text-start text-[#6B9E99]`}>{t('email')}</TableHead>
+                                <TableHead className={`${columnWidths.role} text-start text-[#6B9E99]`}>{t('admin.users.columns.role')}</TableHead>
+                                <TableHead className={`${columnWidths.created} text-start text-[#6B9E99]`}>{t('admin.users.columns.created')}</TableHead>
+                                <TableHead className={`${columnWidths.updated} text-start text-[#6B9E99]`}>{t('admin.users.columns.updated')}</TableHead>
+                                <TableHead className={`${columnWidths.actions} text-end text-[#6B9E99]`}>{t('admin.users.columns.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

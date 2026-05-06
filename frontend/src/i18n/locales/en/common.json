@@ -77,7 +77,8 @@
     "tabs": {
       "overview": "Overview",
       "users": "Users",
-      "auctions": "Auctions"
+      "auctions": "Auctions",
+      "reports": "Reports"
     },
     "overview": {
       "totalUsers": "Total Users",
@@ -190,7 +191,56 @@
     "common": {
       "yes": "Yes",
       "no": "No"
+    },
+    "reports": {
+      "title": "Reported Listings",
+      "description": "Review reports submitted by buyers about suspicious or problematic listings.",
+      "loadError": "Failed to load reports.",
+      "emptyTitle": "No reports yet",
+      "emptyDescription": "When buyers report suspicious listings they will appear here.",
+      "reporter": "Reporter",
+      "listing": "Listing",
+      "seller": "Seller",
+      "reason": "Reason provided",
+      "resolvedAt": "Resolved",
+      "viewListing": "View listing",
+      "auctionDeleted": "Listing has been deleted",
+      "emailReporter": "Email Reporter",
+      "emailAuctionHouse": "Email Auction House Admins",
+      "deleteAuction": "Delete Listing",
+      "dismiss": "Dismiss",
+      "composeToReporter": "Message to Reporter",
+      "composeToAuctionHouse": "Message to Auction House Admins",
+      "composeOptional": "optional custom message",
+      "composePlaceholder": "Write a message to include in the email... (leave blank to send the default notification)",
+      "composeSend": "Send Email",
+      "dismissing": "Dismissing...",
+      "sending": "Sending...",
+      "emailReporterSuccess": "Acknowledgement email sent to reporter.",
+      "emailAuctionHouseSuccess": "Notification email sent to auction house seller.",
+      "auctionDeletedSuccess": "Listing deleted successfully.",
+      "dismissSuccess": "Report dismissed.",
+      "confirmDeleteTitle": "Delete reported listing",
+      "confirmDeleteDescription": "Are you sure you want to permanently delete \"{{title}}\"? This action cannot be undone.",
+      "status": {
+        "pending": "Pending",
+        "reviewed": "Reviewed",
+        "dismissed": "Dismissed"
+      }
     }
+  },
+  "report": {
+    "modalTitle": "Report Listing",
+    "modalDescription": "Help us keep the platform safe by reporting suspicious or fraudulent listings.",
+    "listing": "Listing",
+    "seller": "Seller",
+    "reasonLabel": "Reason",
+    "optional": "optional",
+    "reasonPlaceholder": "Describe why you are reporting this listing...",
+    "submitButton": "Submit Report",
+    "submitting": "Submitting...",
+    "submitSuccess": "Your report has been submitted. Thank you for helping keep the platform safe.",
+    "submitError": "Failed to submit report."
   },
   "autoBid": {
     "title": "Auto-Bid",

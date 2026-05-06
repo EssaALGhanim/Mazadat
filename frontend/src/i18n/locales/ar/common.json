@@ -77,7 +77,8 @@
     "tabs": {
       "overview": "نظرة عامة",
       "users": "المستخدمون",
-      "auctions": "المزادات"
+      "auctions": "المزادات",
+      "reports": "البلاغات"
     },
     "overview": {
       "totalUsers": "إجمالي المستخدمين",
@@ -190,7 +191,56 @@
     "common": {
       "yes": "نعم",
       "no": "لا"
+    },
+    "reports": {
+      "title": "القوائم المُبلَّغ عنها",
+      "description": "راجع البلاغات المقدمة من المشترين حول القوائم المشبوهة أو الإشكالية.",
+      "loadError": "فشل تحميل البلاغات.",
+      "emptyTitle": "لا توجد بلاغات بعد",
+      "emptyDescription": "عندما يُبلِّغ المشترون عن مزادات مشبوهة ستظهر هنا.",
+      "reporter": "المُبلِّغ",
+      "listing": "مزاد",
+      "seller": "البائع",
+      "reason": "السبب المُقدَّم",
+      "resolvedAt": "تم الحل",
+      "viewListing": "عرض المزاد",
+      "auctionDeleted": "تم حذف المزاد",
+      "emailReporter": "إرسال بريد للمُبلِّغ",
+      "emailAuctionHouse": "إرسال بريد لمسؤولي صالة المزادات",
+      "deleteAuction": "حذف المزاد",
+      "dismiss": "رفض البلاغ",
+      "composeToReporter": "رسالة للمُبلِّغ",
+      "composeToAuctionHouse": "رسالة لمسؤولي صالة المزادات",
+      "composeOptional": "رسالة مخصصة اختيارية",
+      "composePlaceholder": "اكتب رسالة لإرفاقها بالبريد... (اتركه فارغاً لإرسال الإشعار الافتراضي)",
+      "composeSend": "إرسال البريد",
+      "dismissing": "جاري الرفض...",
+      "sending": "جاري الإرسال...",
+      "emailReporterSuccess": "تم إرسال بريد التأكيد للمُبلِّغ.",
+      "emailAuctionHouseSuccess": "تم إرسال بريد الإشعار لبائع دار المزادات.",
+      "auctionDeletedSuccess": "تم حذف القائمة بنجاح.",
+      "dismissSuccess": "تم رفض البلاغ.",
+      "confirmDeleteTitle": "حذف المزاد المُبلَّغ عنه",
+      "confirmDeleteDescription": "هل أنت متأكد من رغبتك في حذف \"{{title}}\" بشكل دائم؟ لا يمكن التراجع عن هذا الإجراء.",
+      "status": {
+        "pending": "قيد المراجعة",
+        "reviewed": "تمت المراجعة",
+        "dismissed": "مرفوض"
+      }
     }
+  },
+  "report": {
+    "modalTitle": "الإبلاغ عن مزاد",
+    "modalDescription": "ساعدنا في الحفاظ على أمان المنصة من خلال الإبلاغ عن المزادات المشبوهة أو الاحتيالية.",
+    "listing": "مزاد",
+    "seller": "البائع",
+    "reasonLabel": "السبب",
+    "optional": "اختياري",
+    "reasonPlaceholder": "صِف سبب إبلاغك عن هذه القائمة...",
+    "submitButton": "إرسال البلاغ",
+    "submitting": "جاري الإرسال...",
+    "submitSuccess": "تم إرسال بلاغك بنجاح. شكراً لمساعدتنا في الحفاظ على أمان المنصة.",
+    "submitError": "فشل إرسال البلاغ."
   },
   "autoBid": {
     "title": "المزايدة التلقائية",

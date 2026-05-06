@@ -66,12 +66,12 @@ export default function AdminAuctionsSection({
     const hasResults = filteredAuctions.length > 0;
 
     return (
-        <Card className="border-[#D7E8E5] bg-white shadow-sm">
+        <Card dir={isAr ? 'rtl' : 'ltr'} className="border-[#D7E8E5] bg-white shadow-sm">
             <CardHeader className="gap-4 border-b border-[#E4EFED]">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                        <CardTitle className="text-[#1A2E2C]">{t('admin.auctions.title')}</CardTitle>
-                        <CardDescription className="text-[#6B9E99]">
+                        <CardTitle className="text-start text-[#1A2E2C]">{t('admin.auctions.title')}</CardTitle>
+                        <CardDescription className="text-start text-[#6B9E99]">
                             {t('admin.auctions.description')}
                         </CardDescription>
                     </div>
@@ -106,15 +106,15 @@ export default function AdminAuctionsSection({
                     <Table className="table-fixed">
                         <TableHeader>
                             <TableRow className="border-[#E4EFED] hover:bg-transparent">
-                                <TableHead className={`${columnWidths.id} text-[#6B9E99]`}>{t('admin.auctions.columns.id')}</TableHead>
-                                <TableHead className={`${columnWidths.title} text-[#6B9E99]`}>{t('admin.auctions.columns.title')}</TableHead>
-                                <TableHead className={`${columnWidths.seller} text-[#6B9E99]`}>{t('admin.auctions.columns.seller')}</TableHead>
-                                <TableHead className={`${columnWidths.auctionHouse} text-[#6B9E99]`}>{t('admin.auctions.columns.auctionHouse')}</TableHead>
-                                <TableHead className={`${columnWidths.status} text-[#6B9E99]`}>{t('admin.auctions.columns.status')}</TableHead>
-                                <TableHead className={`${columnWidths.currentPrice} text-[#6B9E99]`}>{t('admin.auctions.columns.currentPrice')}</TableHead>
-                                <TableHead className={`${columnWidths.bidCount} text-[#6B9E99]`}>{t('admin.auctions.columns.bidCount')}</TableHead>
-                                <TableHead className={`${columnWidths.endDate} text-[#6B9E99]`}>{t('admin.auctions.columns.endDate')}</TableHead>
-                                <TableHead className={`${columnWidths.actions} text-right text-[#6B9E99]`}>{t('admin.auctions.columns.actions')}</TableHead>
+                                <TableHead className={`${columnWidths.id} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.id')}</TableHead>
+                                <TableHead className={`${columnWidths.title} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.title')}</TableHead>
+                                <TableHead className={`${columnWidths.seller} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.seller')}</TableHead>
+                                <TableHead className={`${columnWidths.auctionHouse} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.auctionHouse')}</TableHead>
+                                <TableHead className={`${columnWidths.status} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.status')}</TableHead>
+                                <TableHead className={`${columnWidths.currentPrice} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.currentPrice')}</TableHead>
+                                <TableHead className={`${columnWidths.bidCount} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.bidCount')}</TableHead>
+                                <TableHead className={`${columnWidths.endDate} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.endDate')}</TableHead>
+                                <TableHead className={`${columnWidths.actions} text-end text-[#6B9E99]`}>{t('admin.auctions.columns.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -148,15 +148,15 @@ export default function AdminAuctionsSection({
                     <Table className="table-fixed">
                         <TableHeader>
                             <TableRow className="border-[#E4EFED] hover:bg-transparent">
-                                <TableHead className={`${columnWidths.id} text-[#6B9E99]`}>{t('admin.auctions.columns.id')}</TableHead>
-                                <TableHead className={`${columnWidths.title} text-[#6B9E99]`}>{t('admin.auctions.columns.title')}</TableHead>
-                                <TableHead className={`${columnWidths.seller} text-[#6B9E99]`}>{t('admin.auctions.columns.seller')}</TableHead>
-                                <TableHead className={`${columnWidths.auctionHouse} text-[#6B9E99]`}>{t('admin.auctions.columns.auctionHouse')}</TableHead>
-                                <TableHead className={`${columnWidths.status} text-[#6B9E99]`}>{t('admin.auctions.columns.status')}</TableHead>
-                                <TableHead className={`${columnWidths.currentPrice} text-[#6B9E99]`}>{t('admin.auctions.columns.currentPrice')}</TableHead>
-                                <TableHead className={`${columnWidths.bidCount} text-[#6B9E99]`}>{t('admin.auctions.columns.bidCount')}</TableHead>
-                                <TableHead className={`${columnWidths.endDate} text-[#6B9E99]`}>{t('admin.auctions.columns.endDate')}</TableHead>
-                                <TableHead className={`${columnWidths.actions} text-right text-[#6B9E99]`}>{t('admin.auctions.columns.actions')}</TableHead>
+                                <TableHead className={`${columnWidths.id} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.id')}</TableHead>
+                                <TableHead className={`${columnWidths.title} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.title')}</TableHead>
+                                <TableHead className={`${columnWidths.seller} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.seller')}</TableHead>
+                                <TableHead className={`${columnWidths.auctionHouse} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.auctionHouse')}</TableHead>
+                                <TableHead className={`${columnWidths.status} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.status')}</TableHead>
+                                <TableHead className={`${columnWidths.currentPrice} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.currentPrice')}</TableHead>
+                                <TableHead className={`${columnWidths.bidCount} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.bidCount')}</TableHead>
+                                <TableHead className={`${columnWidths.endDate} text-start text-[#6B9E99]`}>{t('admin.auctions.columns.endDate')}</TableHead>
+                                <TableHead className={`${columnWidths.actions} text-end text-[#6B9E99]`}>{t('admin.auctions.columns.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
