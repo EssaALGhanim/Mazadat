@@ -15,7 +15,7 @@ import TopNavigationBar from '../components/TopNavigationBar';
 
 function PhoneOtpModal({ isAr, onVerified, onCancel }) {
     const { t } = useTranslation('common');
-    const [digits, setDigits] = useState(['', '', '', '']);
+    const [digits, setDigits] = useState(['', '', '', '', '', '']);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const [resending, setResending] = useState(false);
@@ -29,7 +29,7 @@ function PhoneOtpModal({ isAr, onVerified, onCancel }) {
         next[idx] = val.slice(-1);
         setDigits(next);
         setError(null);
-        if (val && idx < 3) inputs.current[idx + 1]?.focus();
+        if (val && idx < 5) inputs.current[idx + 1]?.focus();
     };
 
     const handleKeyDown = (e, idx) => {
@@ -40,7 +40,7 @@ function PhoneOtpModal({ isAr, onVerified, onCancel }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (code.length < 4) return;
+        if (code.length < 6) return;
         setLoading(true);
         try {
             await confirmPhoneOtp(code);
@@ -104,7 +104,7 @@ function PhoneOtpModal({ isAr, onVerified, onCancel }) {
 
                     <button
                         type="submit"
-                        disabled={loading || code.length < 4}
+                        disabled={loading || code.length < 6}
                         className="w-full h-11 rounded-lg bg-[#2A9D8F] text-base font-semibold text-white hover:bg-[#1A7A6E] disabled:opacity-50 transition-colors"
                     >
                         {loading ? '...' : t('confirmVerify')}

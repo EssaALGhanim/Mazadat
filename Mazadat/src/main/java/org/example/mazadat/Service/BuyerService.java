@@ -96,7 +96,9 @@ public class BuyerService {
             if (userWithSameUsername != null && !userWithSameUsername.getId().equals(user.getId())) {
                 throw new ApiException("Username already exists");
             }
+            String oldUsername = user.getUsername();
             user.setUsername(buyerDTOIN.getUsername());
+            auctionRepository.updateHighestBidderUsername(oldUsername, buyerDTOIN.getUsername());
             hasAnyField = true;
         }
 
