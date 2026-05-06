@@ -67,6 +67,130 @@
   "auctionHouseNameRequired": "Auction house name is required",
   "auctionHouseCreationFailed": "Failed to create auction house",
   "sizeBetween3And255": "Size must be between 3 and 255 characters",
+  "admin": {
+    "badge": "Platform Admin",
+    "title": "Admin Dashboard",
+    "subtitle": "Monitor platform activity, review users, inspect listings, and keep marketplace operations under control.",
+    "previewMode": "Preview mode is enabled. Admin access is being bypassed on the frontend for testing, and users data may be mocked if the backend denies access.",
+    "navLabel": "Admin",
+    "loggedInAs": "Signed in as",
+    "tabs": {
+      "overview": "Overview",
+      "users": "Users",
+      "auctions": "Auctions"
+    },
+    "overview": {
+      "totalUsers": "Total Users",
+      "buyers": "Buyers",
+      "sellers": "Sellers",
+      "admins": "Admins",
+      "totalAuctions": "Total Auctions",
+      "activeAuctions": "Active Auctions",
+      "endedAuctions": "Ended Auctions",
+      "totalBids": "Total Bids"
+    },
+    "users": {
+      "title": "Users Management",
+      "description": "Browse registered accounts, inspect their details, and prepare moderation actions.",
+      "searchPlaceholder": "Search by id, username, email, or role",
+      "roleFilter": "Filter by role",
+      "columns": {
+        "id": "ID",
+        "role": "Role",
+        "created": "Created",
+        "updated": "Updated",
+        "actions": "Actions"
+      },
+      "detailsTitle": "User Details",
+      "detailsDescription": "Review available account information returned by the platform.",
+      "detailsUnavailable": "No user details are currently available.",
+      "emptyTitle": "No users available",
+      "emptyDescription": "No user records were returned from the backend.",
+      "emptySearchTitle": "No users match this search",
+      "emptySearchDescription": "Try a different keyword or role filter."
+    },
+    "auctions": {
+      "title": "Auctions Monitoring",
+      "description": "Review all platform listings, inspect details, and prepare moderation actions.",
+      "searchPlaceholder": "Search by id, title, seller, or auction house",
+      "statusFilter": "Filter by status",
+      "detailsTitle": "Auction Details",
+      "detailsDescription": "Review the complete auction payload currently available to the frontend.",
+      "detailsUnavailable": "No auction details are currently available.",
+      "images": "Listing Images",
+      "noImages": "No images are attached to this listing.",
+      "noDescription": "No description was provided for this listing.",
+      "emptyTitle": "No auctions available",
+      "emptyDescription": "No auction records were returned from the backend.",
+      "emptySearchTitle": "No auctions match this search",
+      "emptySearchDescription": "Try a different keyword or status filter.",
+      "columns": {
+        "id": "ID",
+        "title": "Title",
+        "seller": "Seller",
+        "auctionHouse": "Auction House",
+        "status": "Status",
+        "currentPrice": "Current Price",
+        "startingPrice": "Starting Price",
+        "bidCount": "Bids",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "featured": "Featured",
+        "highestBidder": "Highest Bidder",
+        "actions": "Actions"
+      }
+    },
+    "roles": {
+      "buyer": "Buyer",
+      "seller": "Seller",
+      "admin": "Admin"
+    },
+    "status": {
+      "pending": "Pending",
+      "active": "Active",
+      "ended": "Ended",
+      "failedBelowReserve": "Failed Below Reserve",
+      "failedCompact": "Reserve Fail"
+    },
+    "filters": {
+      "allRoles": "All Roles",
+      "allStatuses": "All Statuses"
+    },
+    "actions": {
+      "view": "View",
+      "delete": "Delete",
+      "deleting": "Deleting..."
+    },
+    "confirm": {
+      "userDeleteTitle": "Delete user",
+      "userDeleteDescription": "Are you sure you want to delete {{username}}? This action should only be used when the backend moderation endpoint is ready.",
+      "auctionDeleteTitle": "Delete auction",
+      "auctionDeleteDescription": "Are you sure you want to delete \"{{title}}\"? This action should only be used when the backend moderation endpoint is ready."
+    },
+    "integration": {
+      "userDetails": "Detailed user profile data is waiting for backend integration. The dialog is showing the currently available list data.",
+      "userDelete": "User deletion is waiting for backend integration.",
+      "auctionDelete": "Auction deletion is waiting for backend integration."
+    },
+    "success": {
+      "userDeleted": "User deleted successfully.",
+      "auctionDeleted": "Auction deleted successfully."
+    },
+    "errors": {
+      "usersLoadTitle": "Unable to load users",
+      "usersLoadMessage": "Failed to load users.",
+      "auctionsLoadTitle": "Unable to load auctions",
+      "auctionsLoadMessage": "Failed to load auctions.",
+      "userDetailsLoadMessage": "Failed to load user details.",
+      "auctionDetailsLoadMessage": "Failed to load auction details.",
+      "userDeleteMessage": "Failed to delete user.",
+      "auctionDeleteMessage": "Failed to delete auction."
+    },
+    "common": {
+      "yes": "Yes",
+      "no": "No"
+    }
+  },
   "autoBid": {
     "title": "Auto-Bid",
     "description": "The system will automatically bid on your behalf up to the specified maximum amount",

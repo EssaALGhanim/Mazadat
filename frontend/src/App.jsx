@@ -10,8 +10,15 @@ import AuctionHouseSettingsPage from './pages/AuctionHouseSettingsPage'
 import EditProfilePage from './pages/EditProfilePage'
 import PoliciesPage from './pages/PoliciesPage'
 import AuctionDetailPage from './pages/AuctionDetailPage'
+import AdminDashboardPage from './pages/AdminDashboardPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { WatchlistProvider } from './contexts/WatchlistContext'
+
+function getDefaultRoute(currentUser) {
+  if (currentUser?.role === 'SELLER') return '/seller-dashboard'
+  if (currentUser?.role === 'ADMIN') return '/admin'
+  return '/'
+}
 
 function App() {
   const { i18n } = useTranslation()
@@ -29,8 +36,21 @@ function App() {
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/" element={
-              <ProtectedRoute blockedRole="SELLER" redirectTo="/seller-dashboard">
-                <HomePage />
+              <ProtectedRoute>
+                {(currentUser) => {
+                  if (currentUser?.role === 'SELLER') {
+                    return <Navigate to="/seller-dashboard" replace />
+                  }
+                  if (currentUser?.role === 'ADMIN') {
+                    return <Navigate to="/admin" replace />
+                  }
+                  return <HomePage />
+                }}
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="ADMIN" redirectTo="/">
+                <AdminDashboardPage />
               </ProtectedRoute>
             } />
             <Route path="/seller" element={
@@ -60,12 +80,12 @@ function App() {
             } />
             <Route path="/auction" element={
               <ProtectedRoute>
-                {(currentUser) => <Navigate to={currentUser?.role === 'SELLER' ? '/seller-dashboard' : '/'} replace />}
+                {(currentUser) => <Navigate to={getDefaultRoute(currentUser)} replace />}
               </ProtectedRoute>
             } />
             <Route path="/auction/*" element={
               <ProtectedRoute>
-                {(currentUser) => <Navigate to={currentUser?.role === 'SELLER' ? '/seller-dashboard' : '/'} replace />}
+                {(currentUser) => <Navigate to={getDefaultRoute(currentUser)} replace />}
               </ProtectedRoute>
             } />
             <Route path="/profile/edit" element={
@@ -76,7 +96,7 @@ function App() {
             <Route path="/policies" element={<PoliciesPage />} />
             <Route path="*" element={
               <ProtectedRoute>
-                {(currentUser) => <Navigate to={currentUser?.role === 'SELLER' ? '/seller-dashboard' : '/'} replace />}
+                {(currentUser) => <Navigate to={getDefaultRoute(currentUser)} replace />}
               </ProtectedRoute>
             } />
           </Routes>
