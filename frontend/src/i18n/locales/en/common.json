@@ -29,7 +29,7 @@
   "phoneOtpSendFailed": "Failed to send verification code. Please try again.",
   "phoneOtpVerified": "Phone number verified successfully!",
   "phoneOtpFailed": "Invalid or expired code. Please try again.",
-  "enterPhoneOtp": "Enter the 6-digit code sent to your phone",
+  "enterPhoneOtp": "Enter the 4-digit code sent to your phone",
   "phoneOtpPlaceholder": "Enter code",
   "confirmVerify": "Verify",
   "profileInvalidEmail": "Please enter a valid email",
