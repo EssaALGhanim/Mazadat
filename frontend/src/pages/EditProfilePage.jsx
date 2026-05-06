@@ -15,7 +15,7 @@ import TopNavigationBar from '../components/TopNavigationBar';
 
 function PhoneOtpModal({ isAr, onVerified, onCancel }) {
     const { t } = useTranslation('common');
-    const [digits, setDigits] = useState(['', '', '', '', '', '']);
+    const [digits, setDigits] = useState(['', '', '', '']);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const [resending, setResending] = useState(false);
@@ -29,7 +29,7 @@ function PhoneOtpModal({ isAr, onVerified, onCancel }) {
         next[idx] = val.slice(-1);
         setDigits(next);
         setError(null);
-        if (val && idx < 5) inputs.current[idx + 1]?.focus();
+        if (val && idx < 3) inputs.current[idx + 1]?.focus();
     };
 
     const handleKeyDown = (e, idx) => {
@@ -40,7 +40,7 @@ function PhoneOtpModal({ isAr, onVerified, onCancel }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (code.length < 6) return;
+        if (code.length < 4) return;
         setLoading(true);
         try {
             await confirmPhoneOtp(code);
@@ -85,7 +85,7 @@ function PhoneOtpModal({ isAr, onVerified, onCancel }) {
                 )}
 
                 <form onSubmit={handleSubmit} className="flex flex-col items-center gap-5 w-full">
-                    <div className="flex gap-2 justify-center" dir="ltr">
+                    <div className="flex gap-2 sm:gap-3 justify-center" dir="ltr">
                         {digits.map((d, idx) => (
                             <input
                                 key={idx}
@@ -96,15 +96,15 @@ function PhoneOtpModal({ isAr, onVerified, onCancel }) {
                                 value={d}
                                 onChange={(e) => handleChange(e.target.value, idx)}
                                 onKeyDown={(e) => handleKeyDown(e, idx)}
-                                className="w-11 text-center text-xl font-bold border-2 rounded-lg outline-none transition-all text-[#1A2E2C] border-[#C5E0DC] focus:border-[#2A9D8F] focus:ring-2 focus:ring-[#2A9D8F]/30 bg-white"
-                                style={{ height: '52px' }}
+                                className="w-12 sm:w-14 text-center text-lg sm:text-xl font-bold border-2 rounded-lg outline-none transition-all text-[#1A2E2C] border-[#C5E0DC] focus:border-[#2A9D8F] focus:ring-2 focus:ring-[#2A9D8F]/30 bg-white"
+                                style={{ height: '48px' }}
                             />
                         ))}
                     </div>
 
                     <button
                         type="submit"
-                        disabled={loading || code.length < 6}
+                        disabled={loading || code.length < 4}
                         className="w-full h-11 rounded-lg bg-[#2A9D8F] text-base font-semibold text-white hover:bg-[#1A7A6E] disabled:opacity-50 transition-colors"
                     >
                         {loading ? '...' : t('confirmVerify')}
