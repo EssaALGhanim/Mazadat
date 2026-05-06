@@ -42,4 +42,13 @@ public interface AuctionRepository extends JpaRepository<Auction,Integer> {
 			ORDER BY a.featuredEndDate DESC
 			""")
 	List<Auction> findActiveFeaturedBySellerIdOrderByEndDate(@Param("sellerId") Integer sellerId);
+
+	@Query("""
+			SELECT a FROM Auction a
+			WHERE a.highestBidder = :username
+			  AND a.status IN ('ACTIVE', 'PENDING')
+			""")
+	List<Auction> findActiveAuctionsByHighestBidder(@Param("username") String username);
+
+	List<Auction> findBySellerId(Integer sellerId);
 }

@@ -42,8 +42,11 @@ public class User implements UserDetails {
     @Pattern(regexp = "SELLER|BUYER|ADMIN",message = "Role must be SELLER, BUYER, or ADMIN")
     private String role;
 
-    @Column(columnDefinition = "VARCHAR(20)")
+    @Column(columnDefinition = "VARCHAR(20)", unique = true, nullable = false)
     private String phoneNumber;
+
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean phoneVerified = false;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn

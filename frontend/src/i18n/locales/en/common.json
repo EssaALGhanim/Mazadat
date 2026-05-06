@@ -20,6 +20,18 @@
   "saveChanges": "Save Changes",
   "profileUpdated": "Profile updated successfully",
   "profileUpdateFailed": "Failed to update profile",
+  "phoneVerified": "Verified",
+  "phoneNotVerified": "Not verified",
+  "verifyPhone": "Verify Phone",
+  "phoneVerifiedDesc": "Your phone number is verified. You will receive SMS notifications.",
+  "phoneNotVerifiedDesc": "Verify your phone number to receive SMS notifications.",
+  "phoneOtpSent": "A verification code has been sent to your phone.",
+  "phoneOtpSendFailed": "Failed to send verification code. Please try again.",
+  "phoneOtpVerified": "Phone number verified successfully!",
+  "phoneOtpFailed": "Invalid or expired code. Please try again.",
+  "enterPhoneOtp": "Enter the 6-digit code sent to your phone",
+  "phoneOtpPlaceholder": "Enter code",
+  "confirmVerify": "Verify",
   "profileInvalidEmail": "Please enter a valid email",
   "profileInvalidPhone": "Phone number must match +9665XXXXXXXX",
   "profilePasswordMismatch": "Passwords do not match",
@@ -67,6 +79,181 @@
   "auctionHouseNameRequired": "Auction house name is required",
   "auctionHouseCreationFailed": "Failed to create auction house",
   "sizeBetween3And255": "Size must be between 3 and 255 characters",
+  "admin": {
+    "badge": "Platform Admin",
+    "title": "Admin Dashboard",
+    "subtitle": "Monitor platform activity, review users, inspect listings, and keep marketplace operations under control.",
+    "previewMode": "Preview mode is enabled. Admin access is being bypassed on the frontend for testing, and users data may be mocked if the backend denies access.",
+    "navLabel": "Admin",
+    "loggedInAs": "Signed in as",
+    "tabs": {
+      "overview": "Overview",
+      "users": "Users",
+      "auctions": "Auctions",
+      "reports": "Reports"
+    },
+    "overview": {
+      "totalUsers": "Total Users",
+      "buyers": "Buyers",
+      "sellers": "Sellers",
+      "admins": "Admins",
+      "totalAuctions": "Total Auctions",
+      "activeAuctions": "Active Auctions",
+      "endedAuctions": "Ended Auctions",
+      "totalBids": "Total Bids"
+    },
+    "users": {
+      "title": "Users Management",
+      "description": "Browse registered accounts, inspect their details, and prepare moderation actions.",
+      "searchPlaceholder": "Search by id, username, email, or role",
+      "roleFilter": "Filter by role",
+      "columns": {
+        "id": "ID",
+        "role": "Role",
+        "created": "Created",
+        "updated": "Updated",
+        "actions": "Actions"
+      },
+      "detailsTitle": "User Details",
+      "detailsDescription": "Review available account information returned by the platform.",
+      "detailsUnavailable": "No user details are currently available.",
+      "emptyTitle": "No users available",
+      "emptyDescription": "No user records were returned from the backend.",
+      "emptySearchTitle": "No users match this search",
+      "emptySearchDescription": "Try a different keyword or role filter."
+    },
+    "auctions": {
+      "title": "Auctions Monitoring",
+      "description": "Review all platform listings, inspect details, and prepare moderation actions.",
+      "searchPlaceholder": "Search by id, title, seller, or auction house",
+      "statusFilter": "Filter by status",
+      "detailsTitle": "Auction Details",
+      "detailsDescription": "Review the complete auction payload currently available to the frontend.",
+      "detailsUnavailable": "No auction details are currently available.",
+      "images": "Listing Images",
+      "noImages": "No images are attached to this listing.",
+      "noDescription": "No description was provided for this listing.",
+      "emptyTitle": "No auctions available",
+      "emptyDescription": "No auction records were returned from the backend.",
+      "emptySearchTitle": "No auctions match this search",
+      "emptySearchDescription": "Try a different keyword or status filter.",
+      "columns": {
+        "id": "ID",
+        "title": "Title",
+        "seller": "Seller",
+        "auctionHouse": "Auction House",
+        "status": "Status",
+        "currentPrice": "Current Price",
+        "startingPrice": "Starting Price",
+        "bidCount": "Bids",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "featured": "Featured",
+        "highestBidder": "Highest Bidder",
+        "actions": "Actions"
+      }
+    },
+    "roles": {
+      "buyer": "Buyer",
+      "seller": "Seller",
+      "admin": "Admin"
+    },
+    "status": {
+      "pending": "Pending",
+      "active": "Active",
+      "ended": "Ended",
+      "failedBelowReserve": "Failed Below Reserve",
+      "failedCompact": "Reserve Fail"
+    },
+    "filters": {
+      "allRoles": "All Roles",
+      "allStatuses": "All Statuses"
+    },
+    "actions": {
+      "view": "View",
+      "delete": "Delete",
+      "deleting": "Deleting..."
+    },
+    "confirm": {
+      "userDeleteTitle": "Delete user",
+      "userDeleteDescription": "Are you sure you want to permanently delete {{username}}? All related bids, ratings, and data will be removed.",
+      "auctionDeleteTitle": "Delete auction",
+      "auctionDeleteDescription": "Are you sure you want to permanently delete \"{{title}}\"? All bids and associated data will be removed.",
+      "lastAdminWarning": "This user is the sole admin of their auction house. Deleting them will also permanently delete the auction house and all its auctions."
+    },
+    "integration": {
+      "userDetails": "Detailed user profile data is waiting for backend integration. The dialog is showing the currently available list data.",
+      "userDelete": "User deletion is waiting for backend integration.",
+      "auctionDelete": "Auction deletion is waiting for backend integration."
+    },
+    "success": {
+      "userDeleted": "User deleted successfully.",
+      "auctionDeleted": "Auction deleted successfully."
+    },
+    "errors": {
+      "usersLoadTitle": "Unable to load users",
+      "usersLoadMessage": "Failed to load users.",
+      "auctionsLoadTitle": "Unable to load auctions",
+      "auctionsLoadMessage": "Failed to load auctions.",
+      "userDetailsLoadMessage": "Failed to load user details.",
+      "auctionDetailsLoadMessage": "Failed to load auction details.",
+      "userDeleteMessage": "Failed to delete user.",
+      "auctionDeleteMessage": "Failed to delete auction."
+    },
+    "common": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "reports": {
+      "title": "Reported Listings",
+      "description": "Review reports submitted by buyers about suspicious or problematic listings.",
+      "loadError": "Failed to load reports.",
+      "emptyTitle": "No reports yet",
+      "emptyDescription": "When buyers report suspicious listings they will appear here.",
+      "reporter": "Reporter",
+      "listing": "Listing",
+      "seller": "Seller",
+      "reason": "Reason provided",
+      "resolvedAt": "Resolved",
+      "viewListing": "View listing",
+      "auctionDeleted": "Listing has been deleted",
+      "emailReporter": "Email Reporter",
+      "emailAuctionHouse": "Email Auction House Admins",
+      "deleteAuction": "Delete Listing",
+      "dismiss": "Dismiss",
+      "composeToReporter": "Message to Reporter",
+      "composeToAuctionHouse": "Message to Auction House Admins",
+      "composeOptional": "optional custom message",
+      "composePlaceholder": "Write a message to include in the email... (leave blank to send the default notification)",
+      "composeSend": "Send Email",
+      "dismissing": "Dismissing...",
+      "sending": "Sending...",
+      "emailReporterSuccess": "Acknowledgement email sent to reporter.",
+      "emailAuctionHouseSuccess": "Notification email sent to auction house seller.",
+      "auctionDeletedSuccess": "Listing deleted successfully.",
+      "dismissSuccess": "Report dismissed.",
+      "confirmDeleteTitle": "Delete reported listing",
+      "confirmDeleteDescription": "Are you sure you want to permanently delete \"{{title}}\"? This action cannot be undone.",
+      "status": {
+        "pending": "Pending",
+        "reviewed": "Reviewed",
+        "dismissed": "Dismissed"
+      }
+    }
+  },
+  "report": {
+    "modalTitle": "Report Listing",
+    "modalDescription": "Help us keep the platform safe by reporting suspicious or fraudulent listings.",
+    "listing": "Listing",
+    "seller": "Seller",
+    "reasonLabel": "Reason",
+    "optional": "optional",
+    "reasonPlaceholder": "Describe why you are reporting this listing...",
+    "submitButton": "Submit Report",
+    "submitting": "Submitting...",
+    "submitSuccess": "Your report has been submitted. Thank you for helping keep the platform safe.",
+    "submitError": "Failed to submit report."
+  },
   "autoBid": {
     "title": "Auto-Bid",
     "description": "The system will automatically bid on your behalf up to the specified maximum amount",

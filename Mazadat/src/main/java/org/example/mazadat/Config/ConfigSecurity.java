@@ -1,6 +1,7 @@
 package org.example.mazadat.Config;
 
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.mazadat.Service.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -25,6 +27,19 @@ public class ConfigSecurity {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * Returns a plain 401 JSON response without the WWW-Authenticate header.
+     * Without this, browsers show their native HTTP Basic Auth popup dialog.
+     */
+    @Bean
+    public AuthenticationEntryPoint silentEntryPoint() {
+        return (request, response, authException) -> {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"message\":\"Unauthorized\"}");
+        };
     }
 
     @Bean
@@ -47,6 +62,9 @@ public class ConfigSecurity {
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Admin endpoints
                     .requestMatchers("/api/v1/user/get/all").hasAuthority("ADMIN")
+                    .requestMatchers("/api/v1/admin/**").hasAuthority("ADMIN")
+                // OTP endpoints must stay public (must be before /api/v1/auth/**)
+                    .requestMatchers("/api/v1/auth/otp/**").permitAll()
                 // Auth endpoints (authentication required)
                     .requestMatchers("/api/v1/auth/**").authenticated()
                 // Public endpoints (no authentication required)
@@ -60,6 +78,7 @@ public class ConfigSecurity {
                     .requestMatchers("/api/v1/bid/get/all").permitAll()
                     .requestMatchers("/api/v1/seller/get/all").permitAll()
                     .requestMatchers("/api/v1/auctionhouse/get/all").permitAll()
+                    .requestMatchers("/api/v1/auctionhouse/*/ratings").permitAll()
                     .requestMatchers("/api/v1/receipt/get/all").permitAll()
                 // Seller endpoints (authenticated - sellers)
                     .requestMatchers("/api/v1/auction/add").authenticated()
@@ -70,10 +89,16 @@ public class ConfigSecurity {
                     .requestMatchers("/api/v1/seller/update").authenticated()
                     .requestMatchers("/api/v1/seller/delete").authenticated()
                     .requestMatchers("/api/v1/seller/delete/**").authenticated()
+                // Report endpoints (authenticated users)
+                    .requestMatchers("/api/v1/report").authenticated()
                 // Buyer endpoints (authenticated - buyers)
                     .requestMatchers("/api/v1/bid/add").authenticated()
                     .requestMatchers("/api/v1/receipt/generate/**").authenticated()
                     .requestMatchers("/api/v1/receipt/delete/**").authenticated()
+                // Notification endpoints (authenticated)
+                    .requestMatchers("/api/v1/notifications/**").authenticated()
+                // Phone verification (authenticated)
+                    .requestMatchers("/api/v1/user/phone/**").authenticated()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
@@ -81,7 +106,7 @@ public class ConfigSecurity {
                 .deleteCookies("JSESSIONID")
                 .invalidateHttpSession(true)
             )
-            .httpBasic(Customizer.withDefaults());
+            .httpBasic(basic -> basic.authenticationEntryPoint(silentEntryPoint()));
 
         return http.build();
     }

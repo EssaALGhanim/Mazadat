@@ -27,7 +27,7 @@ public class UserService {
         List<User> users = userRepository.findAll();
         List<UserDTOOUT> userDTOOUTS = new ArrayList<>();
         for (User user : users){
-            UserDTOOUT userDTOOUT = new UserDTOOUT(user.getId(),user.getUsername(),user.getRole(),user.getCreatedAt(),user.getUpdatedAt());
+            UserDTOOUT userDTOOUT = new UserDTOOUT(user.getId(),user.getUsername(),user.getEmail(),user.getPhoneNumber(),user.getRole(),user.getCreatedAt(),user.getUpdatedAt());
             userDTOOUTS.add(userDTOOUT);
         }
         if (userDTOOUTS.isEmpty()){
@@ -46,7 +46,8 @@ public class UserService {
                 user.getUsername(),
                 user.getEmail(),
                 user.getPhoneNumber(),
-                user.getRole()
+                user.getRole(),
+                user.isPhoneVerified()
         );
     }
 

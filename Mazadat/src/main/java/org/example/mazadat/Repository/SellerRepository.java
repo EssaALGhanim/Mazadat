@@ -19,4 +19,7 @@ public interface SellerRepository extends JpaRepository<Seller,Integer> {
 
     @Query("SELECT s FROM Seller s WHERE s.isAdmin = true AND s.auctionHouse = ?1 AND s <> ?2")
     Set<Seller> findOtherAuctionHouseAdmins(AuctionHouse auctionHouse, Seller seller);
+
+    @Query("SELECT s FROM Seller s WHERE s.isAdmin = true AND s.auctionHouse.id = ?1")
+    List<Seller> findAdminsByAuctionHouseId(Integer auctionHouseId);
 }

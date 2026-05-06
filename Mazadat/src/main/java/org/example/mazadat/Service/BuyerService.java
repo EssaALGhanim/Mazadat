@@ -4,18 +4,24 @@ import java.util.List;
 
 import org.example.mazadat.Api.ApiException;
 import org.example.mazadat.DTOIN.BuyerDTOIN;
+import org.example.mazadat.DTOIN.BuyerRatingDTOIN;
 import org.example.mazadat.DTOIN.BuyerUpdateDTOIN;
 import org.example.mazadat.DTOIN.SearchPreferenceDTOIN;
+import org.example.mazadat.DTOOUT.RatingCheckDTOOUT;
 import org.example.mazadat.DTOOUT.SearchPreferenceDTOOUT;
 import org.example.mazadat.DTOOUT.WatchlistDTOOUT;
 import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.Buyer;
+import org.example.mazadat.Model.BuyerRating;
 import org.example.mazadat.Model.SearchPreference;
+import org.example.mazadat.Model.Seller;
 import org.example.mazadat.Model.User;
 import org.example.mazadat.Model.Watchlist;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.BuyerRepository;
+import org.example.mazadat.Repository.BuyerRatingRepository;
 import org.example.mazadat.Repository.SearchPreferenceRepository;
+import org.example.mazadat.Repository.SellerRepository;
 import org.example.mazadat.Repository.UserRepository;
 import org.example.mazadat.Repository.WatchlistRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,6 +39,9 @@ public class BuyerService {
     private final AuctionRepository auctionRepository;
     private final SearchPreferenceRepository searchPreferenceRepository;
     private final WatchlistRepository watchlistRepository;
+    private final BuyerRatingRepository buyerRatingRepository;
+    private final SellerRepository sellerRepository;
+    private final OtpService otpService;
 
 
     public void addBuyer(BuyerDTOIN buyerDTOIN){
@@ -42,6 +51,9 @@ public class BuyerService {
         }
         if (userRepository.existsByEmail(buyerDTOIN.getEmail())) {
             throw new ApiException("Email already exists");
+        }
+        if (userRepository.existsByPhoneNumber(buyerDTOIN.getPhoneNumber())) {
+            throw new ApiException("Phone number already exists");
         }
 
         User user = new User();
@@ -58,6 +70,7 @@ public class BuyerService {
         userRepository.save(user);
         buyerRepository.save(buyer);
 
+        otpService.sendOtpToNewUser(user.getEmail(), user.getUsername());
     }
 
     public Buyer getCurrentBuyer(Integer buyerId) {
@@ -97,6 +110,10 @@ public class BuyerService {
         }
 
         if (StringUtils.hasText(buyerDTOIN.getPhoneNumber())) {
+            User userWithSamePhone = userRepository.findUserByPhoneNumber(buyerDTOIN.getPhoneNumber());
+            if (userWithSamePhone != null && !userWithSamePhone.getId().equals(user.getId())) {
+                throw new ApiException("Phone number already exists");
+            }
             user.setPhoneNumber(buyerDTOIN.getPhoneNumber());
             hasAnyField = true;
         }
@@ -219,5 +236,62 @@ public class BuyerService {
                         w.getAddedAt()
                 ))
                 .toList();
+    }
+
+    public RatingCheckDTOOUT submitBuyerRating(Integer sellerId, BuyerRatingDTOIN dto) {
+        Seller seller = sellerRepository.findSellerById(sellerId);
+        if (seller == null) {
+            throw new ApiException("Seller not found");
+        }
+
+        Auction auction = auctionRepository.findById(dto.getAuctionId()).orElse(null);
+        if (auction == null) {
+            throw new ApiException("Auction not found");
+        }
+
+        if (!"ENDED".equalsIgnoreCase(auction.getStatus())) {
+            throw new ApiException("Auction has not ended yet");
+        }
+
+        if (auction.getAuctionHouse() == null
+                || seller.getAuctionHouse() == null
+                || !auction.getAuctionHouse().getId().equals(seller.getAuctionHouse().getId())) {
+            throw new ApiException("You are not authorized to rate buyers for this auction");
+        }
+
+        String highestBidderUsername = auction.getHighestBidder();
+        if (highestBidderUsername == null || highestBidderUsername.isBlank()) {
+            throw new ApiException("This auction has no winner");
+        }
+
+        User winnerUser = userRepository.findUserByUsername(highestBidderUsername);
+        if (winnerUser == null) {
+            throw new ApiException("Winner user not found");
+        }
+
+        Buyer winnerBuyer = buyerRepository.findById(winnerUser.getId()).orElse(null);
+        if (winnerBuyer == null) {
+            throw new ApiException("Winner buyer not found");
+        }
+
+        if (buyerRatingRepository.findByAuctionId(dto.getAuctionId()).isPresent()) {
+            throw new ApiException("This auction has already been rated");
+        }
+
+        BuyerRating rating = new BuyerRating();
+        rating.setSeller(seller);
+        rating.setBuyer(winnerBuyer);
+        rating.setAuction(auction);
+        rating.setRating(dto.getRating());
+        rating.setComment(dto.getComment());
+        buyerRatingRepository.save(rating);
+
+        return new RatingCheckDTOOUT(true, rating.getRating(), rating.getComment());
+    }
+
+    public RatingCheckDTOOUT checkBuyerRating(Integer auctionId) {
+        return buyerRatingRepository.findByAuctionId(auctionId)
+                .map(r -> new RatingCheckDTOOUT(true, r.getRating(), r.getComment()))
+                .orElse(new RatingCheckDTOOUT(false, null, null));
     }
 }

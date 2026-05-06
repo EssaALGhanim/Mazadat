@@ -23,6 +23,7 @@ public class SellerService {
     private final SellerRepository sellerRepository;
     private final UserRepository userRepository;
     private final AuctionHouseRepository auctionHouseRepository;
+    private final OtpService otpService;
 
 
     public List<Seller> getAllSellers(){
@@ -49,6 +50,9 @@ public class SellerService {
         if (userRepository.existsByEmail(sellerDTOIN.getEmail())) {
             throw new ApiException("Email already exists");
         }
+        if (userRepository.existsByPhoneNumber(sellerDTOIN.getPhoneNumber())) {
+            throw new ApiException("Phone number already exists");
+        }
 
         User user = new User();
         user.setUsername(sellerDTOIN.getUsername());
@@ -66,6 +70,8 @@ public class SellerService {
 
         userRepository.save(user);
         sellerRepository.save(seller);
+
+        otpService.sendOtpToNewUser(user.getEmail(), user.getUsername());
     }
 
     public void updateSeller(SellerUpdateDTOIN sellerDTOIN, Integer sellerId){
@@ -103,6 +109,10 @@ public class SellerService {
         }
 
         if (StringUtils.hasText(sellerDTOIN.getPhoneNumber())) {
+            User userWithSamePhone = userRepository.findUserByPhoneNumber(sellerDTOIN.getPhoneNumber());
+            if (userWithSamePhone != null && !userWithSamePhone.getId().equals(user.getId())) {
+                throw new ApiException("Phone number already exists");
+            }
             user.setPhoneNumber(sellerDTOIN.getPhoneNumber());
             hasAnyField = true;
         }

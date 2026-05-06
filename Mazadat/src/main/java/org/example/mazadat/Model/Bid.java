@@ -40,7 +40,7 @@ public class Bid {
     private Auction auction;
 
     @ManyToOne
-    @JoinColumn(name = "buyer_id", nullable = false)
+    @JoinColumn(name = "buyer_id", nullable = true)
     @JsonIgnore
     private Buyer buyer;
 
