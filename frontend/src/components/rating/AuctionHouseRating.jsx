@@ -193,7 +193,7 @@ export default function AuctionHouseRating({
                                     }
                                     maxLength={400}
                                     rows={3}
-                                    className={`w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] resize-none ${isAr ? 'text-right' : 'text-left'}`}
+                                    className={`w-full px-3 py-2 text-sm text-[#1A2E2C] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] resize-none ${isAr ? 'text-right' : 'text-left'}`}
                                 />
                                 <p className="text-xs text-gray-400 mt-0.5 text-right">
                                     {comment.length}/400
