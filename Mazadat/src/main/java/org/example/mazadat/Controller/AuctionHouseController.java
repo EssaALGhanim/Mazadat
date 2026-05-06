@@ -128,6 +128,11 @@ public class AuctionHouseController {
         return ResponseEntity.status(HttpStatus.OK.value()).body(new ApiResponse("Admin was removed successfully"));
     }
 
+    @GetMapping("/{auctionHouseId}/ratings")
+    public ResponseEntity<?> getAuctionHouseRatings(@PathVariable Integer auctionHouseId) {
+        return ResponseEntity.ok(auctionHouseService.getAuctionHouseRatings(auctionHouseId));
+    }
+
     @PostMapping("/rate")
     public ResponseEntity<?> submitAuctionHouseRating(@RequestBody @Valid AuctionHouseRatingDTOIN dto,
                                                       @AuthenticationPrincipal User user) {
