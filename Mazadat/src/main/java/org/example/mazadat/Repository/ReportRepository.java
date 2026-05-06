@@ -16,11 +16,11 @@ public interface ReportRepository extends JpaRepository<Report, Integer> {
 
     boolean existsByReporterIdAndAuctionId(Integer reporterId, Integer auctionId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Report r SET r.auction = null WHERE r.auction.id = :auctionId")
     void nullifyAuctionReference(@Param("auctionId") Integer auctionId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Report r SET r.reporter = null WHERE r.reporter.id = :reporterId")
     void nullifyReporterReference(@Param("reporterId") Integer reporterId);
 }
