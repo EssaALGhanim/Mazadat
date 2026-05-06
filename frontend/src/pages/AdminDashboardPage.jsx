@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ShieldCheck, Users, Gavel } from 'lucide-react';
+import { getAdminReports } from '@/services/reportService';
+import { ShieldCheck, Users, Gavel, Flag } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import TopNavigationBar from '@/components/TopNavigationBar';
@@ -9,6 +10,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import AdminOverviewSection from '@/components/admin/AdminOverviewSection';
 import AdminUsersSection from '@/components/admin/AdminUsersSection';
 import AdminAuctionsSection from '@/components/admin/AdminAuctionsSection';
+import AdminReportsSection from '@/components/admin/AdminReportsSection';
 import AdminUserDetailsDialog from '@/components/admin/AdminUserDetailsDialog';
 import AdminAuctionDetailsDialog from '@/components/admin/AdminAuctionDetailsDialog';
 import {
@@ -64,6 +66,9 @@ export default function AdminDashboardPage() {
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, type: null, item: null, warning: null });
     const [deletingUserId, setDeletingUserId] = useState(null);
     const [deletingAuctionId, setDeletingAuctionId] = useState(null);
+    const [reports, setReports] = useState([]);
+    const [reportsLoading, setReportsLoading] = useState(true);
+    const [reportsError, setReportsError] = useState(null);
 
     const computeStats = useCallback((usersList, auctionsList) => ({
         totalUsers: usersList.length,
@@ -129,6 +134,19 @@ export default function AdminDashboardPage() {
         }
     }, [t]);
 
+    const loadReports = useCallback(async () => {
+        setReportsLoading(true);
+        setReportsError(null);
+        try {
+            const payload = await getAdminReports();
+            setReports(Array.isArray(payload) ? payload : []);
+        } catch (error) {
+            setReportsError(error?.message || t('admin.reports.loadError'));
+        } finally {
+            setReportsLoading(false);
+        }
+    }, [t]);
+
     useEffect(() => {
         let active = true;
 
@@ -139,10 +157,11 @@ export default function AdminDashboardPage() {
         };
 
         loadDashboard();
+        loadReports();
         return () => {
             active = false;
         };
-    }, [loadAuctions, loadUsers, refreshStats]);
+    }, [loadAuctions, loadUsers, refreshStats, loadReports]);
 
     const pageStats = useMemo(() => computeStats(users, auctions), [auctions, computeStats, users]);
 
@@ -251,7 +270,7 @@ export default function AdminDashboardPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F0F5F4]">
+        <div className="min-h-screen bg-[#F0F5F4]" dir={i18n.dir()}>
             <TopNavigationBar
                 isSeller={false}
                 isBuyer={false}
@@ -296,18 +315,27 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <Tabs defaultValue="overview" className="gap-6">
-                    <TabsList className="grid h-auto grid-cols-3 rounded-2xl border border-[#D7E8E5] bg-white p-1 md:w-fit">
-                        <TabsTrigger value="overview" className="rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] data-[state=active]:text-[#1A2E2C]">
-                            <ShieldCheck className="h-4 w-4" />
+                    <TabsList dir={i18n.dir()} className="mx-auto grid h-auto w-full grid-cols-4 rounded-2xl border border-[#D7E8E5] bg-white p-1 sm:w-fit">
+                        <TabsTrigger value="overview" className="gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] data-[state=active]:text-[#1A2E2C]">
+                            <ShieldCheck className="h-4 w-4 shrink-0" />
                             <span>{t('admin.tabs.overview')}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="users" className="rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] data-[state=active]:text-[#1A2E2C]">
-                            <Users className="h-4 w-4" />
+                        <TabsTrigger value="users" className="gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] data-[state=active]:text-[#1A2E2C]">
+                            <Users className="h-4 w-4 shrink-0" />
                             <span>{t('admin.tabs.users')}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="auctions" className="rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] data-[state=active]:text-[#1A2E2C]">
-                            <Gavel className="h-4 w-4" />
+                        <TabsTrigger value="auctions" className="gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] data-[state=active]:text-[#1A2E2C]">
+                            <Gavel className="h-4 w-4 shrink-0" />
                             <span>{t('admin.tabs.auctions')}</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="reports" className="relative gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] data-[state=active]:text-[#1A2E2C]">
+                            <Flag className="h-4 w-4 shrink-0" />
+                            <span>{t('admin.tabs.reports')}</span>
+                            {reports.filter((r) => r.status === 'PENDING').length > 0 && (
+                                <span className="absolute -end-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#E05252] text-[10px] font-bold text-white">
+                                    {reports.filter((r) => r.status === 'PENDING').length}
+                                </span>
+                            )}
                         </TabsTrigger>
                     </TabsList>
 
@@ -335,6 +363,15 @@ export default function AdminDashboardPage() {
                             onInspectAuction={handleInspectAuction}
                             onDeleteAuction={(auction) => openDeleteConfirm('auction', auction)}
                             getAuctionStatusMeta={getAuctionStatusMeta}
+                        />
+                    </TabsContent>
+
+                    <TabsContent value="reports">
+                        <AdminReportsSection
+                            reports={reports}
+                            loading={reportsLoading}
+                            error={reportsError}
+                            onReportChanged={loadReports}
                         />
                     </TabsContent>
                 </Tabs>

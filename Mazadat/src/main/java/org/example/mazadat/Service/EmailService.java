@@ -46,6 +46,24 @@ public class EmailService {
         sendHtml(toEmail, subject, body);
     }
 
+    @Async
+    public void sendReportAcknowledgementEmail(String toEmail, String username,
+                                               String auctionTitle, String adminMessage) {
+        String subject = "Report received | تم استلام البلاغ — " + auctionTitle;
+        String body = buildReportAcknowledgementHtml(username, auctionTitle, adminMessage);
+        sendHtml(toEmail, subject, body);
+    }
+
+    @Async
+    public void sendAuctionHouseReportEmail(String toEmail, String sellerUsername,
+                                            String auctionTitle, String auctionHouseName,
+                                            String reporterMessage, String adminMessage) {
+        String subject = "Auction reported | تم الإبلاغ عن مزاد — " + auctionTitle;
+        String body = buildAuctionHouseReportHtml(sellerUsername, auctionTitle, auctionHouseName,
+                reporterMessage, adminMessage);
+        sendHtml(toEmail, subject, body);
+    }
+
     // ─── Private helpers ──────────────────────────────────────────────────────
 
     private void sendHtml(String toEmail, String subject, String htmlBody) {
@@ -144,6 +162,76 @@ public class EmailService {
                     "Do not share this code with anyone.")
             )
         );
+    }
+
+    // ─── Report email templates ───────────────────────────────────────────────
+
+    private String buildReportAcknowledgementHtml(String username, String auctionTitle, String adminMessage) {
+        return wrap(
+            section("rtl",
+                tag("h2", "style=\"color:#1A7A6E;margin:0 0 8px;font-size:18px\"", "&#10003; تم استلام بلاغك"),
+                tag("p", "style=\"color:#1A2E2C;font-size:14px;margin:0 0 6px\"", "مرحباً " + username + "،"),
+                tag("p", "style=\"color:#444;font-size:14px;line-height:1.7;margin:0 0 10px\"",
+                    "لقد تلقينا بلاغك بشأن المزاد " + strong("\"" + auctionTitle + "\"") +
+                    ". سيقوم فريق الإشراف لدينا بمراجعة التقرير واتخاذ الإجراءات اللازمة."),
+                tag("p", "style=\"color:#6B9E99;font-size:12px;margin:0\"",
+                    "شكراً لمساعدتنا في الحفاظ على بيئة مزايدة آمنة وموثوقة.")
+            ),
+            divider(),
+            section("ltr",
+                tag("h2", "style=\"color:#1A7A6E;margin:0 0 8px;font-size:18px\"", "&#10003; Your Report Has Been Received"),
+                tag("p", "style=\"color:#1A2E2C;font-size:14px;margin:0 0 6px\"", "Hello " + username + ","),
+                tag("p", "style=\"color:#444;font-size:14px;line-height:1.7;margin:0 0 10px\"",
+                    "We have received your report regarding the auction " + strong("\"" + auctionTitle + "\"") +
+                    ". Our moderation team will review the report and take appropriate action."),
+                tag("p", "style=\"color:#6B9E99;font-size:12px;margin:0\"",
+                    "Thank you for helping us maintain a safe and trustworthy bidding environment.")
+            ),
+            buildAdminMessageBlock(adminMessage)
+        );
+    }
+
+    private String buildAuctionHouseReportHtml(String sellerUsername, String auctionTitle,
+                                               String auctionHouseName, String reporterMessage,
+                                               String adminMessage) {
+        String reporterSection = (reporterMessage != null && !reporterMessage.isBlank())
+            ? tag("div",
+                "style=\"background:#FFF8E8;border:1px solid #F0D9A7;border-radius:8px;padding:12px 16px;margin-top:10px\"",
+                tag("p", "style=\"color:#8A6A21;font-size:13px;font-weight:600;margin:0 0 4px\"", "Reporter's reason:") +
+                tag("p", "style=\"color:#444;font-size:13px;margin:0\"", reporterMessage))
+            : "";
+
+        return wrap(
+            section("rtl",
+                tag("h2", "style=\"color:#E05252;margin:0 0 8px;font-size:18px\"", "&#9888; تم الإبلاغ عن مزادك"),
+                tag("p", "style=\"color:#1A2E2C;font-size:14px;margin:0 0 6px\"", "مرحباً " + sellerUsername + "،"),
+                tag("p", "style=\"color:#444;font-size:14px;line-height:1.7;margin:0\"",
+                    "تم تقديم بلاغ بشأن المزاد " + strong("\"" + auctionTitle + "\"") +
+                    " في صالة المزادات " + strong(auctionHouseName != null ? auctionHouseName : "") +
+                    ". سيراجع فريق الإشراف لدينا المحتوى ويتواصل معك إذا لزم الأمر.")
+            ),
+            divider(),
+            section("ltr",
+                tag("h2", "style=\"color:#E05252;margin:0 0 8px;font-size:18px\"", "&#9888; Your Auction Has Been Reported"),
+                tag("p", "style=\"color:#1A2E2C;font-size:14px;margin:0 0 6px\"", "Hello " + sellerUsername + ","),
+                tag("p", "style=\"color:#444;font-size:14px;line-height:1.7;margin:0\"",
+                    "A report has been submitted regarding your auction " + strong("\"" + auctionTitle + "\"") +
+                    (auctionHouseName != null ? " at " + strong(auctionHouseName) : "") +
+                    ". Our moderation team will review the content and reach out if necessary.") +
+                reporterSection
+            ),
+            buildAdminMessageBlock(adminMessage)
+        );
+    }
+
+    private String buildAdminMessageBlock(String adminMessage) {
+        if (adminMessage == null || adminMessage.isBlank()) return "";
+        return divider() +
+            "<div style=\"background:#EAF7F5;border:1px solid #A8D8D3;border-radius:8px;padding:14px 18px\">" +
+            tag("p", "style=\"color:#1A7A6E;font-size:13px;font-weight:700;margin:0 0 6px\"",
+                "&#128231; Message from Mazadat Admin | رسالة من مسؤول مزادات") +
+            "<p style=\"color:#1A2E2C;font-size:14px;line-height:1.7;margin:0;white-space:pre-wrap\">" +
+            adminMessage + "</p></div>";
     }
 
     // ─── HTML building utilities ──────────────────────────────────────────────

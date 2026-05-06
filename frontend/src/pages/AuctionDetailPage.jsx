@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, User, Trophy, Download, Home, X, Zap, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, User, Trophy, Download, Home, X, Zap, Star, Flag } from 'lucide-react';
+import ReportAuctionModal from '@/components/report/ReportAuctionModal';
 import CountdownTimer from '@/components/auction/CountdownTimer';
 import PlaceBidModal from '@/components/auction/PlaceBidModal';
 import AutoBidModal from '@/components/auction/AutoBidModal';
@@ -39,6 +40,7 @@ export default function AuctionDetailPage({ currentUser }) {
     const [featureModalOpen, setFeatureModalOpen] = useState(false);
     const [houseRatings, setHouseRatings] = useState(null);
     const [ratingsModalOpen, setRatingsModalOpen] = useState(false);
+    const [reportModalOpen, setReportModalOpen] = useState(false);
     const now = useNow();
     const nowDate = new Date(now);
 
@@ -498,6 +500,16 @@ export default function AuctionDetailPage({ currentUser }) {
                                 </div>
                             )}
 
+                            {isBuyer && (
+                                <button
+                                    onClick={() => setReportModalOpen(true)}
+                                    className="w-full flex items-center justify-center gap-2 bg-transparent border border-[#E05252]/40 hover:bg-[#FFF5F5] text-[#E05252] px-4 py-2.5 rounded-lg font-semibold transition-colors text-sm"
+                                >
+                                    <Flag className="w-4 h-4" />
+                                    {isAr ? 'الإبلاغ عن هذا المزاد' : 'Report this listing'}
+                                </button>
+                            )}
+
                             <button
                                 onClick={() => isSeller ? navigate('/seller-dashboard') : navigate('/')}
                                 className="w-full bg-[#F4FAFA] hover:bg-[#E2F1EF] text-[#2A9D8F] px-4 py-3 rounded-lg font-bold transition-colors text-sm"
@@ -565,6 +577,13 @@ export default function AuctionDetailPage({ currentUser }) {
                 auctionEndDate={auction?.endDate}
                 onFeature={handleFeatureAuction}
                 loading={featureLoading}
+            />
+
+            {/* Report Auction Modal */}
+            <ReportAuctionModal
+                open={reportModalOpen}
+                onOpenChange={setReportModalOpen}
+                auction={auction}
             />
 
             {/* Auction House Ratings Modal */}
