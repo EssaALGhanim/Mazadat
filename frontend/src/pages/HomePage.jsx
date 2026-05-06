@@ -51,7 +51,7 @@ export default function HomePage() {
     if (prices.length === 0) return [0, 100000];
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
-    return [minPrice, maxPrice];
+    return [minPrice, Math.max(maxPrice, minPrice + 1)];
   };
 
   // Define applyFilters early so it's available for useEffect dependencies
