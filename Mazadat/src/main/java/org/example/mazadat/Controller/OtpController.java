@@ -27,6 +27,22 @@ public class OtpController {
     }
 
     /**
+     * Starts registration by sending OTP without creating the user yet.
+     * Body: { "username", "email", "password", "phoneNumber", "role" }
+     */
+    @PostMapping("/register/start")
+    public ResponseEntity<?> startRegistration(@RequestBody Map<String, String> body) {
+        String maskedEmail = otpService.startRegistrationOtp(
+                body.get("username"),
+                body.get("email"),
+                body.get("password"),
+                body.get("phoneNumber"),
+                body.get("role")
+        );
+        return ResponseEntity.ok(new ApiResponse("Registration OTP sent", Map.of("maskedEmail", maskedEmail)));
+    }
+
+    /**
      * Verifies the OTP.
      * Body: { "identifier": "username_or_email", "code": "123456" }
      */

@@ -63,6 +63,8 @@ public class ConfigSecurity {
                 // Admin endpoints
                     .requestMatchers("/api/v1/user/get/all").hasAuthority("ADMIN")
                     .requestMatchers("/api/v1/admin/**").hasAuthority("ADMIN")
+                // OTP endpoints must stay public (must be before /api/v1/auth/**)
+                    .requestMatchers("/api/v1/auth/otp/**").permitAll()
                 // Auth endpoints (authentication required)
                     .requestMatchers("/api/v1/auth/**").authenticated()
                 // Public endpoints (no authentication required)
@@ -71,7 +73,6 @@ public class ConfigSecurity {
                     .requestMatchers("/api/v1/media/**").permitAll()
                     .requestMatchers("/api/v1/buyer/add").permitAll()
                     .requestMatchers("/api/v1/seller/add").permitAll()
-                    .requestMatchers("/api/v1/auth/otp/**").permitAll()
                     .requestMatchers("/api/v1/auction/get/all").permitAll()
                     .requestMatchers("/api/v1/auction/search").permitAll()
                     .requestMatchers("/api/v1/bid/get/all").permitAll()

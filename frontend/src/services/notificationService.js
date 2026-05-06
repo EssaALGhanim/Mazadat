@@ -16,3 +16,6 @@ export const sendOtp = (identifier) =>
 
 export const verifyOtp = (identifier, code) =>
     api.post('/auth/otp/verify', { identifier, code });
+
+export const startRegistrationOtp = ({ username, email, password, phoneNumber, role }) =>
+    api.post('/auth/otp/register/start', { username, email, password, phoneNumber, role });
