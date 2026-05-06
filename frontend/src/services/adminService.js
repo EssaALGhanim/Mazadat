@@ -192,23 +192,6 @@ function createIntegrationPendingError(message, cause) {
     return error;
 }
 
-function maybeWrapIntegrationPending(error, message) {
-    const rawMessage = String(error?.message || '').toLowerCase();
-    const looksLikeMissingEndpoint =
-        !rawMessage
-        || rawMessage.includes('request failed')
-        || rawMessage.includes('not found')
-        || rawMessage.includes('no static resource')
-        || rawMessage.includes('method not allowed')
-        || rawMessage.includes('cannot');
-
-    if (looksLikeMissingEndpoint) {
-        throw createIntegrationPendingError(message, error);
-    }
-
-    throw error;
-}
-
 function isEndedAuction(auction) {
     if (!auction) return false;
     const status = String(auction.status || '').toUpperCase();
@@ -237,12 +220,8 @@ export async function getAdminUsers() {
         return mockUsers;
     }
 
-    try {
-        const payload = await api.get('/user/get/all');
-        return normalizePayload(payload);
-    } catch (error) {
-        return mockUsers;
-    }
+    const payload = await api.get('/user/get/all');
+    return normalizePayload(payload);
 }
 
 export async function getAdminAuctions() {
@@ -250,12 +229,8 @@ export async function getAdminAuctions() {
         return mockAuctions;
     }
 
-    try {
-        const payload = await api.get('/auction/get/all');
-        return normalizePayload(payload);
-    } catch (error) {
-        return mockAuctions;
-    }
+    const payload = await api.get('/auction/get/all');
+    return normalizePayload(payload);
 }
 
 export async function getAdminAuctionById(auctionId) {
@@ -263,16 +238,8 @@ export async function getAdminAuctionById(auctionId) {
         return mockAuctions.find((auction) => String(auction.id) === String(auctionId)) || null;
     }
 
-    try {
-        const payload = await api.get(`/auction/${auctionId}`);
-        return payload?.data || payload;
-    } catch (error) {
-        const fallbackAuction = mockAuctions.find((auction) => String(auction.id) === String(auctionId));
-        if (fallbackAuction) {
-            return fallbackAuction;
-        }
-        throw error;
-    }
+    const payload = await api.get(`/auction/${auctionId}`);
+    return payload?.data || payload;
 }
 
 export async function getAdminUserById(userId) {
@@ -280,12 +247,17 @@ export async function getAdminUserById(userId) {
         return mockUsers.find((user) => String(user.id) === String(userId)) || null;
     }
 
-    try {
-        const payload = await api.get(`/admin/users/${userId}`);
-        return payload?.data || payload;
-    } catch (error) {
-        maybeWrapIntegrationPending(error, 'Admin user details endpoint is waiting for backend integration.');
+    const payload = await api.get(`/admin/users/${userId}`);
+    return payload?.data || payload;
+}
+
+export async function checkUserDeletionWarning(userId) {
+    if (isAdminPreviewEnabled()) {
+        return { hasWarning: false };
     }
+
+    const payload = await api.get(`/admin/users/${userId}/deletion-warning`);
+    return payload?.data || payload;
 }
 
 export async function deleteAdminUser(userId) {
@@ -293,11 +265,7 @@ export async function deleteAdminUser(userId) {
         return { success: true, userId };
     }
 
-    try {
-        return await api.delete(`/admin/users/${userId}`);
-    } catch (error) {
-        maybeWrapIntegrationPending(error, 'Admin user deletion endpoint is waiting for backend integration.');
-    }
+    return await api.delete(`/admin/users/${userId}`);
 }
 
 export async function deleteAdminAuction(auctionId) {
@@ -305,11 +273,7 @@ export async function deleteAdminAuction(auctionId) {
         return { success: true, auctionId };
     }
 
-    try {
-        return await api.delete(`/admin/auctions/${auctionId}`);
-    } catch (error) {
-        maybeWrapIntegrationPending(error, 'Admin auction deletion endpoint is waiting for backend integration.');
-    }
+    return await api.delete(`/admin/auctions/${auctionId}`);
 }
 
 export function getAdminPreviewEnabled() {

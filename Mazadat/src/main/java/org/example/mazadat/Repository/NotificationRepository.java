@@ -19,4 +19,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
     void markAllAsReadByUserId(@Param("userId") Integer userId);
 
     boolean existsByUserIdAndTypeAndLink(Integer userId, String type, String link);
+
+    void deleteByUserId(Integer userId);
 }

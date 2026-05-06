@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ShieldCheck, Users, Gavel } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,7 @@ import AdminAuctionsSection from '@/components/admin/AdminAuctionsSection';
 import AdminUserDetailsDialog from '@/components/admin/AdminUserDetailsDialog';
 import AdminAuctionDetailsDialog from '@/components/admin/AdminAuctionDetailsDialog';
 import {
+    checkUserDeletionWarning,
     deleteAdminAuction,
     deleteAdminUser,
     getAdminAuctionById,
@@ -20,7 +21,6 @@ import {
     getAdminPreviewEnabled,
     getAdminUserById,
     getAdminUsers,
-    isAdminIntegrationPendingError,
 } from '@/services/adminService';
 
 const initialStats = {
@@ -48,6 +48,8 @@ export default function AdminDashboardPage() {
     const [stats, setStats] = useState(initialStats);
     const [users, setUsers] = useState([]);
     const [auctions, setAuctions] = useState([]);
+    const usersRef = useRef([]);
+    const auctionsRef = useRef([]);
     const [statsLoading, setStatsLoading] = useState(true);
     const [usersLoading, setUsersLoading] = useState(true);
     const [auctionsLoading, setAuctionsLoading] = useState(true);
@@ -56,11 +58,10 @@ export default function AdminDashboardPage() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [userDetailsOpen, setUserDetailsOpen] = useState(false);
     const [userDetailsLoading, setUserDetailsLoading] = useState(false);
-    const [userDetailsIntegrationMessage, setUserDetailsIntegrationMessage] = useState('');
     const [selectedAuction, setSelectedAuction] = useState(null);
     const [auctionDetailsOpen, setAuctionDetailsOpen] = useState(false);
     const [auctionDetailsLoading, setAuctionDetailsLoading] = useState(false);
-    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, type: null, item: null });
+    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, type: null, item: null, warning: null });
     const [deletingUserId, setDeletingUserId] = useState(null);
     const [deletingAuctionId, setDeletingAuctionId] = useState(null);
 
@@ -86,20 +87,22 @@ export default function AdminDashboardPage() {
             const nextStats = await getAdminDashboardStats();
             setStats(nextStats);
         } catch {
-            setStats(computeStats(users, auctions));
+            setStats(computeStats(usersRef.current, auctionsRef.current));
         } finally {
             setStatsLoading(false);
         }
-    }, [auctions, computeStats, users]);
+    }, [computeStats]);
 
     const loadUsers = useCallback(async () => {
         setUsersLoading(true);
         setUsersError(null);
         try {
             const payload = await getAdminUsers();
+            usersRef.current = payload;
             setUsers(payload);
             return payload;
         } catch (error) {
+            usersRef.current = [];
             setUsers([]);
             setUsersError(error?.message || t('admin.errors.usersLoadMessage'));
             return [];
@@ -113,9 +116,11 @@ export default function AdminDashboardPage() {
         setAuctionsError(null);
         try {
             const payload = await getAdminAuctions();
+            auctionsRef.current = payload;
             setAuctions(payload);
             return payload;
         } catch (error) {
+            auctionsRef.current = [];
             setAuctions([]);
             setAuctionsError(error?.message || t('admin.errors.auctionsLoadMessage'));
             return [];
@@ -155,7 +160,6 @@ export default function AdminDashboardPage() {
     const handleInspectUser = async (user) => {
         const userId = user?.id ?? user?.Id;
         setSelectedUser(user);
-        setUserDetailsIntegrationMessage('');
         setUserDetailsOpen(true);
         setUserDetailsLoading(true);
 
@@ -163,11 +167,7 @@ export default function AdminDashboardPage() {
             const details = await getAdminUserById(userId);
             setSelectedUser((prev) => ({ ...prev, ...(details || {}) }));
         } catch (error) {
-            if (isAdminIntegrationPendingError(error)) {
-                setUserDetailsIntegrationMessage(t('admin.integration.userDetails'));
-            } else {
-                toast.error(error?.message || t('admin.errors.userDetailsLoadMessage'));
-            }
+            toast.error(error?.message || t('admin.errors.userDetailsLoadMessage'));
         } finally {
             setUserDetailsLoading(false);
         }
@@ -188,8 +188,20 @@ export default function AdminDashboardPage() {
         }
     };
 
-    const openDeleteConfirm = (type, item) => {
-        setDeleteConfirm({ open: true, type, item });
+    const openDeleteConfirm = async (type, item) => {
+        let warning = null;
+        if (type === 'user') {
+            const userId = item?.id ?? item?.Id;
+            try {
+                const result = await checkUserDeletionWarning(userId);
+                if (result?.hasWarning) {
+                    warning = result.message || t('admin.confirm.lastAdminWarning');
+                }
+            } catch {
+                // Non-fatal — proceed without warning
+            }
+        }
+        setDeleteConfirm({ open: true, type, item, warning });
     };
 
     const handleConfirmDelete = async () => {
@@ -209,11 +221,7 @@ export default function AdminDashboardPage() {
                     setSelectedUser(null);
                 }
             } catch (error) {
-                if (isAdminIntegrationPendingError(error)) {
-                    toast.error(t('admin.integration.userDelete'));
-                } else {
-                    toast.error(error?.message || t('admin.errors.userDeleteMessage'));
-                }
+                toast.error(error?.message || t('admin.errors.userDeleteMessage'));
             } finally {
                 setDeletingUserId(null);
             }
@@ -233,11 +241,7 @@ export default function AdminDashboardPage() {
                     setSelectedAuction(null);
                 }
             } catch (error) {
-                if (isAdminIntegrationPendingError(error)) {
-                    toast.error(t('admin.integration.auctionDelete'));
-                } else {
-                    toast.error(error?.message || t('admin.errors.auctionDeleteMessage'));
-                }
+                toast.error(error?.message || t('admin.errors.auctionDeleteMessage'));
             } finally {
                 setDeletingAuctionId(null);
             }
@@ -341,7 +345,7 @@ export default function AdminDashboardPage() {
                 onOpenChange={setUserDetailsOpen}
                 user={selectedUser}
                 loading={userDetailsLoading}
-                integrationMessage={userDetailsIntegrationMessage}
+                integrationMessage=""
             />
 
             <AdminAuctionDetailsDialog
@@ -361,6 +365,7 @@ export default function AdminDashboardPage() {
                         ? t('admin.confirm.userDeleteDescription', { username: deleteConfirm.item?.username || '—' })
                         : t('admin.confirm.auctionDeleteDescription', { title: deleteConfirm.item?.title || '—' })
                 }
+                warning={deleteConfirm.warning}
                 confirmText={t('admin.actions.delete')}
                 cancelText={t('cancel')}
                 onConfirm={handleConfirmDelete}

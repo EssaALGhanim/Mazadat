@@ -163,9 +163,10 @@
     },
     "confirm": {
       "userDeleteTitle": "Delete user",
-      "userDeleteDescription": "Are you sure you want to delete {{username}}? This action should only be used when the backend moderation endpoint is ready.",
+      "userDeleteDescription": "Are you sure you want to permanently delete {{username}}? All related bids, ratings, and data will be removed.",
       "auctionDeleteTitle": "Delete auction",
-      "auctionDeleteDescription": "Are you sure you want to delete \"{{title}}\"? This action should only be used when the backend moderation endpoint is ready."
+      "auctionDeleteDescription": "Are you sure you want to permanently delete \"{{title}}\"? All bids and associated data will be removed.",
+      "lastAdminWarning": "This user is the sole admin of their auction house. Deleting them will also permanently delete the auction house and all its auctions."
     },
     "integration": {
       "userDetails": "Detailed user profile data is waiting for backend integration. The dialog is showing the currently available list data.",

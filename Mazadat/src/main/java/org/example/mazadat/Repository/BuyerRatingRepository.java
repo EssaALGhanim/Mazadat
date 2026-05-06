@@ -13,4 +13,10 @@ public interface BuyerRatingRepository extends JpaRepository<BuyerRating, Intege
     Optional<BuyerRating> findByAuctionId(Integer auctionId);
 
     List<BuyerRating> findByBuyerId(Integer buyerId);
+
+    void deleteByBuyerId(Integer buyerId);
+
+    void deleteBySellerId(Integer sellerId);
+
+    void deleteByAuctionId(Integer auctionId);
 }

@@ -13,4 +13,10 @@ public interface AuctionHouseRatingRepository extends JpaRepository<AuctionHouse
     Optional<AuctionHouseRating> findByBuyerIdAndAuctionId(Integer buyerId, Integer auctionId);
 
     List<AuctionHouseRating> findByAuctionHouseId(Integer auctionHouseId);
+
+    List<AuctionHouseRating> findByBuyerId(Integer buyerId);
+
+    void deleteByBuyerId(Integer buyerId);
+
+    void deleteByAuctionId(Integer auctionId);
 }

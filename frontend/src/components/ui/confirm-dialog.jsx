@@ -15,6 +15,7 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
+  warning,
   confirmText,
   cancelText,
   onConfirm,
@@ -37,6 +38,11 @@ export function ConfirmDialog({
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
+        {warning ? (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <span className="font-semibold">⚠ </span>{warning}
+          </div>
+        ) : null}
         <AlertDialogFooter className="gap-3 rounded-xl bg-white/70 p-1.5 backdrop-blur-sm sm:justify-end">
           <AlertDialogCancel className="w-full border-[#C5E0DC] text-[#5F7D79] hover:bg-[#F4FAFA] sm:w-auto">
             {cancelText}

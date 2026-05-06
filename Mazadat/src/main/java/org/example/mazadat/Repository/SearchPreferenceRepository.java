@@ -13,4 +13,6 @@ public interface SearchPreferenceRepository extends JpaRepository<SearchPreferen
     List<SearchPreference> findByBuyerId(Integer buyerId);
 
     Optional<SearchPreference> findByIdAndBuyerId(Integer id, Integer buyerId);
+
+    void deleteByBuyerId(Integer buyerId);
 }
