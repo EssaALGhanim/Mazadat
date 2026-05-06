@@ -57,15 +57,13 @@ function CheckItem({ met, label }) {
 
 function mapLoginError(err, t) {
   const msg = (err?.message || '').toLowerCase();
-  if (msg.includes('required')) return t('requiredFields');
+  // Only map genuinely wrong-credential signals — do NOT use broad terms like
+  // 'invalid' or 'not found' which can also match OTP / other unrelated errors.
   if (
     msg.includes('bad credentials') ||
-    msg.includes('unauthorized') ||
-    msg.includes('401') ||
-    msg.includes('invalid') ||
-    msg.includes('incorrect') ||
-    msg.includes('wrong') ||
-    msg.includes('not found')
+    msg === 'invalid credentials' ||
+    msg.includes('authentication failed') ||
+    (msg.includes('unauthorized') && !msg.includes('otp'))
   ) {
     return t('wrongCredentials');
   }
@@ -284,14 +282,25 @@ function LoginForm() {
     if (Object.keys(errs).length) { setFieldErrors((prev) => ({ ...prev, ...errs })); return; }
 
     setLoading(true);
+    // Step 1: verify credentials
+    let user;
     try {
-      const user = await login(formData.username, formData.password);
-      setPendingUser(user);
+      user = await login(formData.username, formData.password);
+    } catch (err) {
+      setError(mapLoginError(err, t));
+      setLoading(false);
+      return;
+    }
+    setPendingUser(user);
+
+    // Step 2: send OTP — credentials are correct; show a softer error if OTP delivery fails
+    try {
       const res = await sendOtp(formData.username);
       setMaskedEmail(res?.data?.maskedEmail || '');
       setOtpStep(true);
     } catch (err) {
-      setError(mapLoginError(err, t));
+      // Login succeeded — don't mislead with "wrong credentials"
+      setError(err?.message || t('loginFailed'));
     } finally {
       setLoading(false);
     }

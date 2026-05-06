@@ -97,6 +97,8 @@ public class ConfigSecurity {
                     .requestMatchers("/api/v1/receipt/delete/**").authenticated()
                 // Notification endpoints (authenticated)
                     .requestMatchers("/api/v1/notifications/**").authenticated()
+                // Phone verification (authenticated)
+                    .requestMatchers("/api/v1/user/phone/**").authenticated()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
