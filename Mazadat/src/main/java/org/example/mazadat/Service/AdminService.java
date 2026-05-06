@@ -181,36 +181,49 @@ public class AdminService {
     }
 
     private void deleteAuctionHouseAndContents(AuctionHouse auctionHouse, Seller deletingSeller) {
-        // Detach all other sellers from the house so cascade on AuctionHouse.sellers
-        // does not delete them when the house is deleted
-        List<Seller> allMembers = sellerRepository.findByAuctionHouseId(auctionHouse.getId());
+        Integer auctionHouseId   = auctionHouse.getId();
+        Integer deletingSellerId = deletingSeller.getId();
+
+        // Detach all other sellers from the house before the house is deleted
+        List<Seller> allMembers = sellerRepository.findByAuctionHouseId(auctionHouseId);
         for (Seller member : allMembers) {
-            if (!member.getId().equals(deletingSeller.getId())) {
+            if (!member.getId().equals(deletingSellerId)) {
                 member.setAuctionHouse(null);
                 member.setIsAdmin(false);
                 sellerRepository.save(member);
             }
         }
 
-        // Delete all auctions in the house (with their dependent data)
-        for (Auction auction : auctionHouse.getAuctions()) {
-            deleteAuctionDependencies(auction.getId());
+        // Collect IDs before the loop — deleteAuctionDependencies clears the JPA
+        // persistence context (via clearAutomatically = true on the report nullify query),
+        // which would detach the lazy auction collection mid-iteration.
+        List<Integer> auctionIds = auctionHouse.getAuctions()
+                .stream().map(Auction::getId).toList();
+
+        for (Integer auctionId : auctionIds) {
+            deleteAuctionDependencies(auctionId);
         }
 
-        // Detach the deleting seller from the house (User cascade will delete the Seller later)
-        deletingSeller.setAuctionHouse(null);
-        sellerRepository.save(deletingSeller);
+        // Re-fetch seller — it was evicted when the PC was cleared inside the loop
+        Seller freshSeller = sellerRepository.findById(deletingSellerId).orElse(null);
+        if (freshSeller != null) {
+            freshSeller.setAuctionHouse(null);
+            freshSeller.setIsAdmin(false);
+            sellerRepository.save(freshSeller);
+        }
 
-        buyerRatingRepository.deleteBySellerId(deletingSeller.getId());
+        buyerRatingRepository.deleteBySellerId(deletingSellerId);
 
-        auctionHouseRepository.delete(auctionHouse);
+        // deleteById re-fetches internally — safe even after a PC clear
+        auctionHouseRepository.deleteById(auctionHouseId);
     }
 
     private void deleteSellerOwnedAuctions(Seller seller) {
-        List<Auction> auctions = auctionRepository.findBySellerId(seller.getId());
-        for (Auction auction : auctions) {
-            deleteAuctionDependencies(auction.getId());
-            auctionRepository.delete(auction);
+        List<Integer> auctionIds = auctionRepository.findBySellerId(seller.getId())
+                .stream().map(Auction::getId).toList();
+        for (Integer auctionId : auctionIds) {
+            deleteAuctionDependencies(auctionId);
+            auctionRepository.deleteById(auctionId);
         }
     }
 
@@ -218,11 +231,13 @@ public class AdminService {
 
     @Transactional
     public void deleteAuction(Integer auctionId) {
-        Auction auction = auctionRepository.findById(auctionId)
-                .orElseThrow(() -> new ApiException("Auction not found"));
-
+        if (!auctionRepository.existsById(auctionId)) {
+            throw new ApiException("Auction not found");
+        }
         deleteAuctionDependencies(auctionId);
-        auctionRepository.delete(auction);
+        // deleteById re-fetches the entity internally, so it is safe even after
+        // the persistence context is cleared by clearAutomatically = true
+        auctionRepository.deleteById(auctionId);
     }
 
     /**
