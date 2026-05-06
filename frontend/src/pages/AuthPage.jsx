@@ -146,7 +146,7 @@ function OtpModal({ maskedEmail, identifier, onVerified, onCancel, isAr }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (code.length < 4) { setError(isAr ? 'أدخل الرمز المكون من 4 أرقام' : 'Enter the 4-digit code'); return; }
+    if (code.length < 6) { setError(isAr ? 'أدخل الرمز المكون من 6 أرقام' : 'Enter the 6-digit code'); return; }
     setLoading(true);
     try {
       await verifyOtp(identifier, code);
@@ -172,7 +172,7 @@ function OtpModal({ maskedEmail, identifier, onVerified, onCancel, isAr }) {
     }
   };
 
-  const codeArr = Array.from({ length: 4 }, (_, i) => code[i] || '');
+  const codeArr = Array.from({ length: 6 }, (_, i) => code[i] || '');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
@@ -211,7 +211,7 @@ function OtpModal({ maskedEmail, identifier, onVerified, onCancel, isAr }) {
           </div>
           <Button
             type="submit"
-            disabled={loading || code.length < 4}
+            disabled={loading || code.length < 6}
             className="w-full h-11 rounded-lg bg-[#2A9D8F] text-base font-semibold text-white hover:bg-[#1A7A6E] disabled:opacity-50"
           >
             {loading ? '...' : (isAr ? 'تحقق' : 'Verify')}
