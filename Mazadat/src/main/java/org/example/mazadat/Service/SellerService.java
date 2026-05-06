@@ -50,6 +50,9 @@ public class SellerService {
         if (userRepository.existsByEmail(sellerDTOIN.getEmail())) {
             throw new ApiException("Email already exists");
         }
+        if (userRepository.existsByPhoneNumber(sellerDTOIN.getPhoneNumber())) {
+            throw new ApiException("Phone number already exists");
+        }
 
         User user = new User();
         user.setUsername(sellerDTOIN.getUsername());
@@ -106,6 +109,10 @@ public class SellerService {
         }
 
         if (StringUtils.hasText(sellerDTOIN.getPhoneNumber())) {
+            User userWithSamePhone = userRepository.findUserByPhoneNumber(sellerDTOIN.getPhoneNumber());
+            if (userWithSamePhone != null && !userWithSamePhone.getId().equals(user.getId())) {
+                throw new ApiException("Phone number already exists");
+            }
             user.setPhoneNumber(sellerDTOIN.getPhoneNumber());
             hasAnyField = true;
         }
