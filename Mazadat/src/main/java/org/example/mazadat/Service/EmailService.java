@@ -1,24 +1,30 @@
 package org.example.mazadat.Service;
 
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
+    private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
-    private final JavaMailSender mailSender;
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${brevo.api.key:}")
+    private String brevoApiKey;
 
     @Value("${mazadat.mail.from:admin@mazadat.org}")
     private String fromEmail;
@@ -68,14 +74,23 @@ public class EmailService {
 
     private void sendHtml(String toEmail, String subject, String htmlBody) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(fromEmail);
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setText(htmlBody, true);
-            mailSender.send(message);
-        } catch (MessagingException e) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("api-key", brevoApiKey);
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("sender", Map.of("name", "Mazadat", "email", fromEmail));
+            payload.put("to", List.of(Map.of("email", toEmail)));
+            payload.put("subject", subject);
+            payload.put("htmlContent", htmlBody);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(BREVO_API_URL, request, String.class);
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                logger.error("Brevo API error for {}: status={}", toEmail, response.getStatusCode());
+            }
+        } catch (Exception e) {
             logger.error("Failed to send email to {}: {}", toEmail, e.getMessage());
         }
     }
