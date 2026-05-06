@@ -45,6 +45,9 @@ public class User implements UserDetails {
     @Column(columnDefinition = "VARCHAR(20)", unique = true, nullable = false)
     private String phoneNumber;
 
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean phoneVerified = false;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private Buyer buyer;

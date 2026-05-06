@@ -46,7 +46,8 @@ public class UserService {
                 user.getUsername(),
                 user.getEmail(),
                 user.getPhoneNumber(),
-                user.getRole()
+                user.getRole(),
+                user.isPhoneVerified()
         );
     }
 
