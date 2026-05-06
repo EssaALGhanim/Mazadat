@@ -4,12 +4,19 @@ package org.example.mazadat.Service;
 import lombok.RequiredArgsConstructor;
 import org.example.mazadat.Api.ApiException;
 import org.example.mazadat.DTOIN.AuctionHouseDTOIN;
+import org.example.mazadat.DTOIN.AuctionHouseRatingDTOIN;
+import org.example.mazadat.DTOOUT.AuctionHouseRatingsDTOOUT;
+import org.example.mazadat.DTOOUT.RatingCheckDTOOUT;
 import org.example.mazadat.DTOOUT.SellerTeamMemberDTO;
 import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.AuctionHouse;
+import org.example.mazadat.Model.AuctionHouseRating;
+import org.example.mazadat.Model.Buyer;
 import org.example.mazadat.Model.Seller;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.AuctionHouseRepository;
+import org.example.mazadat.Repository.AuctionHouseRatingRepository;
+import org.example.mazadat.Repository.BuyerRepository;
 import org.example.mazadat.Repository.SellerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +35,8 @@ public class AuctionHouseService {
     private final AuctionHouseRepository auctionHouseRepository;
     private final SellerRepository sellerRepository;
     private final AuctionRepository auctionRepository;
+    private final BuyerRepository buyerRepository;
+    private final AuctionHouseRatingRepository auctionHouseRatingRepository;
 
 
     public List<AuctionHouse> getAllAuctionHouses(){
@@ -411,7 +420,62 @@ public class AuctionHouseService {
         return normalized.isEmpty() ? null : normalized;
     }
 
+    public RatingCheckDTOOUT submitAuctionHouseRating(Integer buyerId, AuctionHouseRatingDTOIN dto) {
+        Buyer buyer = buyerRepository.findById(buyerId).orElse(null);
+        if (buyer == null) {
+            throw new ApiException("Buyer not found");
+        }
 
+        Auction auction = auctionRepository.findById(dto.getAuctionId()).orElse(null);
+        if (auction == null) {
+            throw new ApiException("Auction not found");
+        }
 
+        String highestBidder = auction.getHighestBidder();
+        if (highestBidder == null || !highestBidder.equals(buyer.getUser().getUsername())) {
+            throw new ApiException("You did not win this auction");
+        }
 
+        AuctionHouse auctionHouse = auctionHouseRepository.findById(dto.getAuctionHouseId()).orElse(null);
+        if (auctionHouse == null) {
+            throw new ApiException("Auction house not found");
+        }
+
+        if (auctionHouseRatingRepository.findByBuyerIdAndAuctionId(buyerId, dto.getAuctionId()).isPresent()) {
+            throw new ApiException("You have already rated this auction house for this auction");
+        }
+
+        AuctionHouseRating rating = new AuctionHouseRating();
+        rating.setBuyer(buyer);
+        rating.setAuctionHouse(auctionHouse);
+        rating.setAuction(auction);
+        rating.setRating(dto.getRating());
+        rating.setComment(dto.getComment());
+        auctionHouseRatingRepository.save(rating);
+
+        return new RatingCheckDTOOUT(true, rating.getRating(), rating.getComment());
+    }
+
+    public RatingCheckDTOOUT checkAuctionHouseRating(Integer buyerId, Integer auctionId) {
+        return auctionHouseRatingRepository.findByBuyerIdAndAuctionId(buyerId, auctionId)
+                .map(r -> new RatingCheckDTOOUT(true, r.getRating(), r.getComment()))
+                .orElse(new RatingCheckDTOOUT(false, null, null));
+    }
+
+    public AuctionHouseRatingsDTOOUT getAuctionHouseRatings(Integer auctionHouseId) {
+        List<AuctionHouseRating> ratings = auctionHouseRatingRepository.findByAuctionHouseId(auctionHouseId);
+        double avg = ratings.stream().mapToInt(AuctionHouseRating::getRating).average().orElse(0.0);
+        double roundedAvg = Math.round(avg * 10.0) / 10.0;
+        List<AuctionHouseRatingsDTOOUT.RatingEntry> entries = ratings.stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .map(r -> new AuctionHouseRatingsDTOOUT.RatingEntry(
+                        r.getBuyer() != null && r.getBuyer().getUser() != null
+                                ? r.getBuyer().getUser().getUsername() : "Anonymous",
+                        r.getRating(),
+                        r.getComment(),
+                        r.getCreatedAt()
+                ))
+                .toList();
+        return new AuctionHouseRatingsDTOOUT(roundedAvg, ratings.size(), entries);
+    }
 }

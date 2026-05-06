@@ -15,11 +15,13 @@ import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.AutoBid;
 import org.example.mazadat.Model.Bid;
 import org.example.mazadat.Model.Buyer;
+import org.example.mazadat.Model.User;
 import org.example.mazadat.Util.AppTime;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.AutoBidRepository;
 import org.example.mazadat.Repository.BidRepository;
 import org.example.mazadat.Repository.BuyerRepository;
+import org.example.mazadat.Repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,6 +40,9 @@ public class BidService {
     private final AuctionRepository auctionRepository;
     private final BuyerRepository buyerRepository;
     private final AutoBidRepository autoBidRepository;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Value("${mazadat.fraud.multi-account-threshold:3}")
     private int multiAccountThreshold;
@@ -61,7 +66,7 @@ public class BidService {
     }
 
     public List<BidDTOOUT> getWonBids(Integer buyerId){
-        return bidRepository.findWonHighestBuyerBidPerAuction(buyerId, LocalDateTime.now())
+        return bidRepository.findWonHighestBuyerBidPerAuction(buyerId, AppTime.now())
                 .stream()
                 .map(this::toDto)
                 .toList();
@@ -116,6 +121,9 @@ public class BidService {
             }
         }
 
+        String prevHighestBidder = auction.getHighestBidder();
+        String prevHighestBidderEmail = auction.getHighestBidderEmail();
+
         Bid bid = new Bid();
         bid.setAmount(bidDTOIN.getAmount());
         bid.setIpAddress(normalizedIpAddress);
@@ -136,6 +144,9 @@ public class BidService {
         bidRepository.save(bid);
 
         triggerAutoBidding(auction);
+
+        String finalHighestBidder = auction.getHighestBidder();
+        notifyOutbidUsers(prevHighestBidder, prevHighestBidderEmail, finalHighestBidder, auction);
     }
 
     private void enforceMultiAccountFraudProtection(Buyer buyer, BidDTOIN bidDTOIN, String ipAddress, String deviceFingerprint) {
@@ -170,7 +181,7 @@ public class BidService {
         }
 
         LocalDateTime accountCreatedAt = buyer.getUser().getCreatedAt();
-        boolean isNewAccount = accountCreatedAt.isAfter(LocalDateTime.now().minusHours(newAccountWindowHours));
+        boolean isNewAccount = accountCreatedAt.isAfter(AppTime.now().minusHours(newAccountWindowHours));
         boolean isHighValueBid = bidDTOIN.getAmount() != null && bidDTOIN.getAmount() >= highValueBidThreshold;
 
         if (isNewAccount && isHighValueBid) {
@@ -330,6 +341,22 @@ public class BidService {
         List<AutoBid> exhausted = autoBidRepository.findExhaustedAutoBids(auction.getId(), finalHighestBidder, finalNextMin);
         exhausted.forEach(ab -> ab.setActive(false));
         autoBidRepository.saveAll(exhausted);
+    }
+
+    private void notifyOutbidUsers(String prevHighestBidder, String prevHighestBidderEmail, String finalHighestBidder, Auction auction) {
+        if (prevHighestBidder == null || prevHighestBidder.equals(finalHighestBidder)) {
+            return;
+        }
+        User prevUser = userRepository.findUserByUsername(prevHighestBidder);
+        String email = prevUser != null ? prevUser.getEmail() : prevHighestBidderEmail;
+        if (prevUser != null) {
+            String messageEn = "You have been outbid on \"" + auction.getTitle() + "\". The new highest bid is SAR " + String.format("%.2f", auction.getCurrentPrice()) + ".";
+            String messageAr = "تم تجاوز عرضك في مزاد \"" + auction.getTitle() + "\". أعلى سعر الآن هو " + String.format("%.2f", auction.getCurrentPrice()) + " ريال سعودي.";
+            notificationService.createNotification(prevUser, messageEn, messageAr, "OUTBID", "/auction/" + auction.getId());
+        }
+        if (email != null) {
+            emailService.sendOutbidEmail(email, prevHighestBidder, auction.getTitle(), auction.getCurrentPrice());
+        }
     }
 
     private AutoBidDTOOUT toAutoBidDto(AutoBid autoBid, Auction auction) {

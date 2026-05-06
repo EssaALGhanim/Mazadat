@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Plus, User, LogOut, Trophy, BarChart3, Users, Bookmark, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import NotificationBell from './NotificationBell';
 
 export default function TopNavigationBar({
     isSeller,
@@ -110,6 +111,8 @@ export default function TopNavigationBar({
                         <span className="hidden sm:inline">{isAr ? 'مزاد' : 'Auction'}</span>
                     </button>
                 )}
+
+                <NotificationBell />
 
                 <button
                     onClick={() => navigate('/profile/edit')}

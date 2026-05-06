@@ -23,6 +23,7 @@ public class SellerService {
     private final SellerRepository sellerRepository;
     private final UserRepository userRepository;
     private final AuctionHouseRepository auctionHouseRepository;
+    private final OtpService otpService;
 
 
     public List<Seller> getAllSellers(){
@@ -66,6 +67,8 @@ public class SellerService {
 
         userRepository.save(user);
         sellerRepository.save(seller);
+
+        otpService.sendOtpToNewUser(user.getEmail(), user.getUsername());
     }
 
     public void updateSeller(SellerUpdateDTOIN sellerDTOIN, Integer sellerId){
