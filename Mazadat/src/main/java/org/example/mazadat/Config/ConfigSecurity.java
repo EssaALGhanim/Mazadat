@@ -62,6 +62,7 @@ public class ConfigSecurity {
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Admin endpoints
                     .requestMatchers("/api/v1/user/get/all").hasAuthority("ADMIN")
+                    .requestMatchers("/api/v1/admin/**").hasAuthority("ADMIN")
                 // Auth endpoints (authentication required)
                     .requestMatchers("/api/v1/auth/**").authenticated()
                 // Public endpoints (no authentication required)

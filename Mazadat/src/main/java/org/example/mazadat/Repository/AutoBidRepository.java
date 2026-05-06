@@ -29,6 +29,10 @@ public interface AutoBidRepository extends JpaRepository<AutoBid, Integer> {
     // List all active auto-bids for a buyer
     List<AutoBid> findByBuyerIdAndActiveTrue(Integer buyerId);
 
+    List<AutoBid> findByBuyerId(Integer buyerId);
+
+    void deleteByBuyerId(Integer buyerId);
+
     // All active auto-bids on an auction (for cleanup after chain resolution)
     @Query("""
             SELECT ab FROM AutoBid ab

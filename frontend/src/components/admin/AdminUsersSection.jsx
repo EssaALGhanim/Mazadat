@@ -164,6 +164,7 @@ export default function AdminUsersSection({
                         <TableBody>
                             {filteredUsers.map((user) => {
                                 const userId = user?.id ?? user?.Id;
+                                const isAdmin = String(user?.role || '').toUpperCase() === 'ADMIN';
                                 return (
                                     <TableRow key={userId} className="border-[#EEF5F3]">
                                         <TableCell className={`${columnWidths.id} font-medium text-[#1A2E2C]`}>#{userId}</TableCell>
@@ -184,17 +185,19 @@ export default function AdminUsersSection({
                                                     <Eye className="h-4 w-4" />
                                                     <span className="sr-only">{t('admin.actions.view')}</span>
                                                 </Button>
-                                                <Button
-                                                    variant="destructive"
-                                                    size="icon-sm"
-                                                    className="shrink-0 bg-[#E05252] text-white hover:bg-[#C73F3F]"
-                                                    disabled={deletingUserId === userId}
-                                                    title={deletingUserId === userId ? t('admin.actions.deleting') : t('admin.actions.delete')}
-                                                    onClick={() => onDeleteUser(user)}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                    <span className="sr-only">{deletingUserId === userId ? t('admin.actions.deleting') : t('admin.actions.delete')}</span>
-                                                </Button>
+                                                {!isAdmin && (
+                                                    <Button
+                                                        variant="destructive"
+                                                        size="icon-sm"
+                                                        className="shrink-0 bg-[#E05252] text-white hover:bg-[#C73F3F]"
+                                                        disabled={deletingUserId === userId}
+                                                        title={deletingUserId === userId ? t('admin.actions.deleting') : t('admin.actions.delete')}
+                                                        onClick={() => onDeleteUser(user)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                        <span className="sr-only">{deletingUserId === userId ? t('admin.actions.deleting') : t('admin.actions.delete')}</span>
+                                                    </Button>
+                                                )}
                                             </div>
                                         </TableCell>
                                     </TableRow>

@@ -118,4 +118,26 @@ public interface BidRepository extends JpaRepository<Bid,Integer> {
               AND b.deviceFingerprint = :deviceFingerprint
             """)
     boolean existsByBuyerIdAndDeviceFingerprint(@Param("buyerId") Integer buyerId, @Param("deviceFingerprint") String deviceFingerprint);
+
+    @Query("""
+            SELECT b FROM Bid b
+            WHERE b.buyer.id = :buyerId
+              AND b.receipt IS NOT NULL
+            """)
+    List<Bid> findWinningBidsByBuyerId(@Param("buyerId") Integer buyerId);
+
+    @Query("""
+            SELECT b FROM Bid b
+            WHERE b.auction.id = :auctionId
+              AND b.receipt IS NOT NULL
+            """)
+    List<Bid> findWinningBidsByAuctionId(@Param("auctionId") Integer auctionId);
+
+    @Query("""
+            SELECT b FROM Bid b
+            WHERE b.auction.id = :auctionId
+              AND b.buyer.id <> :buyerId
+            ORDER BY b.amount DESC, b.placedAt DESC
+            """)
+    List<Bid> findTopBidsExcludingBuyer(@Param("auctionId") Integer auctionId, @Param("buyerId") Integer buyerId);
 }
