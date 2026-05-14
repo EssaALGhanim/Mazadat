@@ -293,6 +293,8 @@ function LoginForm() {
     }
     setPendingUser(user);
 
+    // continue with normal OTP flow
+
     // Step 2: send OTP — credentials are correct; show a softer error if OTP delivery fails
     try {
       const res = await sendOtp(formData.username);
@@ -314,20 +316,24 @@ function LoginForm() {
     } catch { navigate('/'); }
   };
 
-  const handleOtpCancel = () => { setOtpStep(false); setPendingUser(null); localStorage.removeItem('user'); };
+   const handleOtpCancel = () => { setOtpStep(false); setPendingUser(null); localStorage.removeItem('user'); };
 
-  return (
-    <>
-      {otpStep && <OtpModal maskedEmail={maskedEmail} identifier={formData.username} onVerified={handleOtpVerified} onCancel={handleOtpCancel} isAr={isAr} />}
-      <form className="flex flex-col gap-5" onSubmit={handleSubmit} dir={isAr ? 'rtl' : 'ltr'}>
-        {error && (
-          <div className="flex items-start gap-2 rounded-lg border border-[#E05252] bg-red-50 px-4 py-3 text-sm font-semibold text-[#E05252]">
-            <X className="mt-0.5 h-4 w-4 shrink-0" />
-            {error}
-          </div>
-        )}
+   
 
-        <div className="flex flex-col gap-1">
+    return (
+     <>
+       {otpStep && <OtpModal maskedEmail={maskedEmail} identifier={formData.username} onVerified={handleOtpVerified} onCancel={handleOtpCancel} isAr={isAr} />}
+       <form className="flex flex-col gap-5" onSubmit={handleSubmit} dir={isAr ? 'rtl' : 'ltr'}>
+        {/* development quick-login removed */}
+
+         {error && (
+           <div className="flex items-start gap-2 rounded-lg border border-[#E05252] bg-red-50 px-4 py-3 text-sm font-semibold text-[#E05252]">
+             <X className="mt-0.5 h-4 w-4 shrink-0" />
+             {error}
+           </div>
+         )}
+
+         <div className="flex flex-col gap-1">
           <Label htmlFor="login-username" className="text-start text-[#1A2E2C]">{t('username')}</Label>
           <Input
             id="login-username"
