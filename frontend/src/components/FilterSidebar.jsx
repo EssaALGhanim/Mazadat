@@ -37,7 +37,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
     const [manageSearchesModalOpen, setManageSearchesModalOpen] = useState(false);
     const sliderStep = Math.max(1, Math.round((Math.max(1, Number(priceBounds[1]) || 1) / 200)));
     const normalizedMin = Math.min(...priceBounds);
-    const normalizedMax = Math.max(...priceBounds);
+    const normalizedMax = Math.max(normalizedMin + 1, Math.max(...priceBounds));
 
     const clampRange = (range) => {
         const rawMin = Number(range?.[0]) || normalizedMin;

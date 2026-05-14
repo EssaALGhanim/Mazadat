@@ -85,7 +85,7 @@ function PhoneOtpModal({ isAr, onVerified, onCancel }) {
                 )}
 
                 <form onSubmit={handleSubmit} className="flex flex-col items-center gap-5 w-full">
-                    <div className="flex gap-2 justify-center" dir="ltr">
+                    <div className="flex gap-2 sm:gap-3 justify-center" dir="ltr">
                         {digits.map((d, idx) => (
                             <input
                                 key={idx}
@@ -96,8 +96,8 @@ function PhoneOtpModal({ isAr, onVerified, onCancel }) {
                                 value={d}
                                 onChange={(e) => handleChange(e.target.value, idx)}
                                 onKeyDown={(e) => handleKeyDown(e, idx)}
-                                className="w-11 text-center text-xl font-bold border-2 rounded-lg outline-none transition-all text-[#1A2E2C] border-[#C5E0DC] focus:border-[#2A9D8F] focus:ring-2 focus:ring-[#2A9D8F]/30 bg-white"
-                                style={{ height: '52px' }}
+                                className="w-12 sm:w-14 text-center text-lg sm:text-xl font-bold border-2 rounded-lg outline-none transition-all text-[#1A2E2C] border-[#C5E0DC] focus:border-[#2A9D8F] focus:ring-2 focus:ring-[#2A9D8F]/30 bg-white"
+                                style={{ height: '48px' }}
                             />
                         ))}
                     </div>

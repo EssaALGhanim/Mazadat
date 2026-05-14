@@ -130,19 +130,27 @@ public class ReportService {
             throw new ApiException("The reported auction no longer exists");
         }
 
-        Integer auctionId = report.getAuction().getId();
+        Integer auctionId   = report.getAuction().getId();
+        String  auctionTitle = report.getAuctionTitle();
 
-        // Nullify all report→auction references before deletion so the reports survive
-        reportRepository.nullifyAuctionReference(auctionId);
-
+        // deleteAuction internally calls deleteAuctionDependencies which nullifies
+        // all report→auction FKs and then clears the JPA persistence context.
+        // Do NOT call nullifyAuctionReference here — that would clear the PC early
+        // and leave `report` as a detached entity with a stale auction reference
+        // that Hibernate would try to re-flush before the auction DELETE.
         adminService.deleteAuction(auctionId);
 
-        report.setStatus("REVIEWED");
-        report.setResolvedAt(LocalDateTime.now());
-        reportRepository.save(report);
+        // Re-fetch report — the PC was cleared inside deleteAuction, so the local
+        // `report` variable is now a detached instance with stale auction reference.
+        report = reportRepository.findById(reportId).orElse(null);
+        if (report != null) {
+            report.setStatus("REVIEWED");
+            report.setResolvedAt(LocalDateTime.now());
+            reportRepository.save(report);
+        }
 
         logger.info("REPORT_AUCTION_DELETED: reportId={} auctionId={} auctionTitle={}",
-                reportId, auctionId, report.getAuctionTitle());
+                reportId, auctionId, auctionTitle);
     }
 
     // ── Admin: dismiss report ─────────────────────────────────────────────────

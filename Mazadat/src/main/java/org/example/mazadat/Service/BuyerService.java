@@ -26,6 +26,7 @@ import org.example.mazadat.Repository.UserRepository;
 import org.example.mazadat.Repository.WatchlistRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -81,6 +82,7 @@ public class BuyerService {
         return buyer;
     }
 
+    @Transactional
     public void updateBuyer(BuyerUpdateDTOIN buyerDTOIN, Integer buyerId) {
         Buyer buyer = buyerRepository.findById(buyerId).orElse(null);
         if (buyer == null) {
@@ -96,7 +98,9 @@ public class BuyerService {
             if (userWithSameUsername != null && !userWithSameUsername.getId().equals(user.getId())) {
                 throw new ApiException("Username already exists");
             }
+            String oldUsername = user.getUsername();
             user.setUsername(buyerDTOIN.getUsername());
+            auctionRepository.updateHighestBidderUsername(oldUsername, buyerDTOIN.getUsername());
             hasAnyField = true;
         }
 
