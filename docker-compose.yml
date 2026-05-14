@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   # MySQL Database
@@ -10,7 +10,7 @@ services:
       MYSQL_DATABASE: mazadat
       MYSQL_USER: mazadat_user
       MYSQL_PASSWORD: mazadat_password
-      TZ: 'Asia/Riyadh'
+      TZ: "Asia/Riyadh"
     ports:
       - "3306:3306"
     volumes:
@@ -23,6 +23,19 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+
+  # Adminer for Database Management (lightweight, reliable)
+  adminer:
+    image: adminer:latest
+    container_name: mazadat-adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - mazadat-network
     restart: unless-stopped
 
   # Spring Boot Backend
@@ -39,6 +52,8 @@ services:
       SERVER_PORT: 8080
       MAZADAT_UPLOAD_DIR: /app/uploads
       MAZADAT_CORS_ALLOWED_ORIGINS: http://localhost:5137,http://127.0.0.1:5137
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-admin@mazadat.org}
     ports:
       - "8080:8080"
     volumes:
@@ -79,7 +94,15 @@ services:
       - mazadat-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5137/"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:5137/",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
