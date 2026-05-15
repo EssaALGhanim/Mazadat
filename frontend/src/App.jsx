@@ -1,108 +1,161 @@
-import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { Toaster } from 'sonner'
-import AuthPage from './pages/AuthPage'
-import HomePage from './pages/HomePage'
-import SellerDashboard from './pages/SellerDashboard'
-import SellerTeamPage from './pages/SellerTeamPage'
-import AuctionHouseSettingsPage from './pages/AuctionHouseSettingsPage'
-import EditProfilePage from './pages/EditProfilePage'
-import PoliciesPage from './pages/PoliciesPage'
-import AuctionDetailPage from './pages/AuctionDetailPage'
-import AdminDashboardPage from './pages/AdminDashboardPage'
-import ProtectedRoute from './components/ProtectedRoute'
-import { WatchlistProvider } from './contexts/WatchlistContext'
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Toaster } from "sonner";
+import AuthPage from "./pages/AuthPage";
+import HomePage from "./pages/HomePage";
+import SellerDashboard from "./pages/SellerDashboard";
+import SellerTeamPage from "./pages/SellerTeamPage";
+import AuctionHouseSettingsPage from "./pages/AuctionHouseSettingsPage";
+import EditProfilePage from "./pages/EditProfilePage";
+import PoliciesPage from "./pages/PoliciesPage";
+import AuctionDetailPage from "./pages/AuctionDetailPage";
+import PaymentPage from "./pages/PaymentPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { WatchlistProvider } from "./contexts/WatchlistContext";
 
 function getDefaultRoute(currentUser) {
-  if (currentUser?.role === 'SELLER') return '/seller-dashboard'
-  if (currentUser?.role === 'ADMIN') return '/admin'
-  return '/'
+  if (currentUser?.role === "SELLER") return "/seller-dashboard";
+  if (currentUser?.role === "ADMIN") return "/admin";
+  return "/";
 }
 
 function App() {
-  const { i18n } = useTranslation()
+  const { i18n } = useTranslation();
 
   useEffect(() => {
-    const dir = i18n.language === 'ar' ? 'rtl' : 'ltr'
-    document.documentElement.dir = dir
-    document.documentElement.lang = i18n.language
-  }, [i18n.language])
+    const dir = i18n.language === "ar" ? "rtl" : "ltr";
+    document.documentElement.dir = dir;
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
 
   return (
-      <BrowserRouter>
-        <WatchlistProvider>
-          <Toaster position="top-center" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'} />
-          <Routes>
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/" element={
+    <BrowserRouter>
+      <WatchlistProvider>
+        <Toaster
+          position="top-center"
+          dir={i18n.language === "ar" ? "rtl" : "ltr"}
+        />
+        <Routes>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route
+            path="/"
+            element={
               <ProtectedRoute>
                 {(currentUser) => {
-                  if (currentUser?.role === 'SELLER') {
-                    return <Navigate to="/seller-dashboard" replace />
+                  if (currentUser?.role === "SELLER") {
+                    return <Navigate to="/seller-dashboard" replace />;
                   }
-                  if (currentUser?.role === 'ADMIN') {
-                    return <Navigate to="/admin" replace />
+                  if (currentUser?.role === "ADMIN") {
+                    return <Navigate to="/admin" replace />;
                   }
-                  return <HomePage />
+                  return <HomePage />;
                 }}
               </ProtectedRoute>
-            } />
-            <Route path="/admin" element={
+            }
+          />
+          <Route
+            path="/admin"
+            element={
               <ProtectedRoute requiredRole="ADMIN" redirectTo="/">
                 <AdminDashboardPage />
               </ProtectedRoute>
-            } />
-            <Route path="/seller" element={
+            }
+          />
+          <Route
+            path="/seller"
+            element={
               <ProtectedRoute requiredRole="SELLER" redirectTo="/">
                 <SellerDashboard />
               </ProtectedRoute>
-            } />
-            <Route path="/seller-dashboard" element={
+            }
+          />
+          <Route
+            path="/seller-dashboard"
+            element={
               <ProtectedRoute requiredRole="SELLER" redirectTo="/">
                 <SellerDashboard />
               </ProtectedRoute>
-            } />
-            <Route path="/seller/team" element={
+            }
+          />
+          <Route
+            path="/seller/team"
+            element={
               <ProtectedRoute requiredRole="SELLER" redirectTo="/">
                 <SellerTeamPage />
               </ProtectedRoute>
-            } />
-            <Route path="/seller/settings" element={
+            }
+          />
+          <Route
+            path="/seller/settings"
+            element={
               <ProtectedRoute requiredRole="SELLER" redirectTo="/">
                 <AuctionHouseSettingsPage />
               </ProtectedRoute>
-            } />
-            <Route path="/auction/:auctionId" element={
+            }
+          />
+          <Route
+            path="/auction/:auctionId"
+            element={
               <ProtectedRoute>
-                {(currentUser) => <AuctionDetailPage currentUser={currentUser} />}
+                {(currentUser) => (
+                  <AuctionDetailPage currentUser={currentUser} />
+                )}
               </ProtectedRoute>
-            } />
-            <Route path="/auction" element={
+            }
+          />
+          <Route
+            path="/auction/:auctionId/pay"
+            element={
+              <ProtectedRoute requiredRole="BUYER" redirectTo="/">
+                {(currentUser) => <PaymentPage currentUser={currentUser} />}
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/auction"
+            element={
               <ProtectedRoute>
-                {(currentUser) => <Navigate to={getDefaultRoute(currentUser)} replace />}
+                {(currentUser) => (
+                  <Navigate to={getDefaultRoute(currentUser)} replace />
+                )}
               </ProtectedRoute>
-            } />
-            <Route path="/auction/*" element={
+            }
+          />
+          <Route
+            path="/auction/*"
+            element={
               <ProtectedRoute>
-                {(currentUser) => <Navigate to={getDefaultRoute(currentUser)} replace />}
+                {(currentUser) => (
+                  <Navigate to={getDefaultRoute(currentUser)} replace />
+                )}
               </ProtectedRoute>
-            } />
-            <Route path="/profile/edit" element={
+            }
+          />
+          <Route
+            path="/profile/edit"
+            element={
               <ProtectedRoute>
                 <EditProfilePage />
               </ProtectedRoute>
-            } />
-            <Route path="/policies" element={<PoliciesPage />} />
-            <Route path="*" element={
+            }
+          />
+          <Route path="/policies" element={<PoliciesPage />} />
+          <Route
+            path="*"
+            element={
               <ProtectedRoute>
-                {(currentUser) => <Navigate to={getDefaultRoute(currentUser)} replace />}
+                {(currentUser) => (
+                  <Navigate to={getDefaultRoute(currentUser)} replace />
+                )}
               </ProtectedRoute>
-            } />
-          </Routes>
-        </WatchlistProvider>
-      </BrowserRouter>
-  )
+            }
+          />
+        </Routes>
+      </WatchlistProvider>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
