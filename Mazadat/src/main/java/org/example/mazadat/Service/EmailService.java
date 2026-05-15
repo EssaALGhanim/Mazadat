@@ -74,11 +74,6 @@ public class EmailService {
 
     private void sendHtml(String toEmail, String subject, String htmlBody) {
         try {
-            if (brevoApiKey == null || brevoApiKey.isBlank()) {
-                logger.error("BREVO_API_KEY is not configured. Cannot send email to {}", toEmail);
-                return;
-            }
-
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("api-key", brevoApiKey);

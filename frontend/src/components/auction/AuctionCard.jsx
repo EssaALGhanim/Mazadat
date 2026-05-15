@@ -4,13 +4,12 @@ import { Star, Trophy } from 'lucide-react';
 import CountdownTimer from './CountdownTimer';
 import PlaceBidModal from './PlaceBidModal';
 import { placeBid } from '@/services/bidService';
+import { generateReceipt } from '@/services/receiptService';
 import { deleteAuction } from '@/services/auctionService';
 import { resolveImageUrl } from '@/services/imageService';
 import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirection';
 import ImageWithRetry from '@/components/ui/ImageWithRetry';
-import PaymentStatusIndicator from '@/components/payment/PaymentStatusIndicator';
 import WatchlistButton from '@/components/watchlist/WatchlistButton';
-import WinnerPaymentAction from '@/components/payment/WinnerPaymentAction';
 import { useNow } from '@/hooks/useNow';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { toast } from 'sonner';
@@ -81,6 +80,27 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
             toast.success(isAr ? 'تم إلغاء المزاد' : 'Auction cancelled successfully');
         } catch {
             toast.error(t('actionFailed'));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGenerateReceipt = async () => {
+        // Check if auction has ended
+        const now = new Date();
+        const endDate = new Date(auction.endDate);
+
+        if (now < endDate) {
+            toast.error(isAr ? 'لا يمكن تحميل الإيصال قبل انتهاء المزاد' : 'Receipt can only be downloaded after the auction ends');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            await generateReceipt(auction.id, i18n.language);
+            toast.success(isAr ? 'تم تحميل الإيصال بنجاح' : 'Receipt downloaded successfully!');
+        } catch (err) {
+            toast.error(err.message || (isAr ? 'فشل تحميل الإيصال' : 'Failed to generate receipt'));
         } finally {
             setLoading(false);
         }
@@ -239,16 +259,6 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
                             <div className="min-w-0">
                                 <p className="text-sm font-bold leading-tight">{statusBanner.title}</p>
                                 <p className="mt-0.5 text-[11px] leading-snug opacity-90">{statusBanner.subtitle}</p>
-                                {statusBanner.tone === 'winner' && (
-                                    <div className="mt-2">
-                                        <PaymentStatusIndicator
-                                            status={auction?.paymentStatus}
-                                            isPaid={auction?.isPaid}
-                                            paidAt={auction?.paidAt}
-                                            endDate={auction?.endDate}
-                                        />
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </div>
@@ -307,18 +317,16 @@ export default function AuctionCard({ auction, currentUser, onActionComplete, is
                         </button>
                     )}
                     {isWinner && (
-                        <WinnerPaymentAction
-                            auctionId={auction.id}
-                            status={auction?.paymentStatus}
-                            isPaid={auction?.isPaid}
-                            paidAt={auction?.paidAt}
-                            endDate={auction?.endDate}
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleGenerateReceipt();
+                            }}
                             disabled={loading}
-                            stopPropagation
-                            shortPayLabel
-                            payClassName="flex-1 rounded-xl bg-gradient-to-r from-[#2A9D8F] to-[#1A7A6E] px-3 py-2.5 text-xs font-bold text-white shadow-sm transition-colors hover:from-[#1A7A6E] hover:to-[#0D5A52] disabled:opacity-50"
-                            receiptClassName="flex-1 rounded-xl border border-[#2A9D8F] bg-[#EAF7F5] px-3 py-2.5 text-xs font-bold text-[#1A7A6E] transition-colors hover:bg-[#D9F0EC] disabled:opacity-50"
-                        />
+                            className="flex-1 rounded-xl bg-gradient-to-r from-[#2A9D8F] to-[#1A7A6E] px-3 py-2.5 text-xs font-bold text-white shadow-sm transition-colors hover:from-[#1A7A6E] hover:to-[#0D5A52] disabled:opacity-50"
+                        >
+                            {isAr ? 'إيصال' : 'Receipt'}
+                        </button>
                     )}
                     {auctionEnded && !isWinner && !isFailedBelowReserve && (
                         <div className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-center text-xs font-semibold text-slate-600">
