@@ -132,13 +132,6 @@ export default function HomePage() {
   }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
-    if (location.state?.openMyBids) {
-      setShowMyBids(true);
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-  }, [location.pathname, location.state, navigate]);
-
-  useEffect(() => {
     const loadInitialData = async () => {
       await fetchAuctions();
       fetchFeaturedAuctions();

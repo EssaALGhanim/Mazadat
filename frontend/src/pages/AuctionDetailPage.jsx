@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, User, Trophy, Home, X, Zap, Star, Flag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, User, Trophy, Download, Home, X, Zap, Star, Flag } from 'lucide-react';
 import ReportAuctionModal from '@/components/report/ReportAuctionModal';
 import CountdownTimer from '@/components/auction/CountdownTimer';
 import PlaceBidModal from '@/components/auction/PlaceBidModal';
 import AutoBidModal from '@/components/auction/AutoBidModal';
 import FeatureAuctionModal from '@/components/auction/FeatureAuctionModal';
-import WinnerPaymentAction from '@/components/payment/WinnerPaymentAction';
-import PaymentStatusIndicator from '@/components/payment/PaymentStatusIndicator';
-import TopNavigationBar from '@/components/TopNavigationBar';
 import { useAutoBid } from '@/hooks/useAutoBid';
 import { placeBid } from '@/services/bidService';
+import { generateReceipt } from '@/services/receiptService';
 import { getAuctionById } from '@/services/auctionService';
 import { resolveImageUrl } from '@/services/imageService';
 import { featureAuction } from '@/services/featuredService';
@@ -28,8 +26,6 @@ export default function AuctionDetailPage({ currentUser }) {
     const navigate = useNavigate();
     const { auctionId } = useParams();
     const isAr = i18n.language === 'ar';
-    const isBuyer = currentUser?.role === 'BUYER';
-    const isSeller = currentUser?.role === 'SELLER';
 
     const [auction, setAuction] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -47,23 +43,6 @@ export default function AuctionDetailPage({ currentUser }) {
     const [reportModalOpen, setReportModalOpen] = useState(false);
     const now = useNow();
     const nowDate = new Date(now);
-
-    const handleLogout = () => {
-        localStorage.removeItem('user');
-        navigate('/auth');
-    };
-
-    const handleShowMyBids = () => {
-        navigate('/', { state: { openMyBids: true } });
-    };
-
-    const handleShowWatchlist = () => {
-        navigate('/', { state: { openWatchlist: true } });
-    };
-
-    const handleCreateAuction = () => {
-        navigate('/seller-dashboard');
-    };
 
     const { autoBid, cancelAutoBid, setAutoBid, isLoading: autoBidLoading } = useAutoBid(auctionId);
 
@@ -105,51 +84,32 @@ export default function AuctionDetailPage({ currentUser }) {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#F0F2F5] flex flex-col" dir={isAr ? 'rtl' : 'ltr'}>
-                <TopNavigationBar
-                    currentUser={currentUser}
-                    isSeller={isSeller}
-                    isBuyer={isBuyer}
-                    onShowMyBids={handleShowMyBids}
-                    onShowWatchlist={handleShowWatchlist}
-                    onCreateAuction={handleCreateAuction}
-                    onLogout={handleLogout}
-                />
-                <div className="flex-1 flex items-center justify-center">
-                    <div className="w-10 h-10 border-4 border-[#C5E0DC] border-t-[#2A9D8F] rounded-full animate-spin" />
-                </div>
+            <div className="min-h-screen bg-[#F0F2F5] flex items-center justify-center">
+                <div className="w-10 h-10 border-4 border-[#C5E0DC] border-t-[#2A9D8F] rounded-full animate-spin" />
             </div>
         );
     }
 
     if (error || !auction) {
+        const isSeller = currentUser?.role === 'SELLER';
         return (
-            <div className="min-h-screen bg-[#F0F2F5] flex flex-col" dir={isAr ? 'rtl' : 'ltr'}>
-                <TopNavigationBar
-                    currentUser={currentUser}
-                    isSeller={isSeller}
-                    isBuyer={isBuyer}
-                    onShowMyBids={handleShowMyBids}
-                    onShowWatchlist={handleShowWatchlist}
-                    onCreateAuction={handleCreateAuction}
-                    onLogout={handleLogout}
-                />
-                <div className="flex-1 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-xl border border-[#E05252] p-6 text-center max-w-md">
-                        <p className="text-[#E05252] font-semibold mb-4">{error || (isAr ? 'المزاد غير متاح' : 'Auction not available')}</p>
-                        <button
-                            onClick={() => isSeller ? navigate('/seller-dashboard') : navigate('/')}
-                            className="flex items-center gap-2 justify-center w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-6 py-2 rounded-lg font-bold transition-colors"
-                        >
-                            <Home className="w-4 h-4" />
-                            {isAr ? 'العودة للرئيسية' : 'Return to Home'}
-                        </button>
-                    </div>
+            <div className="min-h-screen bg-[#F0F2F5] flex items-center justify-center p-4">
+                <div className="bg-white rounded-xl border border-[#E05252] p-6 text-center max-w-md">
+                    <p className="text-[#E05252] font-semibold mb-4">{error || (isAr ? 'المزاد غير متاح' : 'Auction not available')}</p>
+                    <button
+                        onClick={() => isSeller ? navigate('/seller-dashboard') : navigate('/')}
+                        className="flex items-center gap-2 justify-center w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-6 py-2 rounded-lg font-bold transition-colors"
+                    >
+                        <Home className="w-4 h-4" />
+                        {isAr ? 'العودة للرئيسية' : 'Return to Home'}
+                    </button>
                 </div>
             </div>
         );
     }
 
+    const isBuyer = currentUser?.role === 'BUYER';
+    const isSeller = currentUser?.role === 'SELLER';
     const startDate = auction?.startDate ? new Date(auction.startDate) : null;
     const endDate = auction?.endDate ? new Date(auction.endDate) : null;
     const hasStarted = !startDate || startDate <= nowDate;
@@ -195,6 +155,25 @@ export default function AuctionDetailPage({ currentUser }) {
         }
     };
 
+    const handleGenerateReceipt = async () => {
+        const now = new Date();
+        const endDate = new Date(auction.endDate);
+        if (now < endDate) {
+            toast.error(isAr ? 'لا يمكن تحميل الإيصال قبل انتهاء المزاد' : 'Receipt can only be downloaded after the auction ends');
+            return;
+        }
+
+        setBidLoading(true);
+        try {
+            await generateReceipt(auction.id, i18n.language);
+            toast.success(isAr ? 'تم تحميل الإيصال بنجاح' : 'Receipt downloaded successfully!');
+        } catch (err) {
+            toast.error(err.message || (isAr ? 'فشل تحميل الإيصال' : 'Failed to generate receipt'));
+        } finally {
+            setBidLoading(false);
+        }
+    };
+
     const handleFeatureAuction = async (featuredEndDate) => {
         setFeatureLoading(true);
         try {
@@ -213,18 +192,8 @@ export default function AuctionDetailPage({ currentUser }) {
     const descriptionDir = resolveTextDirection(auction?.description || '');
 
     return (
-        <div className="min-h-screen bg-[#F0F2F5]" dir={isAr ? 'rtl' : 'ltr'}>
-            <TopNavigationBar
-                currentUser={currentUser}
-                isSeller={isSeller}
-                isBuyer={isBuyer}
-                onShowMyBids={handleShowMyBids}
-                onShowWatchlist={handleShowWatchlist}
-                onCreateAuction={handleCreateAuction}
-                onLogout={handleLogout}
-            />
-
-            <div className="container mx-auto px-4 max-w-6xl py-8">
+        <div className="min-h-screen bg-[#F0F2F5] py-8" dir={isAr ? 'rtl' : 'ltr'}>
+            <div className="container mx-auto px-4 max-w-6xl">
                 {/* Back Button */}
                 <button
                     onClick={() => isSeller ? navigate('/seller-dashboard') : navigate('/')}
@@ -446,13 +415,6 @@ export default function AuctionDetailPage({ currentUser }) {
                                     <Trophy className="w-5 h-5" />
                                     <p className="font-bold">{isAr ? '🎉 أنت الفائز!' : '🎉 You Won!'}</p>
                                 </div>
-                                <PaymentStatusIndicator
-                                    status={auction?.paymentStatus}
-                                    isPaid={auction?.isPaid}
-                                    paidAt={auction?.paidAt}
-                                    endDate={auction?.endDate}
-                                    className="mb-2 bg-white/90 text-[#0F766E] border-white/80"
-                                />
                                 {(auction?.auctionHouseId || auction?.auctionHouseName) && (
                                     <AuctionHouseRating
                                         auctionId={auctionId}
@@ -510,17 +472,14 @@ export default function AuctionDetailPage({ currentUser }) {
                             )}
 
                             {isWinner && (
-                                <WinnerPaymentAction
-                                    auctionId={auction.id}
-                                    status={auction?.paymentStatus}
-                                    isPaid={auction?.isPaid}
-                                    paidAt={auction?.paidAt}
-                                    endDate={auction?.endDate}
+                                <button
+                                    onClick={handleGenerateReceipt}
                                     disabled={bidLoading}
-                                    payLabel={isAr ? 'ادفع الآن' : 'Pay Now'}
-                                    payClassName="w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
-                                    receiptClassName="w-full bg-[#EAF7F5] border border-[#2A9D8F] text-[#1A7A6E] hover:bg-[#D9F0EC] px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 text-sm"
-                                />
+                                    className="w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    {isAr ? 'تحميل الإيصال' : 'Download Receipt'}
+                                </button>
                             )}
 
                             {isSeller && isLiveAuction && !isFeatured && (
