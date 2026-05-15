@@ -31,6 +31,8 @@ export const login = async (username, password) => {
 
     console.log('[Auth] Attempting login for user:', username);
 
+    // normal credential verification flow
+
     const token = btoa(`${username}:${password}`);
 
     const authData = await verifyCredentials(token);
