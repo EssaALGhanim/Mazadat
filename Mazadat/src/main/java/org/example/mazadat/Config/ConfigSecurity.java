@@ -1,8 +1,6 @@
 package org.example.mazadat.Config;
 
 
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.example.mazadat.Service.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
@@ -99,6 +100,15 @@ public class ConfigSecurity {
                     .requestMatchers("/api/v1/notifications/**").authenticated()
                 // Phone verification (authenticated)
                     .requestMatchers("/api/v1/user/phone/**").authenticated()
+                // Auction sharing (authenticated - seller)
+                    .requestMatchers("/api/v1/auction/*/share").authenticated()
+                // Auction comment endpoints
+                    .requestMatchers(HttpMethod.GET, "/api/v1/auction/*/comments").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/auction/*/comments").authenticated()
+                    .requestMatchers(HttpMethod.PUT, "/api/v1/auction/*/comments/**").authenticated()
+                    .requestMatchers(HttpMethod.DELETE, "/api/v1/auction/*/comments/**").authenticated()
+                // Seller analytics (authenticated - sellers)
+                    .requestMatchers("/api/v1/seller/analytics/**").authenticated()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
