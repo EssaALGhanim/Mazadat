@@ -102,6 +102,11 @@ public class ConfigSecurity {
                     .requestMatchers("/api/v1/user/phone/**").authenticated()
                 // Auction sharing (authenticated - seller)
                     .requestMatchers("/api/v1/auction/*/share").authenticated()
+                // Auction comment endpoints
+                    .requestMatchers(HttpMethod.GET, "/api/v1/auction/*/comments").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/auction/*/comments").authenticated()
+                    .requestMatchers(HttpMethod.PUT, "/api/v1/auction/*/comments/**").authenticated()
+                    .requestMatchers(HttpMethod.DELETE, "/api/v1/auction/*/comments/**").authenticated()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout
