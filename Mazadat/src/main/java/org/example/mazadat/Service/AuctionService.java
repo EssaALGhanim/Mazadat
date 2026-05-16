@@ -56,6 +56,7 @@ public class AuctionService {
         return auctions;
     }
 
+    @Transactional
     public Auction getAuctionById(Integer auctionId) {
         Auction auction = auctionRepository.findById(auctionId)
                 .orElseThrow(() -> new ApiException("Auction not found"));
@@ -65,6 +66,7 @@ public class AuctionService {
         if (refreshAuctionOutcome(auction)) {
             auctionRepository.save(auction);
         }
+        auctionRepository.incrementViewCount(auctionId);
         return auction;
     }
 
