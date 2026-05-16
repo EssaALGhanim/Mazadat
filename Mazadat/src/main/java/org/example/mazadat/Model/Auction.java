@@ -3,11 +3,11 @@ package org.example.mazadat.Model;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import org.example.mazadat.Util.AppTime;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.example.mazadat.Util.AppTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -18,13 +18,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Setter
 @Getter
@@ -72,6 +69,9 @@ public class Auction {
     private Boolean isFeatured = false;
 
     private LocalDateTime featuredEndDate;
+
+    @Column(columnDefinition = "INT DEFAULT 0", nullable = false)
+    private Integer viewCount = 0;
 
     @ManyToOne
     @JoinColumn(name = "auction_house_id", nullable = false)

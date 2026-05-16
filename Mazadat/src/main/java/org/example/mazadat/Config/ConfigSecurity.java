@@ -107,6 +107,8 @@ public class ConfigSecurity {
                     .requestMatchers(HttpMethod.POST, "/api/v1/auction/*/comments").authenticated()
                     .requestMatchers(HttpMethod.PUT, "/api/v1/auction/*/comments/**").authenticated()
                     .requestMatchers(HttpMethod.DELETE, "/api/v1/auction/*/comments/**").authenticated()
+                // Seller analytics (authenticated - sellers)
+                    .requestMatchers("/api/v1/seller/analytics/**").authenticated()
                 .anyRequest().authenticated()
             )
             .logout(logout -> logout

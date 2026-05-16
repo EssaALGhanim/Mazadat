@@ -1,13 +1,13 @@
 package org.example.mazadat.Repository;
 
+import java.util.List;
+
 import org.example.mazadat.Model.Auction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface AuctionRepository extends JpaRepository<Auction,Integer> {
@@ -52,6 +52,10 @@ public interface AuctionRepository extends JpaRepository<Auction,Integer> {
 	List<Auction> findActiveAuctionsByHighestBidder(@Param("username") String username);
 
 	List<Auction> findBySellerId(Integer sellerId);
+
+	@Modifying
+	@Query("UPDATE Auction a SET a.viewCount = a.viewCount + 1 WHERE a.id = :id")
+	void incrementViewCount(@Param("id") Integer id);
 
 	@Modifying
 	@Query("UPDATE Auction a SET a.highestBidder = :newUsername WHERE a.highestBidder = :oldUsername")
