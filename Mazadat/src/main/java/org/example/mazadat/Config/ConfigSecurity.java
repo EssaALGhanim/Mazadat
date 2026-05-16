@@ -100,6 +100,8 @@ public class ConfigSecurity {
                     .requestMatchers("/api/v1/notifications/**").authenticated()
                 // Phone verification (authenticated)
                     .requestMatchers("/api/v1/user/phone/**").authenticated()
+                // Auction sharing (authenticated - seller)
+                    .requestMatchers("/api/v1/auction/*/share").authenticated()
                 // Auction comment endpoints
                     .requestMatchers(HttpMethod.GET, "/api/v1/auction/*/comments").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/auction/*/comments").authenticated()

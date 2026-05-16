@@ -1,21 +1,27 @@
 package org.example.mazadat.Service;
 
-import lombok.RequiredArgsConstructor;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.example.mazadat.Api.ApiException;
 import org.example.mazadat.DTOIN.AuctionDTOIN;
 import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.AuctionHouse;
 import org.example.mazadat.Model.Seller;
 import org.example.mazadat.Model.User;
-import org.example.mazadat.Util.AppTime;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.SellerRepository;
 import org.example.mazadat.Repository.UserRepository;
+import org.example.mazadat.Util.AppTime;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +33,9 @@ public class AuctionService {
     private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final EmailService emailService;
+
+    @Value("${mazadat.frontend.base-url:http://localhost:5173}")
+    private String frontendBaseUrl;
 
 
     public List<Auction> getAllAuctions(){
@@ -300,6 +309,30 @@ public class AuctionService {
         sellerRepository.findById(sellerId)
                 .orElseThrow(() -> new ApiException("Seller not found"));
         return auctionRepository.findActiveFeaturedBySellerIdOrderByEndDate(sellerId);
+    }
+
+    public Map<String, String> getShareLinks(int auctionId, int sellerId) {
+        sellerRepository.findById(sellerId)
+                .orElseThrow(() -> new ApiException("Seller not found"));
+
+        Auction auction = auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new ApiException("Auction not found"));
+
+        if (!auction.getSeller().getId().equals(sellerId)) {
+            throw new ApiException("Auction does not belong to you");
+        }
+
+        String auctionUrl = frontendBaseUrl + "/auction/" + auctionId;
+        String encodedUrl = URLEncoder.encode(auctionUrl, StandardCharsets.UTF_8).replace("+", "%20");
+        String encodedTitle = URLEncoder.encode(auction.getTitle(), StandardCharsets.UTF_8).replace("+", "%20");
+
+        Map<String, String> links = new LinkedHashMap<>();
+        links.put("directLink", auctionUrl);
+        links.put("whatsapp", "https://wa.me/?text=" + encodedTitle + "%0A" + encodedUrl);
+        links.put("twitter", "https://twitter.com/intent/tweet?text=" + encodedTitle + "&url=" + encodedUrl);
+        links.put("snapchat", "https://www.snapchat.com/scan?attachmentUrl=" + encodedUrl);
+        links.put("telegram", "https://t.me/share/url?url=" + encodedUrl + "&text=" + encodedTitle);
+        return links;
     }
 
     private boolean isAuctionLive(Auction auction, LocalDateTime now) {

@@ -89,6 +89,12 @@ public class AuctionController {
         return ResponseEntity.status(HttpStatus.OK.value()).body(new ApiResponse("Auction unfeatured successfully"));
     }
 
+    @GetMapping("/{auctionId}/share")
+    public ResponseEntity<?> getShareLinks(@PathVariable Integer auctionId, @AuthenticationPrincipal User user){
+        return ResponseEntity.status(HttpStatus.OK.value())
+                .body(new ApiResponse("Share links generated", auctionService.getShareLinks(auctionId, user.getId())));
+    }
+
     @GetMapping("/{auctionId}/comments")
     public ResponseEntity<?> getComments(@PathVariable Integer auctionId){
         return ResponseEntity.status(HttpStatus.OK.value()).body(auctionCommentService.getComments(auctionId));
