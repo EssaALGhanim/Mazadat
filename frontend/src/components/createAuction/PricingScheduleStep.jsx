@@ -79,7 +79,7 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block mb-2 font-semibold text-[#1A2E2C]">
+          <label className="block mb-2 font-semibold text-[#1A2E2C] dark:text-slate-100">
             {t('startingPriceLabel')} <span className="text-[#E05252]">*</span>
           </label>
           <div className="relative">
@@ -89,12 +89,12 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
               value={formData.startingPrice}
               onChange={handleChange}
               min="1"
-              className={`w-full rounded-lg border bg-white px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow ${
+              className={`w-full rounded-lg border bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow ${
                 i18n.language === 'ar' ? 'pl-8' : 'pr-8'
               } ${errors.startingPrice ? 'border-[#E05252] focus:ring-[#E05252]' : 'border-[#C5E0DC]'}`}
               style={{ direction: 'ltr', textAlign: i18n.language === 'ar' ? 'right' : 'left' }}
             />
-            <span className={`absolute top-1/2 -translate-y-1/2 text-gray-500 font-bold ${
+            <span className={`absolute top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 font-bold ${
               i18n.language === 'ar' ? 'left-3' : 'right-3'
             }`}>
               ﷼
@@ -104,7 +104,7 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
         </div>
 
         <div>
-          <label className="block mb-2 font-semibold text-[#1A2E2C]">
+          <label className="block mb-2 font-semibold text-[#1A2E2C] dark:text-slate-100">
             {t('reservePriceLabel')}
           </label>
           <div className="relative">
@@ -114,12 +114,12 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
               value={formData.reservePrice}
               onChange={handleChange}
               min="1"
-              className={`w-full rounded-lg border bg-white px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow ${
+              className={`w-full rounded-lg border bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow ${
                 i18n.language === 'ar' ? 'pl-8' : 'pr-8'
               } ${errors.reservePrice ? 'border-[#E05252] focus:ring-[#E05252]' : 'border-[#C5E0DC]'}`}
               style={{ direction: 'ltr', textAlign: i18n.language === 'ar' ? 'right' : 'left' }}
             />
-            <span className={`absolute top-1/2 -translate-y-1/2 text-gray-500 font-bold ${
+            <span className={`absolute top-1/2 -translate-y-1/2 text-gray-500 dark:text-slate-400 font-bold ${
               i18n.language === 'ar' ? 'left-3' : 'right-3'
             }`}>
               ﷼
@@ -131,7 +131,7 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block mb-2 font-semibold text-[#1A2E2C]">
+          <label className="block mb-2 font-semibold text-[#1A2E2C] dark:text-slate-100">
             {t('startDateLabel')} <span className="text-[#E05252]">*</span>
           </label>
           <input
@@ -140,7 +140,7 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
             value={formData.startDate}
             onChange={handleChange}
             min={minStartDate}
-            className={`w-full rounded-lg border bg-white px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow ${
+            className={`w-full rounded-lg border bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow ${
               errors.startDate ? 'border-[#E05252] focus:ring-[#E05252]' : 'border-[#C5E0DC]'
             }`}
              style={{ direction: 'ltr', textAlign: i18n.language === 'ar' ? 'right' : 'left' }}
@@ -149,7 +149,7 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
         </div>
 
         <div>
-          <label className="block mb-2 font-semibold text-[#1A2E2C]">
+          <label className="block mb-2 font-semibold text-[#1A2E2C] dark:text-slate-100">
             {t('endDateLabel')} <span className="text-[#E05252]">*</span>
           </label>
           <input
@@ -157,7 +157,7 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
             name="endDate"
             value={formData.endDate}
             onChange={handleChange}
-            className={`w-full rounded-lg border bg-white px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow ${
+            className={`w-full rounded-lg border bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow ${
               errors.endDate ? 'border-[#E05252] focus:ring-[#E05252]' : 'border-[#C5E0DC]'
             }`}
              style={{ direction: 'ltr', textAlign: i18n.language === 'ar' ? 'right' : 'left' }}
@@ -167,7 +167,7 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
       </div>
 
       {duration && !errors.endDate && (
-         <div className="bg-[#F4FAFA] border border-[#C5E0DC] rounded-lg p-4 text-[#1A2E2C] font-semibold flex items-center justify-center gap-1">
+         <div className="bg-[#F4FAFA] dark:bg-slate-800 border border-[#C5E0DC] dark:border-slate-700 rounded-lg p-4 text-[#1A2E2C] dark:text-slate-100 font-semibold flex items-center justify-center gap-1">
            {t('auctionDuration')}: <span className="mx-1 text-[#2A9D8F] dir-ltr">{duration.days}</span> {t('days')} 
            {i18n.language === 'ar' ? <span className="mx-1 font-normal text-sm">و</span> : <span className="mx-1 font-normal text-sm">and</span>}
            <span className="mx-1 text-[#2A9D8F] dir-ltr">{duration.hours}</span> {t('hours')}
@@ -177,7 +177,7 @@ export default function PricingScheduleStep({ formData, setFormData, onNext, onB
       <div className="pt-6 flex flex-col md:flex-row justify-between gap-3">
         <button
           onClick={onBack}
-          className="w-full md:w-auto bg-white border border-[#C5E0DC] text-[#1A2E2C] hover:bg-[#F4FAFA] px-8 py-3 rounded-lg font-bold transition-colors"
+          className="w-full md:w-auto bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 text-[#1A2E2C] dark:text-slate-100 hover:bg-[#F4FAFA] dark:hover:bg-slate-800 px-8 py-3 rounded-lg font-bold transition-colors"
         >
           {t('previousStep')}
         </button>

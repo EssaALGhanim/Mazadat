@@ -134,7 +134,7 @@ export default function AuctionHouseRating({
                     onClick={closeModal}
                 >
                     <div
-                        className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm"
+                        className="bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 rounded-xl shadow-xl p-6 w-full max-w-sm"
                         onClick={(e) => e.stopPropagation()}
                         dir={isAr ? 'rtl' : 'ltr'}
                     >
@@ -142,13 +142,13 @@ export default function AuctionHouseRating({
                         <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
                                 <Building2 className="w-4 h-4 text-[#2A9D8F]" />
-                                <h3 className="font-bold text-[#1A2E2C] text-base">
+                                <h3 className="font-bold text-[#1A2E2C] dark:text-slate-100 text-base">
                                     {isAr ? 'تقييم صالة المزاد' : 'Rate Auction House'}
                                 </h3>
                             </div>
                             <button
                                 onClick={closeModal}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                className="text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-100 transition-colors"
                                 aria-label="Close"
                             >
                                 <X className="w-4 h-4" />
@@ -156,14 +156,14 @@ export default function AuctionHouseRating({
                         </div>
 
                         {auctionHouseName && (
-                            <p className="text-xs text-[#6B9E99] mb-5 truncate">
+                            <p className="text-xs text-[#6B9E99] dark:text-slate-400 mb-5 truncate">
                                 {auctionHouseName}
                             </p>
                         )}
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-[#1A2E2C] mb-2">
+                                <label className="block text-sm font-medium text-[#1A2E2C] dark:text-slate-200 mb-2">
                                     {isAr ? 'التقييم' : 'Rating'}
                                 </label>
                                 <StarRating
@@ -180,7 +180,7 @@ export default function AuctionHouseRating({
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-[#1A2E2C] mb-2">
+                                <label className="block text-sm font-medium text-[#1A2E2C] dark:text-slate-200 mb-2">
                                     {isAr ? 'تعليق (اختياري)' : 'Comment (optional)'}
                                 </label>
                                 <textarea
@@ -193,9 +193,9 @@ export default function AuctionHouseRating({
                                     }
                                     maxLength={400}
                                     rows={3}
-                                    className={`w-full px-3 py-2 text-sm text-[#1A2E2C] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] resize-none ${isAr ? 'text-right' : 'text-left'}`}
+                                    className={`w-full px-3 py-2 text-sm text-[#1A2E2C] dark:text-slate-100 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] resize-none ${isAr ? 'text-right' : 'text-left'}`}
                                 />
-                                <p className="text-xs text-gray-400 mt-0.5 text-right">
+                                <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5 text-right">
                                     {comment.length}/400
                                 </p>
                             </div>
@@ -204,7 +204,7 @@ export default function AuctionHouseRating({
                                 <button
                                     type="button"
                                     onClick={closeModal}
-                                    className="flex-1 border border-gray-200 text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                                    className="flex-1 border border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                                 >
                                     {isAr ? 'إلغاء' : 'Cancel'}
                                 </button>

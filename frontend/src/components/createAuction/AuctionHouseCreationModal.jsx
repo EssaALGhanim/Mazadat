@@ -60,9 +60,9 @@ export default function AuctionHouseCreationModal({ open, onOpenChange, onSucces
     <Dialog.Root open={open} onOpenChange={onOpenChange} dir={i18n.dir()}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/40" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl text-start">
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 p-6 shadow-xl text-start">
           <div className="flex items-center justify-between mb-4">
-            <Dialog.Title className="text-xl font-bold text-[#1A2E2C]">
+            <Dialog.Title className="text-xl font-bold text-[#1A2E2C] dark:text-slate-100">
               {t('createAuctionHouse') || 'Create Auction House'}
             </Dialog.Title>
             <Dialog.Close className="text-[#6B9E99] hover:text-[#2A9D8F] transition-colors">
@@ -70,20 +70,20 @@ export default function AuctionHouseCreationModal({ open, onOpenChange, onSucces
             </Dialog.Close>
           </div>
 
-          <p className="text-sm text-[#6B9E99] mb-6">
+          <p className="text-sm text-[#6B9E99] dark:text-slate-400 mb-6">
             {t('auctionHouseDescription') ||
               'Create your auction house to start listing items for sale'}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-[#E05252] text-[#E05252] rounded-lg px-4 py-3 text-sm font-semibold">
+              <div className="bg-red-50 dark:bg-red-950/30 border border-[#E05252] dark:border-red-700 text-[#E05252] dark:text-red-300 rounded-lg px-4 py-3 text-sm font-semibold">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-[#1A2E2C] mb-2">
+              <label className="block text-sm font-semibold text-[#1A2E2C] dark:text-slate-200 mb-2">
                 {t('auctionHouseName') || 'Auction House Name'}
               </label>
               <input
@@ -92,12 +92,12 @@ export default function AuctionHouseCreationModal({ open, onOpenChange, onSucces
                 value={formData.name}
                 onChange={handleChange}
                 placeholder={t('auctionHouseNamePlaceholder') || 'e.g., My Store'}
-                className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-2 focus-visible:ring-[#2A9D8F]/30 outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 focus-visible:border-[#2A9D8F] focus-visible:ring-2 focus-visible:ring-[#2A9D8F]/30 outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#1A2E2C] mb-2">
+              <label className="block text-sm font-semibold text-[#1A2E2C] dark:text-slate-200 mb-2">
                 {t('description') || 'Description'}
               </label>
               <textarea
@@ -106,19 +106,19 @@ export default function AuctionHouseCreationModal({ open, onOpenChange, onSucces
                 onChange={handleChange}
                 placeholder={t('auctionHouseDescriptionPlaceholder') || 'Tell us about your auction house...'}
                 rows="4"
-                className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-2 focus-visible:ring-[#2A9D8F]/30 outline-none resize-none"
+                className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 focus-visible:border-[#2A9D8F] focus-visible:ring-2 focus-visible:ring-[#2A9D8F]/30 outline-none resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-[#1A2E2C] mb-2">
+              <label className="block text-sm font-semibold text-[#1A2E2C] dark:text-slate-200 mb-2">
                 {t('category') || 'Category'}
               </label>
               <select
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC] bg-white text-[#1A2E2C] focus-visible:border-[#2A9D8F] focus-visible:ring-2 focus-visible:ring-[#2A9D8F]/30 outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 focus-visible:border-[#2A9D8F] focus-visible:ring-2 focus-visible:ring-[#2A9D8F]/30 outline-none"
               >
                 <option value="">{t('selectCategory') || 'Select a category'}</option>
                 <option value="general">{t('general') || 'General'}</option>
@@ -135,7 +135,7 @@ export default function AuctionHouseCreationModal({ open, onOpenChange, onSucces
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
-                className="flex-1 px-4 py-2 rounded-lg border border-[#C5E0DC] text-[#6B9E99] hover:bg-[#F4FAFA] font-semibold transition-colors"
+                className="flex-1 px-4 py-2 rounded-lg border border-[#C5E0DC] dark:border-slate-600 text-[#6B9E99] dark:text-slate-300 hover:bg-[#F4FAFA] dark:hover:bg-slate-800 font-semibold transition-colors"
               >
                 {t('cancel') || 'Cancel'}
               </button>

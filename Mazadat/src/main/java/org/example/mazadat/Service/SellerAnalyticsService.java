@@ -7,6 +7,7 @@ import org.example.mazadat.DTOOUT.SellerAnalyticsDTOOUT;
 import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.SellerRepository;
+import org.example.mazadat.Repository.WatchlistRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ public class SellerAnalyticsService {
 
     private final AuctionRepository auctionRepository;
     private final SellerRepository sellerRepository;
+    private final WatchlistRepository watchlistRepository;
 
     @Transactional(readOnly = true)
     public SellerAnalyticsDTOOUT getSellerAnalytics(int sellerId) {
@@ -36,6 +38,13 @@ public class SellerAnalyticsService {
         int totalViews = auctions.stream()
                 .mapToInt(a -> a.getViewCount() == null ? 0 : a.getViewCount())
                 .sum();
+        int totalWatchlistSaves = auctions.stream()
+                .mapToInt(a -> (int) watchlistRepository.countByAuctionId(a.getId()))
+                .sum();
+        double highestCurrentBid = auctions.stream()
+                .mapToDouble(a -> a.getCurrentPrice() == null ? 0.0 : a.getCurrentPrice())
+                .max()
+                .orElse(0.0);
         double averageBidsPerAuction = totalAuctions == 0 ? 0.0 : (double) totalBidsReceived / totalAuctions;
 
         Map<String, Long> auctionsByStatus = auctions.stream()
@@ -64,10 +73,13 @@ public class SellerAnalyticsService {
                 .toList();
 
         return new SellerAnalyticsDTOOUT(
+                sellerId,
                 totalAuctions,
                 auctionsByStatus,
                 totalBidsReceived,
                 totalViews,
+                highestCurrentBid,
+                totalWatchlistSaves,
                 averageBidsPerAuction,
                 mostBiddedAuctionTitle,
                 totalRevenue,
@@ -94,14 +106,22 @@ public class SellerAnalyticsService {
                 .map(b -> b.getBuyer().getId())
                 .distinct()
                 .count();
+        int watchlistCount = (int) watchlistRepository.countByAuctionId(auction.getId());
+        String image = auction.getImages() == null ? null : auction.getImages().stream()
+                .findFirst()
+                .map(i -> i.getUrl())
+                .orElse(null);
         return new AuctionAnalyticsDTOOUT(
                 auction.getId(),
                 auction.getTitle(),
+                image,
                 auction.getStatus(),
                 auction.getStartingPrice(),
                 auction.getCurrentPrice(),
+                auction.getCurrentPrice() == null ? 0.0 : auction.getCurrentPrice(),
                 totalBids,
                 uniqueBidders,
+                watchlistCount,
                 auction.getViewCount() == null ? 0 : auction.getViewCount(),
                 auction.getCreatedAt(),
                 auction.getStartDate(),

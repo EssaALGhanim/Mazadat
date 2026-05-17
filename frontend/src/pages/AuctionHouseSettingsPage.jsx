@@ -89,7 +89,7 @@ export default function AuctionHouseSettingsPage() {
   if (currentUser?.role !== 'SELLER') return null;
 
   return (
-    <div className="min-h-screen bg-[#F0F2F5] flex flex-col">
+    <div className="min-h-screen bg-[#F0F2F5] dark:bg-slate-950 flex flex-col">
       <TopNavigationBar
         currentUser={currentUser}
         isSeller={true}
@@ -108,20 +108,20 @@ export default function AuctionHouseSettingsPage() {
             {isAr ? 'العودة للوحة التحكم' : 'Back to Dashboard'}
           </button>
 
-          <div className="bg-white border border-[#C5E0DC] rounded-xl p-6 shadow-sm">
-            <h1 className="text-2xl font-bold text-[#1A2E2C] mb-1">{isAr ? 'إعدادات صالة المزاد' : 'Auction House Settings'}</h1>
-            <p className="text-sm text-[#6B9E99] mb-6">{isAr ? 'إدارة بيانات الصالة والحساب البنكي وملاحظات التشغيل' : 'Manage profile, payout IBAN, and operational notes'}</p>
+          <div className="bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 rounded-xl p-6 shadow-sm">
+            <h1 className="text-2xl font-bold text-[#1A2E2C] dark:text-slate-100 mb-1">{isAr ? 'إعدادات صالة المزاد' : 'Auction House Settings'}</h1>
+            <p className="text-sm text-[#6B9E99] dark:text-slate-300 mb-6">{isAr ? 'إدارة بيانات الصالة والحساب البنكي وملاحظات التشغيل' : 'Manage profile, payout IBAN, and operational notes'}</p>
 
             {loading ? (
-              <p className="text-sm text-[#6B9E99]">{isAr ? 'جاري التحميل...' : 'Loading...'}</p>
+              <p className="text-sm text-[#6B9E99] dark:text-slate-300">{isAr ? 'جاري التحميل...' : 'Loading...'}</p>
             ) : error ? (
               <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4">{error}</div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                <input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder={isAr ? 'اسم الصالة' : 'Auction House Name'} className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC]" />
-                <input value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} placeholder={isAr ? 'الموقع' : 'Location'} className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC]" />
-                <textarea value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} placeholder={isAr ? 'الوصف' : 'Description'} rows={4} className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC]" />
-                <input value={form.iban} onChange={(e) => setForm((p) => ({ ...p, iban: e.target.value.toUpperCase() }))} placeholder="SAxxxxxxxxxxxxxxxxxxxxxx" className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC]" />
+                <input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder={isAr ? 'اسم الصالة' : 'Auction House Name'} className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC] dark:border-slate-700 bg-white dark:bg-slate-800 text-[#1A2E2C] dark:text-slate-100" />
+                <input value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} placeholder={isAr ? 'الموقع' : 'Location'} className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC] dark:border-slate-700 bg-white dark:bg-slate-800 text-[#1A2E2C] dark:text-slate-100" />
+                <textarea value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} placeholder={isAr ? 'الوصف' : 'Description'} rows={4} className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC] dark:border-slate-700 bg-white dark:bg-slate-800 text-[#1A2E2C] dark:text-slate-100" />
+                <input value={form.iban} onChange={(e) => setForm((p) => ({ ...p, iban: e.target.value.toUpperCase() }))} placeholder="SAxxxxxxxxxxxxxxxxxxxxxx" className="w-full px-4 py-2 rounded-lg border border-[#C5E0DC] dark:border-slate-700 bg-white dark:bg-slate-800 text-[#1A2E2C] dark:text-slate-100" />
 
                 <button type="submit" disabled={saving} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white font-semibold disabled:opacity-60">
                   <Save className="w-4 h-4" />

@@ -9,10 +9,12 @@ import org.example.mazadat.DTOIN.AuctionCommentDTOIN;
 import org.example.mazadat.DTOOUT.AuctionCommentDTOOUT;
 import org.example.mazadat.Model.Auction;
 import org.example.mazadat.Model.AuctionComment;
+import org.example.mazadat.Model.Seller;
 import org.example.mazadat.Model.User;
 import org.example.mazadat.Repository.AuctionCommentRepository;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -149,7 +151,7 @@ class AuctionCommentServiceTest {
 
         when(commentRepository.findById(5)).thenReturn(Optional.of(comment));
 
-        commentService.editComment(buildDto("updated content"), 5, 1);
+        commentService.editComment(buildDto("updated content"), 10, 5, 1);
 
         assertEquals("updated content", comment.getContent());
         verify(commentRepository).save(comment);
@@ -162,8 +164,8 @@ class AuctionCommentServiceTest {
 
         when(commentRepository.findById(5)).thenReturn(Optional.of(comment));
 
-        ApiException ex = assertThrows(ApiException.class,
-                () -> commentService.editComment(buildDto("hack"), 5, 99));
+        AccessDeniedException ex = assertThrows(AccessDeniedException.class,
+                () -> commentService.editComment(buildDto("hack"), 10, 5, 99));
 
         assertEquals("Not authorized to edit this comment", ex.getMessage());
         verify(commentRepository, never()).save(any());
@@ -174,7 +176,7 @@ class AuctionCommentServiceTest {
         when(commentRepository.findById(99)).thenReturn(Optional.empty());
 
         ApiException ex = assertThrows(ApiException.class,
-                () -> commentService.editComment(buildDto("test"), 99, 1));
+                () -> commentService.editComment(buildDto("test"), 10, 99, 1));
 
         assertEquals("Comment not found", ex.getMessage());
     }
@@ -187,38 +189,35 @@ class AuctionCommentServiceTest {
         AuctionComment comment = buildComment(5, owner, buildAuction(10), "hello");
 
         when(commentRepository.findById(5)).thenReturn(Optional.of(comment));
-        when(userRepository.findById(1)).thenReturn(Optional.of(owner));
 
-        commentService.deleteComment(5, 1);
-
-        verify(commentRepository).delete(comment);
-    }
-
-    @Test
-    void deleteCommentSucceedsForAdmin() {
-        User owner = buildUser(1, "buyer1", "BUYER");
-        User admin = buildUser(2, "admin1", "ADMIN");
-        AuctionComment comment = buildComment(5, owner, buildAuction(10), "hello");
-
-        when(commentRepository.findById(5)).thenReturn(Optional.of(comment));
-        when(userRepository.findById(2)).thenReturn(Optional.of(admin));
-
-        commentService.deleteComment(5, 2);
+        commentService.deleteComment(10, 5, 1);
 
         verify(commentRepository).delete(comment);
     }
 
     @Test
-    void deleteCommentThrowsForNonOwnerNonAdmin() {
+    void deleteCommentSucceedsForAuctionSeller() {
         User owner = buildUser(1, "buyer1", "BUYER");
-        User other = buildUser(3, "buyer2", "BUYER");
+        User sellerUser = buildUser(2, "seller1", "SELLER");
+        Auction auction = buildAuction(10, sellerUser);
+        AuctionComment comment = buildComment(5, owner, auction, "hello");
+
+        when(commentRepository.findById(5)).thenReturn(Optional.of(comment));
+
+        commentService.deleteComment(10, 5, 2);
+
+        verify(commentRepository).delete(comment);
+    }
+
+    @Test
+    void deleteCommentThrowsForNonOwnerNonSeller() {
+        User owner = buildUser(1, "buyer1", "BUYER");
         AuctionComment comment = buildComment(5, owner, buildAuction(10), "hello");
 
         when(commentRepository.findById(5)).thenReturn(Optional.of(comment));
-        when(userRepository.findById(3)).thenReturn(Optional.of(other));
 
-        ApiException ex = assertThrows(ApiException.class,
-                () -> commentService.deleteComment(5, 3));
+        AccessDeniedException ex = assertThrows(AccessDeniedException.class,
+                () -> commentService.deleteComment(10, 5, 3));
 
         assertEquals("Not authorized to delete this comment", ex.getMessage());
         verify(commentRepository, never()).delete(any());
@@ -229,7 +228,7 @@ class AuctionCommentServiceTest {
         when(commentRepository.findById(99)).thenReturn(Optional.empty());
 
         ApiException ex = assertThrows(ApiException.class,
-                () -> commentService.deleteComment(99, 1));
+                () -> commentService.deleteComment(10, 99, 1));
 
         assertEquals("Comment not found", ex.getMessage());
         verify(commentRepository, never()).delete(any());
@@ -248,6 +247,16 @@ class AuctionCommentServiceTest {
     private Auction buildAuction(int id) {
         Auction auction = new Auction();
         auction.setId(id);
+        return auction;
+    }
+
+    private Auction buildAuction(int id, User sellerUser) {
+        Auction auction = new Auction();
+        auction.setId(id);
+        Seller seller = new Seller();
+        seller.setId(sellerUser.getId());
+        seller.setUser(sellerUser);
+        auction.setSeller(seller);
         return auction;
     }
 

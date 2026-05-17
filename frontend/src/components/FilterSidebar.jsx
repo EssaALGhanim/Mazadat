@@ -8,8 +8,8 @@ import ManageSavedSearchesModal from '@/components/savedSearch/ManageSavedSearch
 
 function FilterSection({ title, children }) {
     return (
-        <div className="mb-6 pb-7 border-b border-[#C5E0DC] last:mb-0 last:border-b-0">
-            <h3 className="text-sm font-bold text-[#1A2E2C] mb-5 flex items-center gap-2">
+        <div className="mb-6 pb-7 border-b border-[#C5E0DC] dark:border-slate-700 last:mb-0 last:border-b-0">
+            <h3 className="text-sm font-bold text-[#1A2E2C] dark:text-slate-100 mb-5 flex items-center gap-2">
                 <Sliders className="w-4 h-4 text-[#2A9D8F]" />
                 {title}
             </h3>
@@ -151,7 +151,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                 fixed lg:relative
                 left-0 top-16 lg:top-auto
                 w-72 h-[calc(100vh-4rem)] lg:h-auto
-                bg-white border-r border-[#C5E0DC]
+                bg-white dark:bg-slate-900 border-r border-[#C5E0DC] dark:border-slate-700
                 overflow-y-auto
                 transition-transform duration-300 ease-in-out
                 z-40
@@ -161,23 +161,23 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                 <div className="p-6">
                     {/* Mobile Header */}
                     <div className="flex items-center justify-between lg:hidden mb-6">
-                        <h2 className="text-xl font-bold text-[#1A2E2C] flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-[#1A2E2C] dark:text-slate-100 flex items-center gap-2">
                             <Sliders className="w-5 h-5 text-[#2A9D8F]" />
                             {isAr ? 'المرشحات' : 'Filters'}
                         </h2>
                         <button
                             onClick={onMobileClose}
-                            className="p-2 hover:bg-[#F4FAFA] rounded-lg transition-colors"
+                            className="p-2 hover:bg-[#F4FAFA] dark:hover:bg-slate-800 rounded-lg transition-colors"
                         >
-                            <X className="w-5 h-5 text-[#6B9E99]" />
+                            <X className="w-5 h-5 text-[#6B9E99] dark:text-slate-300" />
                         </button>
                     </div>
 
                     {/* Search Input */}
-                    <div className="mb-6 pb-6 border-b border-[#C5E0DC]">
+                    <div className="mb-6 pb-6 border-b border-[#C5E0DC] dark:border-slate-700">
                         <div className="flex items-center gap-2">
                             <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B9E99]" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B9E99] dark:text-slate-400" />
                                 <input
                                     type="text"
                                     value={searchKeyword}
@@ -188,7 +188,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                                         }
                                     }}
                                     placeholder={isAr ? 'ابحث في المزادات...' : 'Search auctions...'}
-                                    className="w-full pl-10 pr-4 py-3 border border-[#C5E0DC] rounded-lg text-sm text-[#1A2E2C] placeholder:text-[#6B9E99] focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white font-medium hover:border-[#2A9D8F] transition-colors"
+                                    className="w-full pl-10 pr-4 py-3 border border-[#C5E0DC] dark:border-slate-700 rounded-lg text-sm text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white dark:bg-slate-800 font-medium hover:border-[#2A9D8F] transition-colors"
                                 />
                             </div>
                             <button
@@ -206,7 +206,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                         <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="w-full px-4 py-3 border border-[#C5E0DC] rounded-lg text-sm text-[#1A2E2C] focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white font-medium hover:border-[#2A9D8F] transition-colors"
+                            className="w-full px-4 py-3 border border-[#C5E0DC] dark:border-slate-700 rounded-lg text-sm text-[#1A2E2C] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white dark:bg-slate-800 font-medium hover:border-[#2A9D8F] transition-colors"
                         >
                             {sortOptions.map((option) => (
                                 <option key={option.value} value={option.value}>
@@ -221,7 +221,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                         <select
                             value={category}
                             onChange={(e) => setCategory(e.target.value)}
-                            className="w-full px-4 py-3 border border-[#C5E0DC] rounded-lg text-sm text-[#1A2E2C] focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white font-medium hover:border-[#2A9D8F] transition-colors"
+                            className="w-full px-4 py-3 border border-[#C5E0DC] dark:border-slate-700 rounded-lg text-sm text-[#1A2E2C] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white dark:bg-slate-800 font-medium hover:border-[#2A9D8F] transition-colors"
                         >
                             {categories.map((cat) => (
                                 <option key={cat.value} value={cat.value}>
@@ -238,7 +238,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                                 type="button"
                                 onClick={() => setStatus('all')}
                                 className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                                    status === 'all' ? 'bg-[#2A9D8F] text-white' : 'bg-[#F4FAFA] text-[#6B9E99] hover:bg-[#E2F1EF]'
+                                    status === 'all' ? 'bg-[#2A9D8F] text-white' : 'bg-[#F4FAFA] dark:bg-slate-800 text-[#6B9E99] dark:text-slate-300 hover:bg-[#E2F1EF] dark:hover:bg-slate-700'
                                 }`}
                             >
                                 {isAr ? 'الكل' : 'All'}
@@ -247,7 +247,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                                 type="button"
                                 onClick={() => setStatus('pending')}
                                 className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                                    status === 'pending' ? 'bg-[#2A9D8F] text-white' : 'bg-[#F4FAFA] text-[#6B9E99] hover:bg-[#E2F1EF]'
+                                    status === 'pending' ? 'bg-[#2A9D8F] text-white' : 'bg-[#F4FAFA] dark:bg-slate-800 text-[#6B9E99] dark:text-slate-300 hover:bg-[#E2F1EF] dark:hover:bg-slate-700'
                                 }`}
                             >
                                 {isAr ? 'قيد الانتظار' : 'Pending'}
@@ -256,7 +256,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                                 type="button"
                                 onClick={() => setStatus('active')}
                                 className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                                    status === 'active' ? 'bg-[#2A9D8F] text-white' : 'bg-[#F4FAFA] text-[#6B9E99] hover:bg-[#E2F1EF]'
+                                    status === 'active' ? 'bg-[#2A9D8F] text-white' : 'bg-[#F4FAFA] dark:bg-slate-800 text-[#6B9E99] dark:text-slate-300 hover:bg-[#E2F1EF] dark:hover:bg-slate-700'
                                 }`}
                             >
                                 {isAr ? 'نشط' : 'Active'}
@@ -265,7 +265,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                                 type="button"
                                 onClick={() => setStatus('ended')}
                                 className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                                    status === 'ended' ? 'bg-[#2A9D8F] text-white' : 'bg-[#F4FAFA] text-[#6B9E99] hover:bg-[#E2F1EF]'
+                                    status === 'ended' ? 'bg-[#2A9D8F] text-white' : 'bg-[#F4FAFA] dark:bg-slate-800 text-[#6B9E99] dark:text-slate-300 hover:bg-[#E2F1EF] dark:hover:bg-slate-700'
                                 }`}
                             >
                                 {isAr ? 'منتهي' : 'Ended'}
@@ -279,7 +279,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                             value={selectedHouse}
                             onChange={(e) => setSelectedHouse(e.target.value)}
                             disabled={loadingHouses}
-                            className="w-full px-4 py-3 border border-[#C5E0DC] rounded-lg text-sm text-[#1A2E2C] focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white font-medium hover:border-[#2A9D8F] transition-colors disabled:opacity-50"
+                            className="w-full px-4 py-3 border border-[#C5E0DC] dark:border-slate-700 rounded-lg text-sm text-[#1A2E2C] dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white dark:bg-slate-800 font-medium hover:border-[#2A9D8F] transition-colors disabled:opacity-50"
                         >
                             <option value="">{isAr ? 'جميع الصالات' : 'All Houses'}</option>
                             {loadingHouses ? (
@@ -297,7 +297,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                     {/* Price Range Filter */}
                     <FilterSection title={isAr ? 'نطاق السعر' : 'Price Range'}>
                         <div className="space-y-4">
-                            <div className="rounded-2xl border border-[#C5E0DC] bg-gradient-to-br from-[#F8FCFC] to-white p-4 shadow-sm">
+                            <div className="rounded-2xl border border-[#C5E0DC] dark:border-slate-700 bg-gradient-to-br from-[#F8FCFC] to-white dark:from-slate-800 dark:to-slate-900 p-4 shadow-sm">
                                 <Slider
                                     value={priceRange}
                                     min={normalizedMin}
@@ -306,38 +306,38 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                                     onValueChange={(value) => setPriceRange(clampRange(value))}
                                     className="py-3"
                                 />
-                                <div className={`mt-4 flex items-center ${isAr ? 'flex-row-reverse' : 'flex-row'} justify-between text-xs font-semibold text-[#6B9E99]`}>
-                                    <span>{isAr ? 'الأقصى' : 'Maximum'}</span>
+                                <div className={`mt-4 flex items-center ${isAr ? 'flex-row-reverse' : 'flex-row'} justify-between text-xs font-semibold text-[#6B9E99] dark:text-slate-400`}>
                                     <span>{isAr ? 'الأدنى' : 'Minimum'}</span>
+                                    <span>{isAr ? 'الأقصى' : 'Maximum'}</span>
                                 </div>
                             </div>
                             <div className="flex gap-3">
-                                <div className="flex-1 rounded-xl border border-[#C5E0DC] bg-white px-3 py-2">
-                                    <p className="text-[11px] font-semibold text-[#6B9E99] mb-1">{isAr ? 'الحد الأدنى' : 'Min Price'}</p>
+                                <div className="flex-1 rounded-xl border border-[#C5E0DC] dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2">
+                                    <p className="text-[11px] font-semibold text-[#6B9E99] dark:text-slate-400 mb-1">{isAr ? 'الحد الأدنى' : 'Min Price'}</p>
                                     <input
                                         type="number"
                                         value={priceRange[0]}
                                         min={normalizedMin}
                                         max={priceRange[1]}
                                         onChange={(e) => setPriceRange(clampRange([Number(e.target.value) || normalizedMin, priceRange[1]]))}
-                                        className="w-full bg-transparent text-sm font-semibold text-[#1A2E2C] focus:outline-none"
+                                        className="w-full bg-transparent text-sm font-semibold text-[#1A2E2C] dark:text-slate-100 focus:outline-none"
                                         placeholder={isAr ? 'الأدنى' : 'Min'}
                                     />
                                 </div>
-                                <div className="flex-1 rounded-xl border border-[#C5E0DC] bg-white px-3 py-2">
-                                    <p className="text-[11px] font-semibold text-[#6B9E99] mb-1">{isAr ? 'الحد الأقصى' : 'Max Price'}</p>
+                                <div className="flex-1 rounded-xl border border-[#C5E0DC] dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2">
+                                    <p className="text-[11px] font-semibold text-[#6B9E99] dark:text-slate-400 mb-1">{isAr ? 'الحد الأقصى' : 'Max Price'}</p>
                                     <input
                                         type="number"
                                         value={priceRange[1]}
                                         min={priceRange[0]}
                                         max={normalizedMax}
                                         onChange={(e) => setPriceRange(clampRange([priceRange[0], Number(e.target.value) || 0]))}
-                                        className="w-full bg-transparent text-sm font-semibold text-[#1A2E2C] focus:outline-none"
+                                        className="w-full bg-transparent text-sm font-semibold text-[#1A2E2C] dark:text-slate-100 focus:outline-none"
                                         placeholder={isAr ? 'الأقصى' : 'Max'}
                                     />
                                 </div>
                             </div>
-                            <div className="bg-[#F4FAFA] rounded-xl p-3 text-center border border-[#C5E0DC]">
+                            <div className="bg-[#F4FAFA] dark:bg-slate-800 rounded-xl p-3 text-center border border-[#C5E0DC] dark:border-slate-700">
                                 <p className="text-sm font-semibold text-[#2A9D8F]">
                                     {priceRange[0].toLocaleString()} - {priceRange[1].toLocaleString()} ﷼
                                 </p>
@@ -346,7 +346,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                     </FilterSection>
 
                     {/* Saved Search Actions */}
-                    <div className="mx-auto mb-6 grid w-full max-w-xs grid-cols-2 gap-2 pb-6 border-b border-[#C5E0DC]">
+                    <div className="mx-auto mb-6 grid w-full max-w-xs grid-cols-2 gap-2 pb-6 border-b border-[#C5E0DC] dark:border-slate-700">
                         <button
                             onClick={() => setSaveSearchModalOpen(true)}
                             className="flex w-full items-center justify-center gap-2 px-3 py-2.5 bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white rounded-lg font-semibold transition-colors text-xs"
@@ -356,7 +356,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                         </button>
                         <button
                             onClick={() => setManageSearchesModalOpen(true)}
-                            className="flex w-full items-center justify-center gap-2 px-3 py-2.5 bg-white border border-[#C5E0DC] hover:bg-[#F4FAFA] text-[#2A9D8F] rounded-lg font-semibold transition-colors text-xs"
+                            className="flex w-full items-center justify-center gap-2 px-3 py-2.5 bg-white dark:bg-slate-800 border border-[#C5E0DC] dark:border-slate-700 hover:bg-[#F4FAFA] dark:hover:bg-slate-700 text-[#2A9D8F] dark:text-slate-100 rounded-lg font-semibold transition-colors text-xs"
                         >
                             <FolderOpen className="w-4 h-4" />
                             {isAr ? 'عمليات البحث' : 'My Searches'}
@@ -366,7 +366,7 @@ export default function FilterSidebar({ onFiltersChange, onSearchSubmit, isMobil
                     {/* Reset Filters Button */}
                     <button
                         onClick={resetFilters}
-                        className="w-full px-4 py-3 bg-[#F4FAFA] hover:bg-[#E2F1EF] text-[#2A9D8F] rounded-lg font-semibold transition-colors text-sm flex items-center justify-center gap-2 border border-[#C5E0DC]"
+                    className="w-full px-4 py-3 bg-[#F4FAFA] dark:bg-slate-800 hover:bg-[#E2F1EF] dark:hover:bg-slate-700 text-[#2A9D8F] dark:text-slate-100 rounded-lg font-semibold transition-colors text-sm flex items-center justify-center gap-2 border border-[#C5E0DC] dark:border-slate-700"
                     >
                         <RotateCcw className="w-4 h-4" />
                         {isAr ? 'إعادة تعيين المرشحات' : 'Reset Filters'}

@@ -45,27 +45,27 @@ export const WatchlistProvider = ({ children }) => {
   const addToWatchlistHandler = useCallback(
     async (auctionId) => {
       try {
-        const newItem = await addToWatchlist(auctionId);
-        setWatchlist((prev) => [...prev, newItem]);
+        await addToWatchlist(auctionId);
+        await fetchWatchlist();
         return { success: true };
       } catch (err) {
         return { success: false, error: err.message || 'Failed to add to watchlist' };
       }
     },
-    []
+    [fetchWatchlist]
   );
 
   const removeFromWatchlistHandler = useCallback(
     async (auctionId) => {
       try {
         await removeFromWatchlist(auctionId);
-        setWatchlist((prev) => prev.filter((item) => item.auctionId !== auctionId));
+        await fetchWatchlist();
         return { success: true };
       } catch (err) {
         return { success: false, error: err.message || 'Failed to remove from watchlist' };
       }
     },
-    []
+    [fetchWatchlist]
   );
 
   const toggleWatchlistHandler = useCallback(

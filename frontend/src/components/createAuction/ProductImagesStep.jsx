@@ -67,12 +67,12 @@ export default function ProductImagesStep({ formData, setFormData, onNext, onBac
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="text-center p-8 border-2 border-dashed border-[#C5E0DC] rounded-xl bg-white transition-colors hover:border-[#2A9D8F]">
+      <div className="text-center p-8 border-2 border-dashed border-[#C5E0DC] dark:border-slate-700 rounded-xl bg-white dark:bg-slate-900 transition-colors hover:border-[#2A9D8F]">
         <div className="flex justify-center mb-4 text-[#2A9D8F]">
           <Upload className="w-12 h-12" />
         </div>
-        <h3 className="text-lg font-bold text-[#1A2E2C] mb-2">{t('imagesLabel')}</h3>
-        <p className="text-[#6B9E99] mb-6 text-sm">{t('imagesHelper')}</p>
+        <h3 className="text-lg font-bold text-[#1A2E2C] dark:text-slate-100 mb-2">{t('imagesLabel')}</h3>
+        <p className="text-[#6B9E99] dark:text-slate-400 mb-6 text-sm">{t('imagesHelper')}</p>
         
         <input
           type="file"
@@ -89,7 +89,7 @@ export default function ProductImagesStep({ formData, setFormData, onNext, onBac
           className={`px-6 py-2 rounded-lg font-bold transition-colors ${
             formData.images.length >= 5
               ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-              : 'bg-[#F4FAFA] text-[#2A9D8F] border border-[#2A9D8F] hover:bg-[#2A9D8F] hover:text-white'
+              : 'bg-[#F4FAFA] dark:bg-slate-800 text-[#2A9D8F] dark:text-emerald-300 border border-[#2A9D8F] dark:border-emerald-700 hover:bg-[#2A9D8F] hover:text-white'
           }`}
         >
           {t('uploadButton')}
@@ -100,7 +100,7 @@ export default function ProductImagesStep({ formData, setFormData, onNext, onBac
       {formData.images.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {formData.images.map((img, index) => (
-            <div key={img.preview} className="relative group rounded-xl overflow-hidden border border-[#C5E0DC] aspect-square bg-white shadow-sm flex flex-col justify-between">
+            <div key={img.preview} className="relative group rounded-xl overflow-hidden border border-[#C5E0DC] dark:border-slate-700 aspect-square bg-white dark:bg-slate-900 shadow-sm flex flex-col justify-between">
               
               <div className="absolute top-2 right-2 flex gap-2 z-10 w-[calc(100%-16px)] justify-between pointer-events-none">
                  <div className="bg-[#2A9D8F] text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full pointer-events-auto shadow-sm">
@@ -108,7 +108,7 @@ export default function ProductImagesStep({ formData, setFormData, onNext, onBac
                  </div>
                  <button
                   onClick={() => removeImage(index)}
-                  className="bg-white text-[#E05252] w-6 h-6 flex items-center justify-center rounded-full shadow-sm hover:bg-[#E05252] hover:text-white transition-colors pointer-events-auto"
+                  className="bg-white dark:bg-slate-800 text-[#E05252] w-6 h-6 flex items-center justify-center rounded-full shadow-sm hover:bg-[#E05252] hover:text-white transition-colors pointer-events-auto"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -122,18 +122,18 @@ export default function ProductImagesStep({ formData, setFormData, onNext, onBac
 
               <img src={img.preview} alt={`preview ${index}`} className="w-full h-full object-cover" />
 
-              <div className="absolute bottom-0 left-0 right-0 h-10 bg-white/90 backdrop-blur-sm border-t border-[#C5E0DC] flex items-center justify-between px-2">
+              <div className="absolute bottom-0 left-0 right-0 h-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border-t border-[#C5E0DC] dark:border-slate-700 flex items-center justify-between px-2">
                  <button
                    onClick={(e) => { e.preventDefault(); moveImage(index, isRtl ? 1 : -1); }}
                    disabled={index === 0}
-                   className="p-1 rounded hover:bg-[#F4FAFA] disabled:opacity-30 disabled:hover:bg-transparent text-[#1A2E2C]"
+                   className="p-1 rounded hover:bg-[#F4FAFA] dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent text-[#1A2E2C] dark:text-slate-100"
                  >
                    {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
                  </button>
                  <button
                    onClick={(e) => { e.preventDefault(); moveImage(index, isRtl ? -1 : 1); }}
                    disabled={index === formData.images.length - 1}
-                   className="p-1 rounded hover:bg-[#F4FAFA] disabled:opacity-30 disabled:hover:bg-transparent text-[#1A2E2C]"
+                   className="p-1 rounded hover:bg-[#F4FAFA] dark:hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-transparent text-[#1A2E2C] dark:text-slate-100"
                  >
                    {isRtl ? <ArrowLeft className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
                  </button>
@@ -147,7 +147,7 @@ export default function ProductImagesStep({ formData, setFormData, onNext, onBac
       <div className="pt-6 flex flex-col md:flex-row justify-between gap-3">
         <button
           onClick={onBack}
-          className="w-full md:w-auto bg-white border border-[#C5E0DC] text-[#1A2E2C] hover:bg-[#F4FAFA] px-8 py-3 rounded-lg font-bold transition-colors"
+          className="w-full md:w-auto bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 text-[#1A2E2C] dark:text-slate-100 hover:bg-[#F4FAFA] dark:hover:bg-slate-800 px-8 py-3 rounded-lg font-bold transition-colors"
         >
           {t('previousStep')}
         </button>
