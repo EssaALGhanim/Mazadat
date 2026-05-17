@@ -1,7 +1,7 @@
 import { api } from './apiClient';
 
 // Flag to determine if we're using mock data or real API
-const USE_MOCK = true; // Set to false when backend is ready
+const USE_MOCK = false; // Backend endpoints are available
 
 // Mock storage key
 const WATCHLIST_STORAGE_KEY = 'mazadat_watchlist';

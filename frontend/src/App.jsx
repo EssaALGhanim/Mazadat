@@ -5,6 +5,7 @@ import { Toaster } from 'sonner'
 import AuthPage from './pages/AuthPage'
 import HomePage from './pages/HomePage'
 import SellerDashboard from './pages/SellerDashboard'
+import SellerAnalyticsPage from './pages/SellerAnalyticsPage'
 import SellerTeamPage from './pages/SellerTeamPage'
 import AuctionHouseSettingsPage from './pages/AuctionHouseSettingsPage'
 import EditProfilePage from './pages/EditProfilePage'
@@ -68,6 +69,11 @@ function App() {
             <Route path="/seller/team" element={
               <ProtectedRoute requiredRole="SELLER" redirectTo="/">
                 <SellerTeamPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/seller/analytics" element={
+              <ProtectedRoute requiredRole="SELLER" redirectTo="/">
+                <SellerAnalyticsPage />
               </ProtectedRoute>
             } />
             <Route path="/seller/settings" element={

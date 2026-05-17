@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Plus, User, LogOut, Trophy, BarChart3, Users, Bookmark, ShieldCheck, Moon, Sun } from 'lucide-react';
+import { Plus, User, LogOut, Trophy, BarChart3, LineChart, Users, Bookmark, ShieldCheck, Moon, Sun } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import NotificationBell from './NotificationBell';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -53,6 +53,16 @@ export default function TopNavigationBar({
                     >
                         <Users className="w-4 h-4" />
                         <span className="hidden lg:inline">{isAr ? 'الفريق' : 'Team'}</span>
+                    </button>
+                )}
+                {isSeller && (
+                    <button
+                        onClick={() => navigate('/seller/analytics')}
+                        className="flex items-center gap-1 text-[#6B9E99] hover:text-[#2A9D8F] text-sm font-semibold transition-colors"
+                        title={isAr ? 'التحليلات' : 'Analytics'}
+                    >
+                        <LineChart className="w-4 h-4" />
+                        <span className="hidden lg:inline">{isAr ? 'التحليلات' : 'Analytics'}</span>
                     </button>
                 )}
                 {isAdmin && (

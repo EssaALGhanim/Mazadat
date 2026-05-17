@@ -16,6 +16,8 @@ public interface WatchlistRepository extends JpaRepository<Watchlist, Integer> {
 
     Optional<Watchlist> findByBuyerIdAndAuctionId(Integer buyerId, Integer auctionId);
 
+    long countByAuctionId(Integer auctionId);
+
     void deleteByBuyerId(Integer buyerId);
 
     void deleteByAuctionId(Integer auctionId);
