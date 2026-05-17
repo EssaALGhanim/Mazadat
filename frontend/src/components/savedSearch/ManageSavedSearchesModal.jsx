@@ -114,18 +114,18 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
 
       {/* Modal */}
       <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl max-h-[80vh] overflow-hidden">
-        <div className="bg-white rounded-xl shadow-2xl border border-[#C5E0DC] m-4 flex flex-col max-h-[80vh]">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-[#C5E0DC] dark:border-slate-700 m-4 flex flex-col max-h-[80vh]">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-[#C5E0DC]">
-            <h2 className="text-xl font-bold text-[#1A2E2C] flex items-center gap-2">
+          <div className="flex items-center justify-between p-6 border-b border-[#C5E0DC] dark:border-slate-700">
+            <h2 className="text-xl font-bold text-[#1A2E2C] dark:text-slate-100 flex items-center gap-2">
               <Bookmark className="w-5 h-5 text-[#2A9D8F]" />
               {isAr ? 'إدارة عمليات البحث المحفوظة' : 'Manage Saved Searches'}
             </h2>
             <button
               onClick={handleClose}
-              className="p-2 hover:bg-[#F4FAFA] rounded-lg transition-colors"
+              className="p-2 hover:bg-[#F4FAFA] dark:hover:bg-slate-800 rounded-lg transition-colors"
             >
-              <X className="w-5 h-5 text-[#6B9E99]" />
+              <X className="w-5 h-5 text-[#6B9E99] dark:text-slate-400" />
             </button>
           </div>
 
@@ -135,7 +135,7 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
             {loading && (
               <div className="flex flex-col items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#C5E0DC] border-t-[#2A9D8F] mb-4" />
-                <p className="text-[#6B9E99] font-medium">
+                <p className="text-[#6B9E99] dark:text-slate-400 font-medium">
                   {isAr ? 'جاري التحميل...' : 'Loading...'}
                 </p>
               </div>
@@ -143,8 +143,8 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
 
             {/* Error State */}
             {!loading && error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                <p className="text-red-600 font-medium mb-4">{error}</p>
+              <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-700 rounded-lg p-6 text-center">
+                <p className="text-red-600 dark:text-red-300 font-medium mb-4">{error}</p>
                 <button
                   onClick={fetchSearches}
                   className="px-4 py-2 bg-[#2A9D8F] text-white rounded-lg font-semibold hover:bg-[#1A7A6E] transition-colors"
@@ -157,13 +157,13 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
             {/* Empty State */}
             {!loading && !error && searches.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12">
-                <div className="p-4 rounded-full bg-[#F4FAFA] mb-4">
-                  <Search className="w-12 h-12 text-[#6B9E99]" />
+                <div className="p-4 rounded-full bg-[#F4FAFA] dark:bg-slate-800 mb-4">
+                  <Search className="w-12 h-12 text-[#6B9E99] dark:text-slate-400" />
                 </div>
-                <h3 className="text-lg font-bold text-[#1A2E2C] mb-2">
+                <h3 className="text-lg font-bold text-[#1A2E2C] dark:text-slate-100 mb-2">
                   {isAr ? 'لا توجد عمليات بحث محفوظة' : 'No Saved Searches'}
                 </h3>
-                <p className="text-[#6B9E99] text-center max-w-sm">
+                <p className="text-[#6B9E99] dark:text-slate-400 text-center max-w-sm">
                   {isAr
                     ? 'احفظ تفضيلات البحث الخاصة بك للوصول السريع إلى المزادات المفضلة لديك.'
                     : 'Save your search preferences for quick access to your favorite auctions.'}
@@ -177,7 +177,7 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
                 {searches.map((search) => (
                   <div
                     key={search.id}
-                    className="bg-white border border-[#C5E0DC] rounded-lg p-4 hover:border-[#2A9D8F] transition-colors"
+                    className="bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 rounded-lg p-4 hover:border-[#2A9D8F] transition-colors"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
@@ -187,7 +187,7 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
                               type="text"
                               value={editName}
                               onChange={(e) => setEditName(e.target.value)}
-                              className="flex-1 px-3 py-2 border border-[#C5E0DC] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2A9D8F]"
+                              className="flex-1 px-3 py-2 border border-[#C5E0DC] dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2A9D8F] bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100"
                               autoFocus
                             />
                             <button
@@ -198,27 +198,27 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
                             </button>
                             <button
                               onClick={handleCancelEdit}
-                              className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
+                              className="p-2 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors"
                             >
                               <X className="w-4 h-4" />
                             </button>
                           </div>
                         ) : (
                           <>
-                            <h3 className="font-bold text-[#1A2E2C] mb-2">{search.name}</h3>
+                            <h3 className="font-bold text-[#1A2E2C] dark:text-slate-100 mb-2">{search.name}</h3>
                             <div className="flex flex-wrap gap-2 text-xs">
                               {search.filters.category && (
-                                <span className="px-2 py-1 bg-[#F4FAFA] text-[#6B9E99] rounded-md">
+                                <span className="px-2 py-1 bg-[#F4FAFA] dark:bg-slate-800 text-[#6B9E99] dark:text-slate-400 rounded-md">
                                   {search.filters.category}
                                 </span>
                               )}
                               {search.filters.status !== 'all' && (
-                                <span className="px-2 py-1 bg-[#F4FAFA] text-[#6B9E99] rounded-md">
+                                <span className="px-2 py-1 bg-[#F4FAFA] dark:bg-slate-800 text-[#6B9E99] dark:text-slate-400 rounded-md">
                                   {search.filters.status}
                                 </span>
                               )}
                               {search.filters.priceRange && (
-                                <span className="px-2 py-1 bg-[#F4FAFA] text-[#6B9E99] rounded-md">
+                                <span className="px-2 py-1 bg-[#F4FAFA] dark:bg-slate-800 text-[#6B9E99] dark:text-slate-400 rounded-md">
                                   {search.filters.priceRange[0]} - {search.filters.priceRange[1]} ﷼
                                 </span>
                               )}
@@ -237,7 +237,7 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
                           </button>
                           <button
                             onClick={() => handleEdit(search)}
-                            className="p-2 text-[#6B9E99] hover:bg-[#F4FAFA] rounded-lg transition-colors"
+                            className="p-2 text-[#6B9E99] dark:text-slate-400 hover:bg-[#F4FAFA] dark:hover:bg-slate-800 rounded-lg transition-colors"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
@@ -258,10 +258,10 @@ export default function ManageSavedSearchesModal({ open, onOpenChange, onLoadSea
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-[#C5E0DC]">
+          <div className="p-6 border-t border-[#C5E0DC] dark:border-slate-700">
             <button
               onClick={handleClose}
-              className="w-full px-4 py-3 bg-white border border-[#C5E0DC] text-[#6B9E99] rounded-lg font-semibold hover:bg-[#F4FAFA] transition-colors"
+              className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-600 text-[#6B9E99] dark:text-slate-300 rounded-lg font-semibold hover:bg-[#F4FAFA] dark:hover:bg-slate-800 transition-colors"
             >
               {isAr ? 'إغلاق' : 'Close'}
             </button>

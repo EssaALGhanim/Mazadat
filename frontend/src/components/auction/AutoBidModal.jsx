@@ -86,18 +86,18 @@ export default function AutoBidModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" dir={isAr ? 'rtl' : 'ltr'}>
-            <div className="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 rounded-2xl w-full max-w-md shadow-xl overflow-hidden animate-in fade-in zoom-in duration-200">
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-[#C5E0DC]">
-                    <h2 className="text-xl font-bold text-[#1A2E2C]">
+                <div className="flex items-center justify-between p-4 border-b border-[#C5E0DC] dark:border-slate-700">
+                    <h2 className="text-xl font-bold text-[#1A2E2C] dark:text-slate-100">
                         {t('autoBid.title')}
                     </h2>
                     <button
                         onClick={() => onOpenChange(false)}
-                        className="p-2 hover:bg-[#F4FAFA] rounded-full transition-colors"
+                        className="p-2 hover:bg-[#F4FAFA] dark:hover:bg-slate-800 rounded-full transition-colors"
                         disabled={submitting}
                     >
-                        <X className="w-5 h-5 text-[#6B9E99]" />
+                        <X className="w-5 h-5 text-[#6B9E99] dark:text-slate-400" />
                     </button>
                 </div>
 
@@ -109,7 +109,7 @@ export default function AutoBidModal({
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            <p className="text-[#6B9E99] text-sm">
+                            <p className="text-[#6B9E99] dark:text-slate-400 text-sm">
                                 {t('autoBid.description')}
                             </p>
 
@@ -137,14 +137,14 @@ export default function AutoBidModal({
                             )}
 
                             {/* Current & Min Bid Info */}
-                            <div className="bg-[#F4FAFA] p-4 rounded-xl border border-[#C5E0DC] grid grid-cols-2 gap-4">
+                            <div className="bg-[#F4FAFA] dark:bg-slate-800 p-4 rounded-xl border border-[#C5E0DC] dark:border-slate-700 grid grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-xs text-[#6B9E99]">{t('currentBid')}</p>
-                                    <p className="font-bold text-[#1A2E2C]" dir="ltr">{currentPrice} ﷼</p>
+                                    <p className="text-xs text-[#6B9E99] dark:text-slate-400">{t('currentBid')}</p>
+                                    <p className="font-bold text-[#1A2E2C] dark:text-slate-100" dir="ltr">{currentPrice} ﷼</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-[#6B9E99]">{isAr ? 'الحد الأدنى التالي' : 'Min Next Bid'}</p>
-                                    <p className="font-bold text-[#1A2E2C]" dir="ltr">{minBid} ﷼</p>
+                                    <p className="text-xs text-[#6B9E99] dark:text-slate-400">{isAr ? 'الحد الأدنى التالي' : 'Min Next Bid'}</p>
+                                    <p className="font-bold text-[#1A2E2C] dark:text-slate-100" dir="ltr">{minBid} ﷼</p>
                                 </div>
                             </div>
 
@@ -156,7 +156,7 @@ export default function AutoBidModal({
                                     onChange={(e) => setEnabled(e.target.checked)}
                                     className="w-5 h-5 rounded border-[#C5E0DC] text-[#2A9D8F] focus:ring-[#2A9D8F]"
                                 />
-                                <span className="font-semibold text-[#1A2E2C]">
+                                <span className="font-semibold text-[#1A2E2C] dark:text-slate-100">
                                     {t('autoBid.enable')}
                                 </span>
                             </label>
@@ -164,7 +164,7 @@ export default function AutoBidModal({
                             {/* Input Field */}
                             {enabled && (
                                 <div className="space-y-2 animate-in slide-in-from-top-2 duration-200">
-                                    <label className="block text-sm font-semibold text-[#1A2E2C]">
+                                    <label className="block text-sm font-semibold text-[#1A2E2C] dark:text-slate-200">
                                         {t('autoBid.maxAmount')}
                                     </label>
                                     <div className="relative">
@@ -173,12 +173,12 @@ export default function AutoBidModal({
                                             value={maxAmount}
                                             onChange={(e) => setMaxAmount(e.target.value)}
                                             placeholder={t('autoBid.placeholder')}
-                                            className={`w-full bg-white border ${localError ? 'border-[#E05252]' : 'border-[#C5E0DC]'} rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-[#2A9D8F] transition-all font-cairo ${isAr ? 'pl-14' : 'pr-14'}`}
+                                            className={`w-full bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 border ${localError ? 'border-[#E05252]' : 'border-[#C5E0DC] dark:border-slate-600'} rounded-xl py-3 px-4 outline-none focus:ring-2 focus:ring-[#2A9D8F] transition-all font-cairo ${isAr ? 'pl-14' : 'pr-14'}`}
                                             min={minBid}
                                             required
                                             dir="ltr"
                                         />
-                                        <span className={`absolute top-1/2 -translate-y-1/2 text-[#6B9E99] font-semibold ${isAr ? 'left-4' : 'right-4'}`}>
+                                        <span className={`absolute top-1/2 -translate-y-1/2 text-[#6B9E99] dark:text-slate-400 font-semibold ${isAr ? 'left-4' : 'right-4'}`}>
                                             ر.س
                                         </span>
                                     </div>
@@ -196,7 +196,7 @@ export default function AutoBidModal({
                                     type="button"
                                     onClick={() => onOpenChange(false)}
                                     disabled={submitting}
-                                    className="flex-1 px-4 py-3 bg-[#F4FAFA] text-[#2A9D8F] hover:bg-[#E2F1EF] rounded-xl font-bold transition-colors"
+                                    className="flex-1 px-4 py-3 bg-[#F4FAFA] dark:bg-slate-800 text-[#2A9D8F] dark:text-emerald-300 hover:bg-[#E2F1EF] dark:hover:bg-slate-700 rounded-xl font-bold transition-colors"
                                 >
                                     {t('autoBid.cancel')}
                                 </button>

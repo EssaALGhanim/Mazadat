@@ -35,7 +35,7 @@ export default function PoliciesPage() {
     const isBuyer = currentUser?.role === 'BUYER';
 
     return (
-        <div className="min-h-screen bg-[#F4FAFA] flex flex-col">
+        <div className="min-h-screen bg-[#F4FAFA] dark:bg-slate-950 flex flex-col">
             <TopNavigationBar
                 currentUser={currentUser}
                 isSeller={isSeller}
@@ -60,15 +60,15 @@ export default function PoliciesPage() {
                         {sections.map((section, index) => (
                             <div
                                 key={index}
-                                className="bg-white rounded-xl border border-[#C5E0DC] p-6 shadow-sm"
+                                className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 p-6 shadow-sm"
                             >
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="w-8 h-8 rounded-full bg-[#EAF7F5] flex items-center justify-center shrink-0">
                                         <span className="text-[#2A9D8F] font-bold text-sm">{index + 1}</span>
                                     </div>
-                                    <h2 className="text-lg font-bold text-[#1A2E2C]">{t(section.titleKey)}</h2>
+                                    <h2 className="text-lg font-bold text-[#1A2E2C] dark:text-slate-100">{t(section.titleKey)}</h2>
                                 </div>
-                                <p className="text-[#1A2E2C] font-normal text-sm leading-relaxed pe-4">
+                                <p className="text-[#1A2E2C] dark:text-slate-200 font-normal text-sm leading-relaxed pe-4">
                                     {t(section.contentKey)}
                                 </p>
                             </div>

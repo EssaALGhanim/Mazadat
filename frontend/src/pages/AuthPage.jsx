@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Check, Eye, EyeOff, Mail, ShieldCheck, Store, TrendingUp, User, X } from 'lucide-react';
+import { Check, Eye, EyeOff, Mail, Moon, ShieldCheck, Store, Sun, TrendingUp, User, X } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { useTheme } from '@/contexts/ThemeContext';
 import { login } from '@/services/authService';
 import { getSellerAuctionHouse } from '@/services/auctionHouseService';
 import { sendOtp, startRegistrationOtp, verifyOtp } from '@/services/notificationService';
@@ -176,19 +177,19 @@ function OtpModal({ maskedEmail, identifier, onVerified, onCancel, isAr }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 flex flex-col items-center gap-5" dir={isAr ? 'rtl' : 'ltr'}>
-        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#EAF7F5]">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-[#C5E0DC] dark:border-slate-700 w-full max-w-sm p-8 flex flex-col items-center gap-5" dir={isAr ? 'rtl' : 'ltr'}>
+        <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#EAF7F5] dark:bg-emerald-950/30">
           <ShieldCheck className="w-7 h-7 text-[#2A9D8F]" />
         </div>
         <div className="text-center">
-          <h3 className="text-xl font-bold text-[#1A2E2C]">{isAr ? 'التحقق من البريد الإلكتروني' : 'Email Verification'}</h3>
-          <p className="mt-1 text-sm text-[#6B9E99] flex items-center justify-center gap-1">
+          <h3 className="text-xl font-bold text-[#1A2E2C] dark:text-slate-100">{isAr ? 'التحقق من البريد الإلكتروني' : 'Email Verification'}</h3>
+          <p className="mt-1 text-sm text-[#6B9E99] dark:text-slate-400 flex items-center justify-center gap-1">
             <Mail className="w-4 h-4" />
             {isAr ? `تم إرسال رمز التحقق إلى ${maskedEmail}` : `Code sent to ${maskedEmail}`}
           </p>
         </div>
         {error && (
-          <div className="w-full bg-red-50 border border-[#E05252] text-[#E05252] rounded-lg px-3 py-2 text-sm text-center font-semibold">
+          <div className="w-full bg-red-50 dark:bg-red-950/30 border border-[#E05252] dark:border-red-700 text-[#E05252] dark:text-red-300 rounded-lg px-3 py-2 text-sm text-center font-semibold">
             {error}
           </div>
         )}
@@ -204,7 +205,7 @@ function OtpModal({ maskedEmail, identifier, onVerified, onCancel, isAr }) {
                 value={digit}
                 onChange={(e) => handleChange(e.target.value, idx)}
                 onKeyDown={(e) => handleKeyDown(e, idx)}
-                className="w-12 sm:w-14 text-center text-lg sm:text-xl font-bold border-2 rounded-lg outline-none transition-all text-[#1A2E2C] border-[#C5E0DC] focus:border-[#2A9D8F] focus:ring-2 focus:ring-[#2A9D8F]/30 bg-white"
+                className="w-12 sm:w-14 text-center text-lg sm:text-xl font-bold border-2 rounded-lg outline-none transition-all text-[#1A2E2C] dark:text-slate-100 border-[#C5E0DC] dark:border-slate-600 focus:border-[#2A9D8F] focus:ring-2 focus:ring-[#2A9D8F]/30 bg-white dark:bg-slate-800"
                 style={{ height: '48px' }}
               />
             ))}
@@ -217,7 +218,7 @@ function OtpModal({ maskedEmail, identifier, onVerified, onCancel, isAr }) {
             {loading ? '...' : (isAr ? 'تحقق' : 'Verify')}
           </Button>
         </form>
-        <div className="flex items-center gap-3 text-sm text-[#6B9E99]">
+        <div className="flex items-center gap-3 text-sm text-[#6B9E99] dark:text-slate-400">
           <span>{isAr ? 'لم تستلم الرمز؟' : "Didn't receive it?"}</span>
           <button
             onClick={handleResend}
@@ -227,7 +228,7 @@ function OtpModal({ maskedEmail, identifier, onVerified, onCancel, isAr }) {
             {resending ? '...' : (isAr ? 'إعادة إرسال' : 'Resend')}
           </button>
         </div>
-        <button onClick={onCancel} className="text-xs text-[#6B9E99] hover:text-[#1A2E2C] transition-colors">
+        <button onClick={onCancel} className="text-xs text-[#6B9E99] dark:text-slate-400 hover:text-[#1A2E2C] dark:hover:text-slate-100 transition-colors">
           {isAr ? 'إلغاء' : 'Cancel'}
         </button>
       </div>
@@ -293,8 +294,6 @@ function LoginForm() {
     }
     setPendingUser(user);
 
-    // continue with normal OTP flow
-
     // Step 2: send OTP — credentials are correct; show a softer error if OTP delivery fails
     try {
       const res = await sendOtp(formData.username);
@@ -316,25 +315,21 @@ function LoginForm() {
     } catch { navigate('/'); }
   };
 
-   const handleOtpCancel = () => { setOtpStep(false); setPendingUser(null); localStorage.removeItem('user'); };
+  const handleOtpCancel = () => { setOtpStep(false); setPendingUser(null); localStorage.removeItem('user'); };
 
-   
+  return (
+    <>
+      {otpStep && <OtpModal maskedEmail={maskedEmail} identifier={formData.username} onVerified={handleOtpVerified} onCancel={handleOtpCancel} isAr={isAr} />}
+      <form className="flex flex-col gap-5" onSubmit={handleSubmit} dir={isAr ? 'rtl' : 'ltr'}>
+        {error && (
+          <div className="flex items-start gap-2 rounded-lg border border-[#E05252] dark:border-red-700 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm font-semibold text-[#E05252] dark:text-red-300">
+            <X className="mt-0.5 h-4 w-4 shrink-0" />
+            {error}
+          </div>
+        )}
 
-    return (
-     <>
-       {otpStep && <OtpModal maskedEmail={maskedEmail} identifier={formData.username} onVerified={handleOtpVerified} onCancel={handleOtpCancel} isAr={isAr} />}
-       <form className="flex flex-col gap-5" onSubmit={handleSubmit} dir={isAr ? 'rtl' : 'ltr'}>
-        {/* development quick-login removed */}
-
-         {error && (
-           <div className="flex items-start gap-2 rounded-lg border border-[#E05252] bg-red-50 px-4 py-3 text-sm font-semibold text-[#E05252]">
-             <X className="mt-0.5 h-4 w-4 shrink-0" />
-             {error}
-           </div>
-         )}
-
-         <div className="flex flex-col gap-1">
-          <Label htmlFor="login-username" className="text-start text-[#1A2E2C]">{t('username')}</Label>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="login-username" className="text-start text-[#1A2E2C] dark:text-slate-200">{t('username')}</Label>
           <Input
             id="login-username"
             name="username"
@@ -342,13 +337,13 @@ function LoginForm() {
             value={formData.username}
             onChange={handleChange}
             placeholder={t('namePlaceholder')}
-            className={`h-11 rounded-lg border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 text-start ${fieldErrors.username ? 'border-[#E05252]' : ''}`}
+            className={`h-11 rounded-lg border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 text-start ${fieldErrors.username ? 'border-[#E05252]' : ''}`}
           />
           <FieldError message={fieldErrors.username} />
         </div>
 
         <div className="flex flex-col gap-1">
-          <Label htmlFor="login-password" className="text-start text-[#1A2E2C]">{t('password')}</Label>
+          <Label htmlFor="login-password" className="text-start text-[#1A2E2C] dark:text-slate-200">{t('password')}</Label>
           <div className="relative">
             <Input
               id="login-password"
@@ -358,10 +353,10 @@ function LoginForm() {
               onChange={handleChange}
               placeholder="••••••••"
               dir={isAr ? 'rtl' : 'ltr'}
-              className={`h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.password ? 'border-[#E05252]' : ''}`}
+              className={`h-11 rounded-lg border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 pe-11 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.password ? 'border-[#E05252]' : ''}`}
             />
             <button type="button" onClick={() => setShowPassword(!showPassword)}
-              className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99] transition-colors hover:text-[#1A2E2C]"
+              className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99] dark:text-slate-400 transition-colors hover:text-[#1A2E2C] dark:hover:text-slate-100"
               aria-label={showPassword ? t('hidePassword') : t('showPassword')}>
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
@@ -373,7 +368,7 @@ function LoginForm() {
           <div className="flex items-center gap-2">
             <Checkbox id="remember" checked={rememberMe} onCheckedChange={setRememberMe}
               className="border-[#C5E0DC] data-[state=checked]:border-[#2A9D8F] data-[state=checked]:bg-[#2A9D8F]" />
-            <Label htmlFor="remember" className="cursor-pointer text-sm font-normal text-[#6B9E99]">{t('rememberMe')}</Label>
+            <Label htmlFor="remember" className="cursor-pointer text-sm font-normal text-[#6B9E99] dark:text-slate-400">{t('rememberMe')}</Label>
           </div>
           <a href="#" className="text-sm text-[#2A9D8F] underline-offset-4 hover:underline">{t('forgotPassword')}</a>
         </div>
@@ -521,7 +516,7 @@ function RegisterForm() {
       {otpStep && <OtpModal maskedEmail={maskedEmail} identifier={formData.email} onVerified={handleOtpVerified} onCancel={handleOtpCancel} isAr={isAr} />}
       <form className="flex flex-col gap-5" onSubmit={handleSubmit} dir={isAr ? 'rtl' : 'ltr'}>
         {submitError && (
-          <div className="flex items-start gap-2 rounded-lg border border-[#E05252] bg-red-50 px-4 py-3 text-sm font-semibold text-[#E05252]">
+          <div className="flex items-start gap-2 rounded-lg border border-[#E05252] dark:border-red-700 bg-red-50 dark:bg-red-950/30 px-4 py-3 text-sm font-semibold text-[#E05252] dark:text-red-300">
             <X className="mt-0.5 h-4 w-4 shrink-0" />
             {submitError}
           </div>
@@ -529,7 +524,7 @@ function RegisterForm() {
 
         {/* Username */}
         <div className="flex flex-col gap-1">
-          <Label htmlFor="reg-username" className="text-start text-[#1A2E2C]">{t('username')}</Label>
+          <Label htmlFor="reg-username" className="text-start text-[#1A2E2C] dark:text-slate-200">{t('username')}</Label>
           <Input
             id="reg-username"
             name="username"
@@ -538,14 +533,14 @@ function RegisterForm() {
             onChange={handleChange}
             onBlur={(e) => handleBlur('username', e.target.value)}
             placeholder={t('namePlaceholder')}
-            className={`h-11 rounded-lg border-[#C5E0DC] bg-white text-start text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.username ? 'border-[#E05252] focus-visible:border-[#E05252]' : ''}`}
+            className={`h-11 rounded-lg border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 text-start text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.username ? 'border-[#E05252] focus-visible:border-[#E05252]' : ''}`}
           />
           <FieldError message={fieldErrors.username} />
         </div>
 
         {/* Email */}
         <div className="flex flex-col gap-1">
-          <Label htmlFor="reg-email" className="text-start text-[#1A2E2C]">{t('email')}</Label>
+          <Label htmlFor="reg-email" className="text-start text-[#1A2E2C] dark:text-slate-200">{t('email')}</Label>
           <Input
             id="reg-email"
             name="email"
@@ -555,18 +550,18 @@ function RegisterForm() {
             onBlur={(e) => handleBlur('email', e.target.value)}
             placeholder={t('emailPlaceholder')}
             dir="ltr"
-            className={`h-11 rounded-lg border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.email ? 'border-[#E05252] focus-visible:border-[#E05252]' : ''}`}
+            className={`h-11 rounded-lg border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.email ? 'border-[#E05252] focus-visible:border-[#E05252]' : ''}`}
           />
           <FieldError message={fieldErrors.email} />
         </div>
 
         {/* Phone with +966 prefix */}
         <div className="flex flex-col gap-1">
-          <Label htmlFor="reg-phone" className="text-start text-[#1A2E2C]">
+          <Label htmlFor="reg-phone" className="text-start text-[#1A2E2C] dark:text-slate-200">
             {t('phoneNumber')} <span className="text-[#E05252]">*</span>
           </Label>
           <div className="flex" dir="ltr">
-            <div className={`flex items-center rounded-s-lg border border-e-0 border-[#C5E0DC] bg-[#F4FAFA] px-3 text-sm font-semibold text-[#1A2E2C] select-none ${fieldErrors.phone ? 'border-[#E05252]' : ''}`}>
+            <div className={`flex items-center rounded-s-lg border border-e-0 border-[#C5E0DC] dark:border-slate-600 bg-[#F4FAFA] dark:bg-slate-800 px-3 text-sm font-semibold text-[#1A2E2C] dark:text-slate-100 select-none ${fieldErrors.phone ? 'border-[#E05252]' : ''}`}>
               +966
             </div>
             <Input
@@ -578,7 +573,7 @@ function RegisterForm() {
               inputMode="numeric"
               dir="ltr"
               maxLength={9}
-              className={`h-11 rounded-s-none rounded-e-lg border-[#C5E0DC] bg-white text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.phone ? 'border-[#E05252] focus-visible:border-[#E05252]' : ''}`}
+              className={`h-11 rounded-s-none rounded-e-lg border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.phone ? 'border-[#E05252] focus-visible:border-[#E05252]' : ''}`}
             />
           </div>
           <FieldError message={fieldErrors.phone} />
@@ -586,7 +581,7 @@ function RegisterForm() {
 
         {/* Password */}
         <div className="flex flex-col gap-1">
-          <Label htmlFor="reg-password" className="text-start text-[#1A2E2C]">{t('password')}</Label>
+          <Label htmlFor="reg-password" className="text-start text-[#1A2E2C] dark:text-slate-200">{t('password')}</Label>
           <div className="relative">
             <Input
               id="reg-password"
@@ -596,17 +591,17 @@ function RegisterForm() {
               onChange={handleChange}
               placeholder="••••••••"
               dir={isAr ? 'rtl' : 'ltr'}
-              className={`h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.password ? 'border-[#E05252] focus-visible:border-[#E05252]' : ''}`}
+              className={`h-11 rounded-lg border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 pe-11 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.password ? 'border-[#E05252] focus-visible:border-[#E05252]' : ''}`}
             />
             <button type="button" onClick={() => setShowPassword(!showPassword)}
-              className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99] hover:text-[#1A2E2C]">
+              className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99] dark:text-slate-400 hover:text-[#1A2E2C] dark:hover:text-slate-100">
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
 
           {/* Live password strength checklist */}
           {passwordTouched && formData.password && (
-            <div dir={isAr ? 'rtl' : 'ltr'} className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-lg border border-[#E4EFED] bg-[#F8FCFB] px-3 py-2.5">
+            <div dir={isAr ? 'rtl' : 'ltr'} className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-lg border border-[#E4EFED] dark:border-slate-700 bg-[#F8FCFB] dark:bg-slate-900 px-3 py-2.5">
               <CheckItem met={passwordChecks.length}  label={t('pwdMinLength')} />
               <CheckItem met={passwordChecks.maxLen}  label={t('pwdMaxLength')} />
               <CheckItem met={passwordChecks.upper}   label={t('pwdUppercase')} />
@@ -620,7 +615,7 @@ function RegisterForm() {
 
         {/* Confirm Password */}
         <div className="flex flex-col gap-1">
-          <Label htmlFor="reg-confirm" className="text-start text-[#1A2E2C]">{t('confirmPassword')}</Label>
+          <Label htmlFor="reg-confirm" className="text-start text-[#1A2E2C] dark:text-slate-200">{t('confirmPassword')}</Label>
           <div className="relative">
             <Input
               id="reg-confirm"
@@ -631,10 +626,10 @@ function RegisterForm() {
               onBlur={(e) => handleBlur('confirmPassword', e.target.value)}
               placeholder="••••••••"
               dir={isAr ? 'rtl' : 'ltr'}
-              className={`h-11 rounded-lg border-[#C5E0DC] bg-white pe-11 text-[#1A2E2C] placeholder:text-[#6B9E99] focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.confirmPassword ? 'border-[#E05252] focus-visible:border-[#E05252]' : ''}`}
+              className={`h-11 rounded-lg border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 pe-11 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 focus-visible:border-[#2A9D8F] focus-visible:ring-[#2A9D8F]/30 ${fieldErrors.confirmPassword ? 'border-[#E05252] focus-visible:border-[#E05252]' : ''}`}
             />
             <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99] hover:text-[#1A2E2C]">
+              className="absolute end-3 top-1/2 -translate-y-1/2 text-[#6B9E99] dark:text-slate-400 hover:text-[#1A2E2C] dark:hover:text-slate-100">
               {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
@@ -643,7 +638,7 @@ function RegisterForm() {
 
         {/* Role Selector */}
         <div className="flex flex-col gap-3">
-          <Label className="text-start text-[#1A2E2C]">{t('accountType')}</Label>
+          <Label className="text-start text-[#1A2E2C] dark:text-slate-200">{t('accountType')}</Label>
           <div className="grid grid-cols-2 gap-3">
             {[
               { key: 'buyer', Icon: User },
@@ -655,11 +650,11 @@ function RegisterForm() {
                 onClick={() => setRole(key)}
                 className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
                   role === key
-                    ? 'border-[#2A9D8F] bg-[#EAF7F5] text-[#2A9D8F] shadow-sm'
-                    : 'border-[#C5E0DC] bg-white text-[#6B9E99] hover:border-[#3DBFB0] hover:bg-[#F4FAFA]'
+                    ? 'border-[#2A9D8F] bg-[#EAF7F5] dark:bg-emerald-950/30 text-[#2A9D8F] dark:text-emerald-300 shadow-sm'
+                    : 'border-[#C5E0DC] dark:border-slate-700 bg-white dark:bg-slate-900 text-[#6B9E99] dark:text-slate-400 hover:border-[#3DBFB0] hover:bg-[#F4FAFA] dark:hover:bg-slate-800'
                 }`}
               >
-                <Icon className={`h-8 w-8 ${role === key ? 'text-[#2A9D8F]' : 'text-[#6B9E99]'}`} />
+                <Icon className={`h-8 w-8 ${role === key ? 'text-[#2A9D8F] dark:text-emerald-300' : 'text-[#6B9E99] dark:text-slate-400'}`} />
                 <span className="font-semibold">{t(key)}</span>
                 <span className="text-xs opacity-70">{t(`${key}Desc`)}</span>
               </button>
@@ -675,7 +670,7 @@ function RegisterForm() {
             onCheckedChange={setTermsAccepted}
             className="mt-0.5 border-[#C5E0DC] data-[state=checked]:border-[#2A9D8F] data-[state=checked]:bg-[#2A9D8F]"
           />
-          <Label htmlFor="terms" className="cursor-pointer text-sm font-normal leading-relaxed text-[#6B9E99] text-start">
+          <Label htmlFor="terms" className="cursor-pointer text-sm font-normal leading-relaxed text-[#6B9E99] dark:text-slate-400 text-start">
             {t('agreeTo')}{' '}
             <a href="/policies" className="text-[#2A9D8F] underline underline-offset-4 hover:text-[#3DBFB0]">{t('termsAndConditions')}</a>{' '}
             {t('and')}{' '}
@@ -700,12 +695,22 @@ function RegisterForm() {
 export default function AuthPage() {
   const { t, i18n } = useTranslation('auth');
   const { t: tCommon } = useTranslation('common');
+  const { isDark, toggleTheme } = useTheme();
   const isAr = i18n.language === 'ar';
   const dir = isAr ? 'rtl' : 'ltr';
 
   return (
     <div className="flex min-h-screen">
       <LanguageSwitcher />
+      <button
+        onClick={toggleTheme}
+        className="fixed top-4 end-[92px] z-50 inline-flex items-center gap-1.5 rounded-lg border border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-semibold text-[#2A9D8F] dark:text-slate-100 shadow-sm transition-colors hover:bg-[#F4FAFA] dark:hover:bg-slate-700"
+        title={isDark ? (isAr ? 'الوضع الفاتح' : 'Light mode') : (isAr ? 'الوضع الداكن' : 'Dark mode')}
+        aria-label={isDark ? (isAr ? 'الوضع الفاتح' : 'Light mode') : (isAr ? 'الوضع الداكن' : 'Dark mode')}
+      >
+        {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        <span className="hidden sm:inline">{isDark ? (isAr ? 'فاتح' : 'Light') : (isAr ? 'داكن' : 'Dark')}</span>
+      </button>
 
       <div className="relative hidden w-1/2 overflow-hidden bg-[#1A7A6E] lg:flex lg:flex-col lg:items-center lg:justify-center">
         <GeometricPattern />
@@ -726,7 +731,7 @@ export default function AuthPage() {
         <div className="absolute -top-20 -end-20 h-40 w-40 rounded-full bg-white/5" />
       </div>
 
-      <div className="relative flex w-full flex-col items-center justify-center bg-[#F4FAFA] px-6 py-12 lg:w-1/2 lg:px-16">
+      <div className="relative flex w-full flex-col items-center justify-center bg-[#F4FAFA] dark:bg-slate-950 px-6 py-12 lg:w-1/2 lg:px-16">
         <div className="absolute top-4 start-8 hidden lg:flex items-center gap-2">
           <span className="text-2xl font-bold text-[#2A9D8F]">{tCommon('brandName')}</span>
           <TrendingUp strokeWidth={3} className="h-6 w-6 text-[#2A9D8F]" />
@@ -741,29 +746,29 @@ export default function AuthPage() {
 
         <div className="w-full max-w-md mt-6 lg:mt-0">
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="mt-4 mb-8 grid h-12 w-full grid-cols-2 rounded-xl border border-[#C5E0DC] bg-white p-1">
+            <TabsList className="mt-4 mb-8 grid h-12 w-full grid-cols-2 rounded-xl border border-[#C5E0DC] dark:border-slate-700 bg-white dark:bg-slate-900 p-1">
               <TabsTrigger value="login"
-                className="rounded-lg text-base font-semibold text-[#6B9E99] data-[state=active]:bg-[#2A9D8F] data-[state=active]:text-white data-[state=active]:shadow-sm">
+                className="rounded-lg text-base font-semibold text-[#6B9E99] dark:text-slate-300 data-[state=active]:bg-[#2A9D8F] data-[state=active]:text-white data-[state=active]:shadow-sm">
                 {t('login')}
               </TabsTrigger>
               <TabsTrigger value="register"
-                className="rounded-lg text-base font-semibold text-[#6B9E99] data-[state=active]:bg-[#2A9D8F] data-[state=active]:text-white data-[state=active]:shadow-sm">
+                className="rounded-lg text-base font-semibold text-[#6B9E99] dark:text-slate-300 data-[state=active]:bg-[#2A9D8F] data-[state=active]:text-white data-[state=active]:shadow-sm">
                 {t('register')}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="login" className="mt-0">
               <div className="mb-6 text-start" dir={dir}>
-                <h2 className="text-2xl font-bold text-[#1A2E2C]">{t('welcomeBack')}</h2>
-                <p className="mt-1 text-[#6B9E99]">{t('loginToContinue')}</p>
+                <h2 className="text-2xl font-bold text-[#1A2E2C] dark:text-slate-100">{t('welcomeBack')}</h2>
+                <p className="mt-1 text-[#6B9E99] dark:text-slate-300">{t('loginToContinue')}</p>
               </div>
               <LoginForm />
             </TabsContent>
 
             <TabsContent value="register" className="mt-0">
               <div className="mb-6 text-start" dir={dir}>
-                <h2 className="text-2xl font-bold text-[#1A2E2C]">{t('createAccountTitle')}</h2>
-                <p className="mt-1 text-[#6B9E99]">{t('joinUs')}</p>
+                <h2 className="text-2xl font-bold text-[#1A2E2C] dark:text-slate-100">{t('createAccountTitle')}</h2>
+                <p className="mt-1 text-[#6B9E99] dark:text-slate-300">{t('joinUs')}</p>
               </div>
               <RegisterForm />
             </TabsContent>

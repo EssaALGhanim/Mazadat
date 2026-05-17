@@ -45,7 +45,7 @@ export default function ReportAuctionModal({ open, onOpenChange, auction }) {
         <Dialog open={open} onOpenChange={handleClose}>
             <DialogContent
                 dir={i18n.dir()}
-                className="max-w-md border-[#A8CFC8] bg-gradient-to-br from-[#F1FBF8] via-[#FBFEFD] to-[#EEF6FF] shadow-[0_24px_70px_rgba(26,46,44,0.22)]"
+                className="max-w-md border-[#A8CFC8] dark:border-slate-700 bg-gradient-to-br from-[#F1FBF8] via-[#FBFEFD] to-[#EEF6FF] dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shadow-[0_24px_70px_rgba(26,46,44,0.22)]"
             >
                 <DialogHeader className="rounded-2xl border border-[#D8ECE8] bg-gradient-to-r from-[#C73F3F] to-[#E05252] px-5 py-4 text-start shadow-sm">
                     <DialogTitle className="flex items-center gap-2 text-white">
@@ -58,11 +58,11 @@ export default function ReportAuctionModal({ open, onOpenChange, auction }) {
                 </DialogHeader>
 
                 {auction && (
-                    <div className="rounded-xl border border-[#D7E8E5] bg-[#F8FCFB] px-4 py-3 text-sm">
-                        <p className="text-[#6B9E99]">{t('report.listing')}</p>
-                        <p className="mt-1 font-semibold text-[#1A2E2C] break-words">{auction.title}</p>
+                    <div className="rounded-xl border border-[#D7E8E5] dark:border-slate-700 bg-[#F8FCFB] dark:bg-slate-900 px-4 py-3 text-sm">
+                        <p className="text-[#6B9E99] dark:text-slate-400">{t('report.listing')}</p>
+                        <p className="mt-1 font-semibold text-[#1A2E2C] dark:text-slate-100 break-words">{auction.title}</p>
                         {auction.sellerName && (
-                            <p className="mt-0.5 text-[#5F7D79]">
+                            <p className="mt-0.5 text-[#5F7D79] dark:text-slate-400">
                                 {t('report.seller')}: <span className="font-medium">{auction.sellerName}</span>
                             </p>
                         )}
@@ -70,9 +70,9 @@ export default function ReportAuctionModal({ open, onOpenChange, auction }) {
                 )}
 
                 <div className="space-y-2">
-                    <label className="text-sm font-medium text-[#1A2E2C]">
+                    <label className="text-sm font-medium text-[#1A2E2C] dark:text-slate-200">
                         {t('report.reasonLabel')}
-                        <span className="ml-1 text-[#6B9E99] font-normal">({t('report.optional')})</span>
+                        <span className="ml-1 text-[#6B9E99] dark:text-slate-400 font-normal">({t('report.optional')})</span>
                     </label>
                     <Textarea
                         value={message}
@@ -80,16 +80,16 @@ export default function ReportAuctionModal({ open, onOpenChange, auction }) {
                         placeholder={t('report.reasonPlaceholder')}
                         maxLength={1000}
                         rows={4}
-                        className="resize-none border-[#C5E0DC] bg-white focus-visible:ring-[#2A9D8F]"
+                        className="resize-none border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 focus-visible:ring-[#2A9D8F]"
                         dir={isAr ? 'rtl' : 'ltr'}
                     />
-                    <p className="text-right text-xs text-[#6B9E99]">{message.length}/1000</p>
+                    <p className="text-right text-xs text-[#6B9E99] dark:text-slate-400">{message.length}/1000</p>
                 </div>
 
                 <div className="flex gap-3 pt-1">
                     <Button
                         variant="outline"
-                        className="flex-1 border-[#C5E0DC] text-[#5F7D79] hover:bg-[#F4FAFA]"
+                        className="flex-1 border-[#C5E0DC] dark:border-slate-600 text-[#5F7D79] dark:text-slate-300 hover:bg-[#F4FAFA] dark:hover:bg-slate-800"
                         onClick={handleClose}
                         disabled={loading}
                     >

@@ -29,15 +29,15 @@ export default function StepIndicator({ currentStep }) {
                     isCompleted
                       ? 'bg-[#2A9D8F] border-[#2A9D8F] text-white'
                       : isCurrent
-                      ? 'border-[#2A9D8F] text-[#2A9D8F] bg-white'
-                      : 'border-[#6B9E99] text-[#6B9E99] bg-white'
+                      ? 'border-[#2A9D8F] text-[#2A9D8F] dark:text-emerald-300 bg-white dark:bg-slate-900'
+                      : 'border-[#6B9E99] dark:border-slate-600 text-[#6B9E99] dark:text-slate-400 bg-white dark:bg-slate-900'
                   }`}
                 >
                   {isCompleted ? <Check className="w-5 h-5" /> : stepNumber}
                 </div>
                 <span
                   className={`absolute top-12 text-sm whitespace-nowrap font-medium ${
-                    isCompleted || isCurrent ? 'text-[#1A2E2C]' : 'text-[#6B9E99]'
+                    isCompleted || isCurrent ? 'text-[#1A2E2C] dark:text-slate-100' : 'text-[#6B9E99] dark:text-slate-400'
                   }`}
                 >
                   {t(key)}
@@ -47,7 +47,7 @@ export default function StepIndicator({ currentStep }) {
               {index < stepsKey.length - 1 && (
                 <div
                   className={`flex-1 h-0.5 mx-4 transition-colors ${
-                    isCompleted ? 'bg-[#2A9D8F]' : 'bg-[#C5E0DC]'
+                    isCompleted ? 'bg-[#2A9D8F]' : 'bg-[#C5E0DC] dark:bg-slate-700'
                   }`}
                 />
               )}
@@ -71,8 +71,8 @@ export default function StepIndicator({ currentStep }) {
                     isCompleted
                       ? 'bg-[#2A9D8F] border-[#2A9D8F] text-white'
                       : isCurrent
-                      ? 'border-[#2A9D8F] text-[#2A9D8F] bg-white'
-                      : 'border-[#6B9E99] text-[#6B9E99] bg-white'
+                      ? 'border-[#2A9D8F] text-[#2A9D8F] dark:text-emerald-300 bg-white dark:bg-slate-900'
+                      : 'border-[#6B9E99] dark:border-slate-600 text-[#6B9E99] dark:text-slate-400 bg-white dark:bg-slate-900'
                   }`}
                 >
                   {isCompleted ? <Check className="w-4 h-4" /> : stepNumber}
@@ -80,7 +80,7 @@ export default function StepIndicator({ currentStep }) {
                 {index < stepsKey.length - 1 && (
                   <div
                     className={`w-4 h-0.5 transition-colors ${
-                      isCompleted ? 'bg-[#2A9D8F]' : 'bg-[#C5E0DC]'
+                      isCompleted ? 'bg-[#2A9D8F]' : 'bg-[#C5E0DC] dark:bg-slate-700'
                     }`}
                   />
                 )}
@@ -88,7 +88,7 @@ export default function StepIndicator({ currentStep }) {
             );
           })}
         </div>
-        <div className="text-[#1A2E2C] font-semibold text-sm">
+        <div className="text-[#1A2E2C] dark:text-slate-100 font-semibold text-sm">
           {t('step' + currentStep + 'Title')}
         </div>
       </div>

@@ -202,9 +202,9 @@ export default function SellerDashboard() {
 
     if (currentUser?.role !== 'SELLER') {
         return (
-            <div className="min-h-screen bg-[#F0F2F5] flex items-center justify-center">
-                <div className="bg-white rounded-lg p-8 text-center">
-                    <p className="text-gray-600 mb-4">{isAr ? 'هذه الصفحة خاصة بالبائعين فقط' : 'This page is for sellers only'}</p>
+            <div className="min-h-screen bg-[#F0F2F5] dark:bg-slate-950 flex items-center justify-center">
+                <div className="bg-white dark:bg-slate-900 border border-transparent dark:border-slate-700 rounded-lg p-8 text-center">
+                    <p className="text-gray-600 dark:text-slate-300 mb-4">{isAr ? 'هذه الصفحة خاصة بالبائعين فقط' : 'This page is for sellers only'}</p>
                     <button
                         onClick={() => navigate('/')}
                         className="bg-[#2A9D8F] text-white px-6 py-2 rounded-lg font-semibold hover:bg-[#1A7A6E] transition-colors"
@@ -217,7 +217,7 @@ export default function SellerDashboard() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F0F2F5] flex flex-col">
+        <div className="min-h-screen bg-[#F0F2F5] dark:bg-slate-950 flex flex-col">
             <TopNavigationBar
                 currentUser={currentUser}
                 isSeller={true}
@@ -231,11 +231,11 @@ export default function SellerDashboard() {
                 <div className="container mx-auto px-4 py-8 max-w-7xl">
                     {/* Header Section */}
                     <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-[#1A2E2C] mb-2">
+                        <h1 className="text-3xl font-bold text-[#1A2E2C] dark:text-slate-100 mb-2">
                             {isAr ? 'لوحة التحكم - البائع' : 'Seller Dashboard'}
                         </h1>
                         {auctionHouse && (
-                            <p className="text-[#6B9E99] text-lg">{auctionHouse.name}</p>
+                            <p className="text-[#6B9E99] dark:text-slate-300 text-lg">{auctionHouse.name}</p>
                         )}
                     </div>
 
@@ -261,10 +261,10 @@ export default function SellerDashboard() {
                     {auctionHouse && (
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                             {/* Total Auctions */}
-                            <div className="bg-white rounded-lg p-6 border border-[#C5E0DC] shadow-sm hover:shadow-md transition-shadow">
+                            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-[#C5E0DC] dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-[#6B9E99] text-sm font-semibold mb-1">
+                                        <p className="text-[#6B9E99] dark:text-slate-300 text-sm font-semibold mb-1">
                                             {isAr ? 'إجمالي المزادات' : 'Total Auctions'}
                                         </p>
                                         <p className="text-3xl font-bold text-[#2A9D8F]">{stats.total}</p>
@@ -274,10 +274,10 @@ export default function SellerDashboard() {
                             </div>
 
                             {/* Active Auctions */}
-                            <div className="bg-white rounded-lg p-6 border border-[#C5E0DC] shadow-sm hover:shadow-md transition-shadow">
+                            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-[#C5E0DC] dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-[#6B9E99] text-sm font-semibold mb-1">
+                                        <p className="text-[#6B9E99] dark:text-slate-300 text-sm font-semibold mb-1">
                                             {isAr ? 'مزادات نشطة' : 'Active Auctions'}
                                         </p>
                                         <p className="text-3xl font-bold text-green-600">{stats.active}</p>
@@ -287,10 +287,10 @@ export default function SellerDashboard() {
                             </div>
 
                             {/* Completed Auctions */}
-                            <div className="bg-white rounded-lg p-6 border border-[#C5E0DC] shadow-sm hover:shadow-md transition-shadow">
+                            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-[#C5E0DC] dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-[#6B9E99] text-sm font-semibold mb-1">
+                                        <p className="text-[#6B9E99] dark:text-slate-300 text-sm font-semibold mb-1">
                                             {isAr ? 'مزادات منتهية' : 'Completed'}
                                         </p>
                                         <p className="text-3xl font-bold text-blue-600">{stats.completed}</p>
@@ -300,10 +300,10 @@ export default function SellerDashboard() {
                             </div>
 
                             {/* Total Bids */}
-                            <div className="bg-white rounded-lg p-6 border border-[#C5E0DC] shadow-sm hover:shadow-md transition-shadow">
+                            <div className="bg-white dark:bg-slate-900 rounded-lg p-6 border border-[#C5E0DC] dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-[#6B9E99] text-sm font-semibold mb-1">
+                                        <p className="text-[#6B9E99] dark:text-slate-300 text-sm font-semibold mb-1">
                                             {isAr ? 'إجمالي المزايدات' : 'Total Bids'}
                                         </p>
                                         <p className="text-3xl font-bold text-[#2A9D8F]">{stats.totalBids}</p>
@@ -317,12 +317,12 @@ export default function SellerDashboard() {
                     {/* Team & Settings moved to dedicated Team page */}
                     {auctionHouse && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                            <div className="bg-white rounded-lg border border-[#C5E0DC] p-5 shadow-sm flex items-center justify-between gap-4">
+                            <div className="bg-white dark:bg-slate-900 rounded-lg border border-[#C5E0DC] dark:border-slate-700 p-5 shadow-sm flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-3">
                                     <ShieldPlus className="w-5 h-5 text-[#2A9D8F]" />
                                     <div>
-                                        <p className="font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">{isAr ? 'إدارة الفريق والصلاحيات' : 'Team & Permissions'}</p>
-                                        <p className="text-xs text-[#6B9E99]">{isAr ? 'إضافة أعضاء، إزالة أعضاء، وترقية مسؤولين' : 'Add members, remove members, and promote admins'}</p>
+                                        <p className="font-semibold text-[#1A2E2C] dark:text-slate-100 rtl:text-right ltr:text-left">{isAr ? 'إدارة الفريق والصلاحيات' : 'Team & Permissions'}</p>
+                                        <p className="text-xs text-[#6B9E99] dark:text-slate-300">{isAr ? 'إضافة أعضاء، إزالة أعضاء، وترقية مسؤولين' : 'Add members, remove members, and promote admins'}</p>
                                     </div>
                                 </div>
                                 <button
@@ -334,10 +334,10 @@ export default function SellerDashboard() {
                             </div>
 
                             {isSellerAdmin && (
-                                <div className="bg-white rounded-lg border border-[#C5E0DC] p-5 shadow-sm flex items-center justify-between gap-4">
+                                <div className="bg-white dark:bg-slate-900 rounded-lg border border-[#C5E0DC] dark:border-slate-700 p-5 shadow-sm flex items-center justify-between gap-4">
                                     <div>
-                                        <p className="font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">{isAr ? 'إعدادات صالة المزاد' : 'Auction House Settings'}</p>
-                                        <p className="text-xs text-[#6B9E99]">{isAr ? 'تحديث IBAN والبيانات' : 'Update IBAN & profile'}</p>
+                                        <p className="font-semibold text-[#1A2E2C] dark:text-slate-100 rtl:text-right ltr:text-left">{isAr ? 'إعدادات صالة المزاد' : 'Auction House Settings'}</p>
+                                        <p className="text-xs text-[#6B9E99] dark:text-slate-300">{isAr ? 'تحديث IBAN والبيانات' : 'Update IBAN & profile'}</p>
                                     </div>
                                     <button
                                         onClick={() => navigate('/seller/settings')}
@@ -390,7 +390,7 @@ export default function SellerDashboard() {
                                             className={`px-4 py-3 rounded-lg font-semibold transition-colors ${
                                                 filterStatus === status
                                                     ? 'bg-[#2A9D8F] text-white'
-                                                    : 'bg-white text-[#6B9E99] border-2 border-[#C5E0DC] hover:bg-[#F4FAFA]'
+                                                    : 'bg-white dark:bg-slate-900 text-[#6B9E99] dark:text-slate-300 border-2 border-[#C5E0DC] dark:border-slate-700 hover:bg-[#F4FAFA] dark:hover:bg-slate-800'
                                             }`}
                                         >
                                             {status === 'all' && (isAr ? 'جميع' : 'All')}
@@ -409,7 +409,7 @@ export default function SellerDashboard() {
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         placeholder={isAr ? "البحث في المزادات بالاسم أو رقم المعرف..." : "Search auctions by name or ID..."}
-                                        className={`w-full ${isAr ? 'pr-12 pl-4' : 'pl-12 pr-4'} py-3 bg-white border-2 border-[#C5E0DC] rounded-xl focus:outline-none focus:border-[#2A9D8F] focus:ring-0 text-[#1A2E2C] placeholder-[#6B9E99] shadow-sm text-base font-medium transition-all hover:border-[#6B9E99]`}
+                                        className={`w-full ${isAr ? 'pr-12 pl-4' : 'pl-12 pr-4'} py-3 bg-white dark:bg-slate-900 border-2 border-[#C5E0DC] dark:border-slate-700 rounded-xl focus:outline-none focus:border-[#2A9D8F] focus:ring-0 text-[#1A2E2C] dark:text-slate-100 placeholder-[#6B9E99] dark:placeholder:text-slate-400 shadow-sm text-base font-medium transition-all hover:border-[#6B9E99]`}
                                     />
                                 </div>
 
@@ -425,8 +425,8 @@ export default function SellerDashboard() {
 
                             {/* Auctions Table/Grid */}
                             {filteredAuctions.length === 0 ? (
-                                <div className="bg-white rounded-lg border border-[#C5E0DC] p-12 text-center">
-                                    <p className="text-[#6B9E99] font-semibold text-lg">
+                                <div className="bg-white dark:bg-slate-900 rounded-lg border border-[#C5E0DC] dark:border-slate-700 p-12 text-center">
+                                    <p className="text-[#6B9E99] dark:text-slate-300 font-semibold text-lg">
                                         {filterStatus === 'all' && (isAr ? 'لا توجد مزادات' : 'No auctions yet')}
                                         {filterStatus === 'pending' && (isAr ? 'لا توجد مزادات قيد الانتظار' : 'No pending auctions')}
                                         {filterStatus === 'active' && (isAr ? 'لا توجد مزادات نشطة' : 'No active auctions')}
@@ -434,27 +434,27 @@ export default function SellerDashboard() {
                                     </p>
                                 </div>
                             ) : (
-                                <div className="bg-white rounded-lg border border-[#C5E0DC] overflow-hidden shadow-sm">
+                                <div className="bg-white dark:bg-slate-900 rounded-lg border border-[#C5E0DC] dark:border-slate-700 overflow-hidden shadow-sm">
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
-                                            <thead className="bg-[#F4FAFA] border-b border-[#C5E0DC]">
+                                            <thead className="bg-[#F4FAFA] dark:bg-slate-800 border-b border-[#C5E0DC] dark:border-slate-700">
                                                 <tr>
-                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] dark:text-slate-100 rtl:text-right ltr:text-left">
                                                         {isAr ? 'المزاد' : 'Auction'}
                                                     </th>
-                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] dark:text-slate-100 rtl:text-right ltr:text-left">
                                                         {isAr ? 'الحالة' : 'Status'}
                                                     </th>
-                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] dark:text-slate-100 rtl:text-right ltr:text-left">
                                                         {isAr ? 'السعر الحالي' : 'Current Price'}
                                                     </th>
-                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] dark:text-slate-100 rtl:text-right ltr:text-left">
                                                         {isAr ? 'المزايدات' : 'Bids'}
                                                     </th>
-                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] dark:text-slate-100 rtl:text-right ltr:text-left">
                                                         {isAr ? 'انتهاء' : 'Ends'}
                                                     </th>
-                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">
+                                                    <th className="px-6 py-4 text-sm font-semibold text-[#1A2E2C] dark:text-slate-100 rtl:text-right ltr:text-left">
                                                         {isAr ? 'الإجراءات' : 'Actions'}
                                                     </th>
                                                 </tr>
@@ -466,7 +466,7 @@ export default function SellerDashboard() {
                                                     const countdownTarget = isPending ? startDate : endDate;
                                                     const countdownMode = isPending ? 'start' : 'end';
                                                     return (
-                                                        <tr key={auction.id} className="border-b border-[#C5E0DC] hover:bg-[#F4FAFA] transition-colors">
+                                                        <tr key={auction.id} className="border-b border-[#C5E0DC] dark:border-slate-700 hover:bg-[#F4FAFA] dark:hover:bg-slate-800 transition-colors">
                                                             <td className="px-6 py-4">
                                                                 <div className="flex items-center gap-3">
                                                                     {auction.images?.[0] && (
@@ -477,10 +477,10 @@ export default function SellerDashboard() {
                                                                         />
                                                                     )}
                                                                     <div>
-                                                                        <p className="font-semibold text-[#1A2E2C] line-clamp-1 rtl:text-right ltr:text-left" dir={isAr ? 'rtl' : 'ltr'}>
+                                                                        <p className="font-semibold text-[#1A2E2C] dark:text-slate-100 line-clamp-1 rtl:text-right ltr:text-left" dir={isAr ? 'rtl' : 'ltr'}>
                                                                             {auction.title}
                                                                         </p>
-                                                                        <p className="text-xs text-[#6B9E99]">ID: {auction.id}</p>
+                                                                        <p className="text-xs text-[#6B9E99] dark:text-slate-400">ID: {auction.id}</p>
                                                                     </div>
                                                                 </div>
                                                             </td>
@@ -495,12 +495,12 @@ export default function SellerDashboard() {
                                                                 </p>
                                                             </td>
                                                             <td className="px-6 py-4">
-                                                                <p className="font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">{auction.bidCount || 0}</p>
+                                                                <p className="font-semibold text-[#1A2E2C] dark:text-slate-100 rtl:text-right ltr:text-left">{auction.bidCount || 0}</p>
                                                             </td>
                                                             <td className="px-6 py-4">
                                                                 <div className="flex items-center gap-1">
-                                                                    <Clock className="w-4 h-4 text-[#6B9E99]" />
-                                                                    <div className="text-sm text-[#6B9E99]">
+                                                                    <Clock className="w-4 h-4 text-[#6B9E99] dark:text-slate-400" />
+                                                                    <div className="text-sm text-[#6B9E99] dark:text-slate-400">
                                                                         <p className="font-semibold text-xs mb-1">
                                                                             {isPending ? (isAr ? 'يبدأ بعد' : 'Starts In') : (isAr ? 'الوقت المتبقي' : 'Time Left')}
                                                                         </p>

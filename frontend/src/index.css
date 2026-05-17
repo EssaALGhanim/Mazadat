@@ -20,6 +20,11 @@ body {
   color: #1A2E2C;
 }
 
+html.dark body {
+  background-color: #0b1220;
+  color: #f8fafc;
+}
+
 /* Green Pulsing Animation for Live Price Updates */
 @keyframes pulsing-price {
   0%, 100% {
@@ -46,9 +51,17 @@ body {
   background: #F4FAFA;
 }
 
+html.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
 ::-webkit-scrollbar-thumb {
   background: #C5E0DC;
   border-radius: 4px;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
 }
 
 ::-webkit-scrollbar-thumb:hover {

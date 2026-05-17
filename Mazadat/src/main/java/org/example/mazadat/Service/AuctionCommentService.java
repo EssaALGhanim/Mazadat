@@ -10,6 +10,7 @@ import org.example.mazadat.Model.User;
 import org.example.mazadat.Repository.AuctionCommentRepository;
 import org.example.mazadat.Repository.AuctionRepository;
 import org.example.mazadat.Repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,12 +55,16 @@ public class AuctionCommentService {
     }
 
     @Transactional
-    public void editComment(AuctionCommentDTOIN dto, int commentId, int userId) {
+    public void editComment(AuctionCommentDTOIN dto, int auctionId, int commentId, int userId) {
         AuctionComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException("Comment not found"));
 
+        if (!comment.getAuction().getId().equals(auctionId)) {
+            throw new ApiException("Comment does not belong to this auction");
+        }
+
         if (!comment.getUser().getId().equals(userId)) {
-            throw new ApiException("Not authorized to edit this comment");
+            throw new AccessDeniedException("Not authorized to edit this comment");
         }
 
         comment.setContent(dto.getContent());
@@ -67,18 +72,21 @@ public class AuctionCommentService {
     }
 
     @Transactional
-    public void deleteComment(int commentId, int userId) {
+    public void deleteComment(int auctionId, int commentId, int userId) {
         AuctionComment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ApiException("Comment not found"));
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ApiException("User not found"));
+        if (!comment.getAuction().getId().equals(auctionId)) {
+            throw new ApiException("Comment does not belong to this auction");
+        }
 
         boolean isOwner = comment.getUser().getId().equals(userId);
-        boolean isAdmin = user.getRole().equals("ADMIN");
+        boolean isAuctionSeller = comment.getAuction().getSeller() != null
+                && comment.getAuction().getSeller().getId() != null
+                && comment.getAuction().getSeller().getId().equals(userId);
 
-        if (!isOwner && !isAdmin) {
-            throw new ApiException("Not authorized to delete this comment");
+        if (!isOwner && !isAuctionSeller) {
+            throw new AccessDeniedException("Not authorized to delete this comment");
         }
 
         commentRepository.delete(comment);

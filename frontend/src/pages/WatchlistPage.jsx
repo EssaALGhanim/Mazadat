@@ -61,7 +61,7 @@ export default function WatchlistPage({ currentUser, onBack, onShowMyBids }) {
   const error = watchlistError || auctionsError;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F0F2F5] to-[#E8EAF0] flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-[#F0F2F5] to-[#E8EAF0] dark:from-slate-950 dark:to-slate-900 flex flex-col">
       <TopNavigationBar
         currentUser={currentUser}
         isSeller={isSeller}
@@ -80,7 +80,7 @@ export default function WatchlistPage({ currentUser, onBack, onShowMyBids }) {
               {onBack && (
                 <button
                   onClick={onBack}
-                  className="p-2 rounded-lg bg-white border border-[#C5E0DC] text-[#2A9D8F] hover:bg-[#EAF7F5] transition-colors"
+                  className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-[#C5E0DC] dark:border-slate-700 text-[#2A9D8F] dark:text-slate-100 hover:bg-[#EAF7F5] dark:hover:bg-slate-700 transition-colors"
                   aria-label={isAr ? 'رجوع' : 'Go back'}
                 >
                   <ArrowLeft className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />
@@ -91,10 +91,10 @@ export default function WatchlistPage({ currentUser, onBack, onShowMyBids }) {
                   <Bookmark className="w-6 h-6 text-[#2A9D8F] fill-current" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-[#1A2E2C]">
+                  <h1 className="text-2xl font-bold text-[#1A2E2C] dark:text-slate-100">
                     {isAr ? 'قائمة المتابعة' : 'Watchlist'}
                   </h1>
-                  <p className="text-sm text-[#6B9E99]">
+                  <p className="text-sm text-[#6B9E99] dark:text-slate-300">
                     {isAr
                       ? `${watchlistAuctions.length} مزاد محفوظ`
                       : `${watchlistAuctions.length} saved auction${watchlistAuctions.length !== 1 ? 's' : ''}`}
@@ -106,7 +106,7 @@ export default function WatchlistPage({ currentUser, onBack, onShowMyBids }) {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-[#C5E0DC] text-[#2A9D8F] rounded-lg hover:bg-[#EAF7F5] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-[#C5E0DC] dark:border-slate-700 text-[#2A9D8F] dark:text-slate-100 rounded-lg hover:bg-[#EAF7F5] dark:hover:bg-slate-700 transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">{isAr ? 'تحديث' : 'Refresh'}</span>
@@ -115,10 +115,10 @@ export default function WatchlistPage({ currentUser, onBack, onShowMyBids }) {
 
           {/* Loading State */}
           {loading && (
-            <div className="bg-white rounded-xl border border-[#C5E0DC] p-12 text-center">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 p-12 text-center">
               <div className="flex flex-col items-center gap-4">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#C5E0DC] border-t-[#2A9D8F]" />
-                <p className="text-[#6B9E99] font-medium">
+                <p className="text-[#6B9E99] dark:text-slate-300 font-medium">
                   {isAr ? 'جاري التحميل...' : 'Loading your watchlist...'}
                 </p>
               </div>
@@ -127,7 +127,7 @@ export default function WatchlistPage({ currentUser, onBack, onShowMyBids }) {
 
           {/* Error State */}
           {!loading && error && (
-            <div className="bg-white rounded-xl border border-[#E05252] p-10 text-center">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#E05252] p-10 text-center">
               <div className="flex flex-col items-center gap-4">
                 <div className="p-3 rounded-full bg-red-50">
                   <Bookmark className="w-8 h-8 text-[#E05252]" />
@@ -136,7 +136,7 @@ export default function WatchlistPage({ currentUser, onBack, onShowMyBids }) {
                   <h3 className="text-lg font-bold text-[#E05252] mb-2">
                     {isAr ? 'حدث خطأ' : 'Error'}
                   </h3>
-                  <p className="text-[#6B9E99]">{error}</p>
+                  <p className="text-[#6B9E99] dark:text-slate-300">{error}</p>
                 </div>
                 <button
                   onClick={handleRefresh}
@@ -150,16 +150,16 @@ export default function WatchlistPage({ currentUser, onBack, onShowMyBids }) {
 
           {/* Empty State */}
           {!loading && !error && watchlistAuctions.length === 0 && (
-            <div className="bg-white rounded-xl border border-[#C5E0DC] p-12 text-center">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 p-12 text-center">
               <div className="flex flex-col items-center gap-4">
                 <div className="p-4 rounded-full bg-[#EAF7F5]">
                   <Bookmark className="w-12 h-12 text-[#6B9E99]" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#1A2E2C] mb-2">
+                  <h3 className="text-lg font-bold text-[#1A2E2C] dark:text-slate-100 mb-2">
                     {isAr ? 'قائمة المتابعة فارغة' : 'Your Watchlist is Empty'}
                   </h3>
-                  <p className="text-[#6B9E99] max-w-md mx-auto">
+                  <p className="text-[#6B9E99] dark:text-slate-300 max-w-md mx-auto">
                     {isAr
                       ? 'ابدأ بإضافة المزادات إلى قائمة المتابعة لتتبعها بسهولة. انقر على أيقونة الإشارة المرجعية في أي مزاد لإضافته هنا.'
                       : 'Start adding auctions to your watchlist to track them easily. Click the bookmark icon on any auction to add it here.'}

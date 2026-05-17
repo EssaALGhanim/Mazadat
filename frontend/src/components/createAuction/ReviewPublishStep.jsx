@@ -17,10 +17,10 @@ export default function ReviewPublishStep({ formData, onBack, onPublish, setStep
 
   const SectionHeader = ({ title, stepIndex }) => (
       <div className="flex justify-between items-center mb-3">
-        <h3 className="font-bold text-[#1A2E2C] text-lg">{title}</h3>
+        <h3 className="font-bold text-[#1A2E2C] dark:text-slate-100 text-lg">{title}</h3>
         <button
             onClick={() => setStep(stepIndex)}
-            className="text-[#2A9D8F] flex items-center gap-1 text-sm font-semibold hover:text-[#1A7A6E] transition-colors"
+            className="text-[#2A9D8F] dark:text-emerald-300 flex items-center gap-1 text-sm font-semibold hover:text-[#1A7A6E] dark:hover:text-emerald-200 transition-colors"
         >
           <span>{t('edit')}</span>
           <Edit2 className="w-4 h-4 ml-1 rtl:mr-1 rtl:ml-0" />
@@ -32,19 +32,19 @@ export default function ReviewPublishStep({ formData, onBack, onPublish, setStep
       <div className="max-w-3xl mx-auto space-y-8">
 
         {/* Review Content */}
-        <div className="bg-white rounded-xl shadow-sm border border-[#C5E0DC] p-6 space-y-8">
+        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-[#C5E0DC] dark:border-slate-700 p-6 space-y-8">
 
           {/* Step 1 Review */}
           <div>
             <SectionHeader title={t('step1Title')} stepIndex={1} />
-            <div className="space-y-4 text-sm text-[#1A2E2C]">
+            <div className="space-y-4 text-sm text-[#1A2E2C] dark:text-slate-100">
               <div>
-                <span className="text-[#6B9E99] block mb-1">{t('titleLabel')}</span>
+                <span className="text-[#6B9E99] dark:text-slate-400 block mb-1">{t('titleLabel')}</span>
                 <p className="font-medium">{formData.title}</p>
               </div>
               <div>
-                <span className="text-[#6B9E99] block mb-1">{t('descriptionLabel')}</span>
-                <div className="bg-[#F4FAFA] p-3 rounded-lg">
+                <span className="text-[#6B9E99] dark:text-slate-400 block mb-1">{t('descriptionLabel')}</span>
+                <div className="bg-[#F4FAFA] dark:bg-slate-800 p-3 rounded-lg">
                   <p className={`whitespace-pre-wrap ${!descExpanded && 'line-clamp-3'}`}>
                     {formData.description}
                   </p>
@@ -63,7 +63,7 @@ export default function ReviewPublishStep({ formData, onBack, onPublish, setStep
             </div>
           </div>
 
-          <div className="h-px bg-[#C5E0DC] w-full" />
+          <div className="h-px bg-[#C5E0DC] dark:bg-slate-700 w-full" />
 
           {/* Step 2 Review */}
           <div>
@@ -71,7 +71,7 @@ export default function ReviewPublishStep({ formData, onBack, onPublish, setStep
             {formData.images.length > 0 ? (
                 <div className="flex gap-3 overflow-x-auto pb-2">
                   {formData.images.map((img, idx) => (
-                      <div key={idx} className="relative shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-[#C5E0DC]">
+                      <div key={idx} className="relative shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-[#C5E0DC] dark:border-slate-700">
                         <img src={img.preview} alt={`preview ${idx}`} className="w-full h-full object-cover" />
                         {idx === 0 && (
                             <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[10px] text-center p-0.5">
@@ -82,38 +82,38 @@ export default function ReviewPublishStep({ formData, onBack, onPublish, setStep
                   ))}
                 </div>
             ) : (
-                <p className="text-[#6B9E99] text-sm">
+                <p className="text-[#6B9E99] dark:text-slate-400 text-sm">
                   {i18n.language === 'ar' ? 'لم يتم إضافة صور' : 'No images added'}
                 </p>
             )}
           </div>
 
-          <div className="h-px bg-[#C5E0DC] w-full" />
+          <div className="h-px bg-[#C5E0DC] dark:bg-slate-700 w-full" />
 
           {/* Step 3 Review */}
           <div>
             <SectionHeader title={t('step3Title')} stepIndex={3} />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[#1A2E2C]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[#1A2E2C] dark:text-slate-100">
               <div>
-                <span className="text-[#6B9E99] block mb-1">{t('startingPriceLabel')}</span>
+                <span className="text-[#6B9E99] dark:text-slate-400 block mb-1">{t('startingPriceLabel')}</span>
                 <p className="font-bold text-[#2A9D8F]" dir="ltr">
-                  {formData.startingPrice} <span className="text-gray-500">﷼</span>
+                  {formData.startingPrice} <span className="text-gray-500 dark:text-slate-400">﷼</span>
                 </p>
               </div>
               <div>
-                <span className="text-[#6B9E99] block mb-1">{t('reservePriceLabel')}</span>
+                <span className="text-[#6B9E99] dark:text-slate-400 block mb-1">{t('reservePriceLabel')}</span>
                 <p className="font-bold text-[#2A9D8F]" dir="ltr">
                   {formData.reservePrice
-                    ? <>{formData.reservePrice} <span className="text-gray-500">﷼</span></>
+                    ? <>{formData.reservePrice} <span className="text-gray-500 dark:text-slate-400">﷼</span></>
                     : '—'}
                 </p>
               </div>
               <div>
-                <span className="text-[#6B9E99] block mb-1">{t('startDateLabel')}</span>
+                <span className="text-[#6B9E99] dark:text-slate-400 block mb-1">{t('startDateLabel')}</span>
                 <p className="font-medium" dir="ltr">{formatDateTime(formData.startDate)}</p>
               </div>
               <div>
-                <span className="text-[#6B9E99] block mb-1">{t('endDateLabel')}</span>
+                <span className="text-[#6B9E99] dark:text-slate-400 block mb-1">{t('endDateLabel')}</span>
                 <p className="font-medium" dir="ltr">{formatDateTime(formData.endDate)}</p>
               </div>
             </div>
@@ -126,7 +126,7 @@ export default function ReviewPublishStep({ formData, onBack, onPublish, setStep
           <button
               onClick={onBack}
               disabled={loading}
-              className="w-full md:w-auto bg-white border border-[#C5E0DC] text-[#1A2E2C] hover:bg-[#F4FAFA] px-8 py-3 rounded-lg font-bold transition-colors disabled:opacity-50"
+              className="w-full md:w-auto bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 text-[#1A2E2C] dark:text-slate-100 hover:bg-[#F4FAFA] dark:hover:bg-slate-800 px-8 py-3 rounded-lg font-bold transition-colors disabled:opacity-50"
           >
             {t('previousStep')}
           </button>
