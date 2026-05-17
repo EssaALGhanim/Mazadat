@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Plus, User, LogOut, Trophy, BarChart3, Users, Bookmark, ShieldCheck } from 'lucide-react';
+import { Plus, User, LogOut, Trophy, BarChart3, Users, Bookmark, ShieldCheck, Moon, Sun } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import NotificationBell from './NotificationBell';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function TopNavigationBar({
     isSeller,
@@ -16,10 +17,11 @@ export default function TopNavigationBar({
     const { t, i18n } = useTranslation('common');
     const navigate = useNavigate();
     const isAr = i18n.language === 'ar';
+    const { isDark, toggleTheme } = useTheme();
     const homePath = isAdmin ? '/admin' : isSeller ? '/seller-dashboard' : '/';
 
     return (
-        <header className="bg-white border-b border-[#C5E0DC] px-4 md:px-6 h-16 flex items-center justify-between sticky top-0 z-50 shadow-sm">
+        <header className="bg-white dark:bg-slate-900 border-b border-[#C5E0DC] dark:border-slate-700 px-4 md:px-6 h-16 flex items-center justify-between sticky top-0 z-50 shadow-sm">
             {/* Logo and Home */}
             <div className="flex items-center gap-4">
                 <button
@@ -128,6 +130,16 @@ export default function TopNavigationBar({
                     title={isAr ? 'English' : 'العربية'}
                 >
                     {isAr ? 'EN' : 'AR'}
+                </button>
+
+                <button
+                    onClick={toggleTheme}
+                    className="flex items-center gap-1.5 bg-[#F4FAFA] dark:bg-slate-800 hover:bg-[#E2F1EF] dark:hover:bg-slate-700 text-[#2A9D8F] dark:text-slate-100 px-3 py-2 rounded-lg font-bold transition-colors text-sm"
+                    title={isDark ? (isAr ? 'الوضع الفاتح' : 'Light mode') : (isAr ? 'الوضع الداكن' : 'Dark mode')}
+                    aria-label={isDark ? (isAr ? 'الوضع الفاتح' : 'Light mode') : (isAr ? 'الوضع الداكن' : 'Dark mode')}
+                >
+                    {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                    <span className="hidden sm:inline">{isDark ? (isAr ? 'فاتح' : 'Light') : (isAr ? 'داكن' : 'Dark')}</span>
                 </button>
 
                 <button

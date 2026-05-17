@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Trophy, ArrowLeft } from 'lucide-react';
 import { getBuyerBids, getWonBids } from '@/services/bidService';
+import { generateReceipt } from '@/services/receiptService';
 import { toast } from 'sonner';
 import { resolveTextAlignmentClass, resolveTextDirection } from '@/lib/textDirection';
-import PaymentStatusIndicator from '@/components/payment/PaymentStatusIndicator';
-import WinnerPaymentAction from '@/components/payment/WinnerPaymentAction';
 import TopNavigationBar from '../components/TopNavigationBar';
 
 export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
@@ -15,6 +14,8 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
     const [wonBids, setWonBids] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [generatingReceipt, setGeneratingReceipt] = useState(null);
+    const [generatedReceipts, setGeneratedReceipts] = useState(new Set());
     const isAr = i18n.language === 'ar';
 
     useEffect(() => {
@@ -67,6 +68,28 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
         }
     };
 
+    const handleGenerateReceipt = async (auctionId, auctionEndDate) => {
+        // Check if auction has ended
+        const now = new Date();
+        const endDate = new Date(auctionEndDate);
+
+        if (now < endDate) {
+            toast.error(isAr ? 'لا يمكن تحميل الإيصال قبل انتهاء المزاد' : 'Receipt can only be downloaded after the auction ends');
+            return;
+        }
+
+        setGeneratingReceipt(auctionId);
+        try {
+            await generateReceipt(auctionId, i18n.language);
+            setGeneratedReceipts(prev => new Set([...prev, auctionId]));
+            toast.success(isAr ? 'تم تحميل الإيصال بنجاح' : 'Receipt downloaded successfully!');
+        } catch (err) {
+            toast.error(err.message || (isAr ? 'فشل تحميل الإيصال' : 'Failed to generate receipt'));
+        } finally {
+            setGeneratingReceipt(null);
+        }
+    };
+
     const displayBids = activeTab === 'won' ? wonBids : bids;
 
     const isSeller = currentUser?.role === 'SELLER';
@@ -78,7 +101,7 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#F0F2F5] to-[#E8EAF0] flex flex-col">
+        <div className="min-h-screen bg-gradient-to-br from-[#F0F2F5] to-[#E8EAF0] dark:from-slate-950 dark:to-slate-900 flex flex-col">
             <TopNavigationBar
                 currentUser={currentUser}
                 isSeller={isSeller}
@@ -97,7 +120,7 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
                             {onBack && (
                                 <button
                                     onClick={onBack}
-                                    className="p-2 rounded-lg bg-white border border-[#C5E0DC] text-[#2A9D8F] hover:bg-[#EAF7F5] transition-colors"
+                                    className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-[#C5E0DC] dark:border-slate-700 text-[#2A9D8F] dark:text-slate-100 hover:bg-[#EAF7F5] dark:hover:bg-slate-700 transition-colors"
                                     aria-label={isAr ? 'رجوع' : 'Go back'}
                                 >
                                     <ArrowLeft className={`w-5 h-5 ${isAr ? 'rotate-180' : ''}`} />
@@ -108,10 +131,10 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
                                     <Trophy className="w-6 h-6 text-[#2A9D8F]" />
                                 </div>
                                 <div>
-                                    <h1 className="text-2xl font-bold text-[#1A2E2C]">
+                                    <h1 className="text-2xl font-bold text-[#1A2E2C] dark:text-slate-100">
                                         {isAr ? 'مزايداتي' : 'My Bids'}
                                     </h1>
-                                    <p className="text-sm text-[#6B9E99]">
+                                    <p className="text-sm text-[#6B9E99] dark:text-slate-300">
                                         {isAr ? 'جميع مزايداتك في مكان واحد' : 'All your bids in one place'}
                                     </p>
                                 </div>
@@ -120,12 +143,12 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex flex-wrap gap-2 mb-6 border-b border-[#C5E0DC] pb-2">
+                    <div className="flex flex-wrap gap-2 mb-6 border-b border-[#C5E0DC] dark:border-slate-700 pb-2">
                     <button
                         onClick={() => setActiveTab('all')}
                         className={`px-4 py-2.5 rounded-lg font-bold transition-colors ${activeTab === 'all'
                                 ? 'bg-[#EAF7F5] text-[#2A9D8F]'
-                                : 'text-[#6B9E99] hover:text-[#2A9D8F] hover:bg-[#F4FAFA]'
+                                : 'text-[#6B9E99] dark:text-slate-300 hover:text-[#2A9D8F] hover:bg-[#F4FAFA] dark:hover:bg-slate-800'
                             }`}
                     >
                         {isAr ? 'جميع المزايدات' : 'All Bids'} ({bids.length})
@@ -134,7 +157,7 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
                         onClick={() => setActiveTab('won')}
                         className={`px-4 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2 ${activeTab === 'won'
                                 ? 'bg-[#EAF7F5] text-[#2A9D8F]'
-                                : 'text-[#6B9E99] hover:text-[#2A9D8F] hover:bg-[#F4FAFA]'
+                                : 'text-[#6B9E99] dark:text-slate-300 hover:text-[#2A9D8F] hover:bg-[#F4FAFA] dark:hover:bg-slate-800'
                             }`}
                     >
                         <Trophy className="w-5 h-5" />
@@ -151,7 +174,7 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
 
                 {/* Error State */}
                 {!loading && error && (
-                    <div className="bg-white rounded-xl border border-[#E05252] p-6 text-center">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#E05252] p-6 text-center">
                         <p className="text-[#E05252] font-semibold mb-4">{error}</p>
                         <button
                             onClick={fetchBids}
@@ -164,7 +187,7 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
 
                 {/* Empty State */}
                 {!loading && !error && displayBids.length === 0 && (
-                    <div className="bg-white rounded-xl border border-[#C5E0DC] p-12 text-center">
+                    <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 p-12 text-center">
                         <Trophy className="w-16 h-16 text-[#C5E0DC] mx-auto mb-4" />
                         <p className="text-[#6B9E99] font-semibold text-lg">
                             {activeTab === 'won'
@@ -180,20 +203,20 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
                         {displayBids.map((bid) => (
                             <div
                                 key={bid.auctionId ?? bid.id}
-                                className={`bg-white rounded-xl border p-4 md:p-5 shadow-sm transition-all overflow-hidden ${activeTab === 'won'
-                                        ? 'border-[#2A9D8F] bg-gradient-to-r from-[#2A9D8F]/5 to-transparent'
-                                        : 'border-[#C5E0DC]'
+                                className={`bg-white dark:bg-slate-900 rounded-xl border p-4 md:p-5 shadow-sm transition-all overflow-hidden ${activeTab === 'won'
+                                        ? 'border-[#2A9D8F] bg-gradient-to-r from-[#2A9D8F]/5 to-transparent dark:from-emerald-950/30 dark:to-slate-900'
+                                        : 'border-[#C5E0DC] dark:border-slate-700'
                                     }`}
                             >
                                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4 min-w-0">
                                     <div className="flex-1 min-w-0">
                                         <h3
                                             dir={resolveTextDirection(bid.auctionTitle || '')}
-                                            className={`font-bold text-base md:text-lg text-[#1A2E2C] mb-1 line-clamp-2 ${resolveTextAlignmentClass(bid.auctionTitle || '')}`}
+                                            className={`font-bold text-base md:text-lg text-[#1A2E2C] dark:text-slate-100 mb-1 line-clamp-2 ${resolveTextAlignmentClass(bid.auctionTitle || '')}`}
                                         >
                                             {bid.auctionTitle}
                                         </h3>
-                                        <p className="text-sm text-[#6B9E99]">
+                                        <p className="text-sm text-[#6B9E99] dark:text-slate-300">
                                             {isAr ? 'الأعلى' : 'Highest Bid'}:{' '}
                                             <span className="font-bold text-[#2A9D8F]" dir="ltr">
                                                 {bid.amount} ﷼
@@ -212,18 +235,18 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 text-sm">
                                     <div>
-                                        <p className="text-[#6B9E99] text-xs mb-1">
+                                        <p className="text-[#6B9E99] dark:text-slate-400 text-xs mb-1">
                                             {isAr ? 'السعر الابتدائي' : 'Starting Price'}
                                         </p>
-                                        <p className="font-bold text-[#1A2E2C]" dir="ltr">
+                                        <p className="font-bold text-[#1A2E2C] dark:text-slate-100" dir="ltr">
                                             {bid.startingPrice} ﷼
                                         </p>
                                     </div>
                                     <div>
-                                        <p className="text-[#6B9E99] text-xs mb-1">
+                                        <p className="text-[#6B9E99] dark:text-slate-400 text-xs mb-1">
                                             {isAr ? 'تاريخ المزايدة' : 'Bid Date'}
                                         </p>
-                                        <p className="font-bold text-[#1A2E2C]">
+                                        <p className="font-bold text-[#1A2E2C] dark:text-slate-100">
                                             {new Date(bid.placedAt).toLocaleDateString()}
                                         </p>
                                     </div>
@@ -232,33 +255,29 @@ export default function MyBidsPage({ onBack, currentUser, onShowWatchlist }) {
                                 <div className="flex flex-col sm:flex-row gap-2">
                                     {activeTab === 'won' && (
                                         <>
-                                            <div className="w-full sm:w-auto sm:flex-1 flex items-center">
-                                                <PaymentStatusIndicator
-                                                    status={bid?.paymentStatus}
-                                                    isPaid={bid?.isPaid}
-                                                    paidAt={bid?.paidAt}
-                                                    endDate={bid?.auctionEndDate}
-                                                />
-                                            </div>
                                             {new Date() < new Date(bid.auctionEndDate) ? (
                                                 <button
                                                     disabled={true}
-                                                    className="w-full sm:w-auto sm:flex-1 px-4 py-2 rounded-lg font-bold transition-colors bg-[#C5E0DC] text-[#6B9E99] cursor-not-allowed"
-                                                    title={isAr ? 'الدفع متاح بعد انتهاء المزاد' : 'Payment available after auction ends'}
+                                                    className="w-full sm:w-auto sm:flex-1 px-4 py-2 rounded-lg font-bold transition-colors bg-[#C5E0DC] dark:bg-slate-700 text-[#6B9E99] dark:text-slate-300 cursor-not-allowed"
+                                                    title={isAr ? 'الإيصال متاح بعد انتهاء المزاد' : 'Receipt available after auction ends'}
                                                 >
                                                     {isAr ? 'في انتظار انتهاء المزاد' : 'Auction in progress'}
                                                 </button>
                                             ) : (
-                                                <WinnerPaymentAction
-                                                    auctionId={bid.auctionId}
-                                                    status={bid?.paymentStatus}
-                                                    isPaid={bid?.isPaid}
-                                                    paidAt={bid?.paidAt}
-                                                    endDate={bid?.auctionEndDate}
-                                                    payLabel={isAr ? 'ادفع الآن' : 'Pay Now'}
-                                                    payClassName="w-full sm:w-auto sm:flex-1 px-4 py-2 rounded-lg font-bold transition-colors bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white"
-                                                    receiptClassName="w-full sm:w-auto sm:flex-1 px-4 py-2 rounded-lg font-bold transition-colors bg-[#EAF7F5] border border-[#2A9D8F] text-[#1A7A6E] hover:bg-[#D9F0EC] disabled:opacity-50"
-                                                />
+                                                <button
+                                                    onClick={() => handleGenerateReceipt(bid.auctionId, bid.auctionEndDate)}
+                                                    disabled={generatingReceipt === bid.auctionId}
+                                                    className={`w-full sm:w-auto sm:flex-1 px-4 py-2 rounded-lg font-bold transition-colors ${generatedReceipts.has(bid.auctionId)
+                                                            ? 'bg-[#EAF7F5] border border-[#2A9D8F] text-[#2A9D8F]'
+                                                            : 'bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white'
+                                                        } disabled:opacity-50`}
+                                                >
+                                                    {generatingReceipt === bid.auctionId
+                                                        ? '...'
+                                                        : generatedReceipts.has(bid.auctionId)
+                                                            ? '✓ ' + (isAr ? 'تم التحميل' : 'Downloaded')
+                                                            : (isAr ? 'تحميل الإيصال' : 'Download Receipt')}
+                                                </button>
                                             )}
                                         </>
                                     )}

@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, User, Trophy, Home, X, Zap, Star, Flag } from 'lucide-react';
+import { ChevronLeft, ChevronRight, User, Trophy, Download, Home, X, Zap, Star, Flag } from 'lucide-react';
 import ReportAuctionModal from '@/components/report/ReportAuctionModal';
 import CountdownTimer from '@/components/auction/CountdownTimer';
 import PlaceBidModal from '@/components/auction/PlaceBidModal';
 import AutoBidModal from '@/components/auction/AutoBidModal';
 import FeatureAuctionModal from '@/components/auction/FeatureAuctionModal';
-import WinnerPaymentAction from '@/components/payment/WinnerPaymentAction';
-import PaymentStatusIndicator from '@/components/payment/PaymentStatusIndicator';
-import TopNavigationBar from '@/components/TopNavigationBar';
 import { useAutoBid } from '@/hooks/useAutoBid';
 import { placeBid } from '@/services/bidService';
+import { generateReceipt } from '@/services/receiptService';
 import { getAuctionById } from '@/services/auctionService';
 import { resolveImageUrl } from '@/services/imageService';
 import { featureAuction } from '@/services/featuredService';
@@ -28,8 +26,6 @@ export default function AuctionDetailPage({ currentUser }) {
     const navigate = useNavigate();
     const { auctionId } = useParams();
     const isAr = i18n.language === 'ar';
-    const isBuyer = currentUser?.role === 'BUYER';
-    const isSeller = currentUser?.role === 'SELLER';
 
     const [auction, setAuction] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -47,23 +43,6 @@ export default function AuctionDetailPage({ currentUser }) {
     const [reportModalOpen, setReportModalOpen] = useState(false);
     const now = useNow();
     const nowDate = new Date(now);
-
-    const handleLogout = () => {
-        localStorage.removeItem('user');
-        navigate('/auth');
-    };
-
-    const handleShowMyBids = () => {
-        navigate('/', { state: { openMyBids: true } });
-    };
-
-    const handleShowWatchlist = () => {
-        navigate('/', { state: { openWatchlist: true } });
-    };
-
-    const handleCreateAuction = () => {
-        navigate('/seller-dashboard');
-    };
 
     const { autoBid, cancelAutoBid, setAutoBid, isLoading: autoBidLoading } = useAutoBid(auctionId);
 
@@ -105,51 +84,32 @@ export default function AuctionDetailPage({ currentUser }) {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-[#F0F2F5] flex flex-col" dir={isAr ? 'rtl' : 'ltr'}>
-                <TopNavigationBar
-                    currentUser={currentUser}
-                    isSeller={isSeller}
-                    isBuyer={isBuyer}
-                    onShowMyBids={handleShowMyBids}
-                    onShowWatchlist={handleShowWatchlist}
-                    onCreateAuction={handleCreateAuction}
-                    onLogout={handleLogout}
-                />
-                <div className="flex-1 flex items-center justify-center">
-                    <div className="w-10 h-10 border-4 border-[#C5E0DC] border-t-[#2A9D8F] rounded-full animate-spin" />
-                </div>
+            <div className="min-h-screen bg-[#F0F2F5] dark:bg-slate-950 flex items-center justify-center">
+                <div className="w-10 h-10 border-4 border-[#C5E0DC] border-t-[#2A9D8F] rounded-full animate-spin" />
             </div>
         );
     }
 
     if (error || !auction) {
+        const isSeller = currentUser?.role === 'SELLER';
         return (
-            <div className="min-h-screen bg-[#F0F2F5] flex flex-col" dir={isAr ? 'rtl' : 'ltr'}>
-                <TopNavigationBar
-                    currentUser={currentUser}
-                    isSeller={isSeller}
-                    isBuyer={isBuyer}
-                    onShowMyBids={handleShowMyBids}
-                    onShowWatchlist={handleShowWatchlist}
-                    onCreateAuction={handleCreateAuction}
-                    onLogout={handleLogout}
-                />
-                <div className="flex-1 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-xl border border-[#E05252] p-6 text-center max-w-md">
-                        <p className="text-[#E05252] font-semibold mb-4">{error || (isAr ? 'المزاد غير متاح' : 'Auction not available')}</p>
-                        <button
-                            onClick={() => isSeller ? navigate('/seller-dashboard') : navigate('/')}
-                            className="flex items-center gap-2 justify-center w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-6 py-2 rounded-lg font-bold transition-colors"
-                        >
-                            <Home className="w-4 h-4" />
-                            {isAr ? 'العودة للرئيسية' : 'Return to Home'}
-                        </button>
-                    </div>
+            <div className="min-h-screen bg-[#F0F2F5] dark:bg-slate-950 flex items-center justify-center p-4">
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#E05252] p-6 text-center max-w-md">
+                    <p className="text-[#E05252] font-semibold mb-4">{error || (isAr ? 'المزاد غير متاح' : 'Auction not available')}</p>
+                    <button
+                        onClick={() => isSeller ? navigate('/seller-dashboard') : navigate('/')}
+                        className="flex items-center gap-2 justify-center w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-6 py-2 rounded-lg font-bold transition-colors"
+                    >
+                        <Home className="w-4 h-4" />
+                        {isAr ? 'العودة للرئيسية' : 'Return to Home'}
+                    </button>
                 </div>
             </div>
         );
     }
 
+    const isBuyer = currentUser?.role === 'BUYER';
+    const isSeller = currentUser?.role === 'SELLER';
     const startDate = auction?.startDate ? new Date(auction.startDate) : null;
     const endDate = auction?.endDate ? new Date(auction.endDate) : null;
     const hasStarted = !startDate || startDate <= nowDate;
@@ -195,6 +155,25 @@ export default function AuctionDetailPage({ currentUser }) {
         }
     };
 
+    const handleGenerateReceipt = async () => {
+        const now = new Date();
+        const endDate = new Date(auction.endDate);
+        if (now < endDate) {
+            toast.error(isAr ? 'لا يمكن تحميل الإيصال قبل انتهاء المزاد' : 'Receipt can only be downloaded after the auction ends');
+            return;
+        }
+
+        setBidLoading(true);
+        try {
+            await generateReceipt(auction.id, i18n.language);
+            toast.success(isAr ? 'تم تحميل الإيصال بنجاح' : 'Receipt downloaded successfully!');
+        } catch (err) {
+            toast.error(err.message || (isAr ? 'فشل تحميل الإيصال' : 'Failed to generate receipt'));
+        } finally {
+            setBidLoading(false);
+        }
+    };
+
     const handleFeatureAuction = async (featuredEndDate) => {
         setFeatureLoading(true);
         try {
@@ -213,18 +192,8 @@ export default function AuctionDetailPage({ currentUser }) {
     const descriptionDir = resolveTextDirection(auction?.description || '');
 
     return (
-        <div className="min-h-screen bg-[#F0F2F5]" dir={isAr ? 'rtl' : 'ltr'}>
-            <TopNavigationBar
-                currentUser={currentUser}
-                isSeller={isSeller}
-                isBuyer={isBuyer}
-                onShowMyBids={handleShowMyBids}
-                onShowWatchlist={handleShowWatchlist}
-                onCreateAuction={handleCreateAuction}
-                onLogout={handleLogout}
-            />
-
-            <div className="container mx-auto px-4 max-w-6xl py-8">
+        <div className="min-h-screen bg-[#F0F2F5] dark:bg-slate-950 py-8" dir={isAr ? 'rtl' : 'ltr'}>
+            <div className="container mx-auto px-4 max-w-6xl">
                 {/* Back Button */}
                 <button
                     onClick={() => isSeller ? navigate('/seller-dashboard') : navigate('/')}
@@ -238,10 +207,10 @@ export default function AuctionDetailPage({ currentUser }) {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Image Gallery - Left Side */}
                     <div className="lg:col-span-2">
-                        <div className="bg-white rounded-xl border border-[#C5E0DC] overflow-hidden shadow-sm">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 overflow-hidden shadow-sm">
                             {/* Main Image */}
                             {images.length > 0 ? (
-                                <div className="relative bg-[#F4FAFA] aspect-video flex items-center justify-center">
+                                <div className="relative bg-[#F4FAFA] dark:bg-slate-800 aspect-video flex items-center justify-center">
                                     <ImageWithRetry
                                         src={resolveImageUrl(currentImage.url, currentImage.createdAt || currentImage.id)}
                                         alt={`${auction.title} ${currentImageIndex + 1}`}
@@ -253,14 +222,14 @@ export default function AuctionDetailPage({ currentUser }) {
                                         <>
                                             <button
                                                 onClick={handlePrevImage}
-                                                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full transition-all shadow-md"
+                                                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-800 p-2 rounded-full transition-all shadow-md"
                                                 aria-label="Previous image"
                                             >
                                                 {isAr ? <ChevronRight className="w-6 h-6 text-[#2A9D8F]" /> : <ChevronLeft className="w-6 h-6 text-[#2A9D8F]" />}
                                             </button>
                                             <button
                                                 onClick={handleNextImage}
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full transition-all shadow-md"
+                                                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 dark:bg-slate-900/80 hover:bg-white dark:hover:bg-slate-800 p-2 rounded-full transition-all shadow-md"
                                                 aria-label="Next image"
                                             >
                                                 {isAr ? <ChevronLeft className="w-6 h-6 text-[#2A9D8F]" /> : <ChevronRight className="w-6 h-6 text-[#2A9D8F]" />}
@@ -276,8 +245,8 @@ export default function AuctionDetailPage({ currentUser }) {
                                     )}
                                 </div>
                             ) : (
-                                <div className="bg-[#F4FAFA] aspect-video flex items-center justify-center">
-                                    <span className="text-[#C5E0DC] font-bold text-4xl">
+                                <div className="bg-[#F4FAFA] dark:bg-slate-800 aspect-video flex items-center justify-center">
+                                    <span className="text-[#C5E0DC] dark:text-slate-500 font-bold text-4xl">
                                         {isAr ? 'لا توجد صورة' : 'No Image'}
                                     </span>
                                 </div>
@@ -285,14 +254,14 @@ export default function AuctionDetailPage({ currentUser }) {
 
                             {/* Thumbnail Gallery */}
                             {images.length > 1 && (
-                                <div className="p-4 bg-white border-t border-[#C5E0DC] grid grid-cols-4 gap-2">
+                                <div className="p-4 bg-white dark:bg-slate-900 border-t border-[#C5E0DC] dark:border-slate-700 grid grid-cols-4 gap-2">
                                     {images.map((image, index) => (
                                         <button
                                             key={index}
                                             onClick={() => setCurrentImageIndex(index)}
                                             className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${index === currentImageIndex
                                                     ? 'border-[#2A9D8F] ring-2 ring-[#2A9D8F]/30'
-                                                    : 'border-[#C5E0DC] hover:border-[#2A9D8F]'
+                                                    : 'border-[#C5E0DC] dark:border-slate-700 hover:border-[#2A9D8F]'
                                                 }`}
                                         >
                                             <ImageWithRetry
@@ -307,13 +276,13 @@ export default function AuctionDetailPage({ currentUser }) {
                         </div>
 
                         {/* Description Section */}
-                        <div className="bg-white rounded-xl border border-[#C5E0DC] p-6 mt-6 shadow-sm">
-                            <h2 className="text-lg font-bold text-[#1A2E2C] mb-4">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 p-6 mt-6 shadow-sm">
+                            <h2 className="text-lg font-bold text-[#1A2E2C] dark:text-slate-100 mb-4">
                                 {isAr ? 'الوصف الكامل' : 'Full Description'}
                             </h2>
                             <p
                                 dir={descriptionDir}
-                                className={`text-[#1A2E2C] text-sm leading-relaxed ${resolveTextAlignmentClass(auction?.description || '')}`}
+                                className={`text-[#1A2E2C] dark:text-slate-200 text-sm leading-relaxed ${resolveTextAlignmentClass(auction?.description || '')}`}
                             >
                                 {auction?.description}
                             </p>
@@ -323,36 +292,36 @@ export default function AuctionDetailPage({ currentUser }) {
                     {/* Auction Details - Right Side */}
                     <div className="lg:col-span-1 space-y-4">
                         {/* Seller Info */}
-                        <div className="bg-white rounded-xl border border-[#C5E0DC] p-4 shadow-sm">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 p-4 shadow-sm">
                             <div className="flex items-center gap-3 mb-3">
                                 <div className="w-10 h-10 rounded-full bg-[#EAF7F5] flex items-center justify-center shrink-0">
                                     <User className="w-5 h-5 text-[#2A9D8F]" />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-[#6B9E99]">{isAr ? 'البائع' : 'Seller'}</p>
-                                    <h3 className="font-bold text-[#1A2E2C]">
+                                    <p className="text-xs text-[#6B9E99] dark:text-slate-400">{isAr ? 'البائع' : 'Seller'}</p>
+                                    <h3 className="font-bold text-[#1A2E2C] dark:text-slate-100">
                                         {auction?.sellerName || (isAr ? 'بائع' : 'Seller')}
                                     </h3>
                                 </div>
                             </div>
-                            <div className="pt-3 border-t border-[#C5E0DC]">
-                                <p className="text-xs text-[#6B9E99] mb-1">{isAr ? 'صالة المزاد' : 'Auction House'}</p>
+                            <div className="pt-3 border-t border-[#C5E0DC] dark:border-slate-700">
+                                <p className="text-xs text-[#6B9E99] dark:text-slate-400 mb-1">{isAr ? 'صالة المزاد' : 'Auction House'}</p>
                                 <div className="flex items-center justify-between flex-wrap gap-2">
                                     <div className="flex items-center gap-2 flex-wrap">
-                                        <p className="font-semibold text-[#1A2E2C]">{auction?.auctionHouseName}</p>
+                                        <p className="font-semibold text-[#1A2E2C] dark:text-slate-100">{auction?.auctionHouseName}</p>
                                         {houseRatings && houseRatings.totalRatings > 0 && (
                                             <div className="flex items-center gap-1">
                                                 <Star className="w-3.5 h-3.5 text-[#F4A736] fill-[#F4A736]" />
-                                                <span className="text-sm font-bold text-[#1A2E2C]">
+                                                <span className="text-sm font-bold text-[#1A2E2C] dark:text-slate-100">
                                                     {houseRatings.averageRating.toFixed(1)}
                                                 </span>
-                                                <span className="text-xs text-[#6B9E99]">
+                                                <span className="text-xs text-[#6B9E99] dark:text-slate-400">
                                                     ({houseRatings.totalRatings} {isAr ? 'تقييم' : 'ratings'})
                                                 </span>
                                             </div>
                                         )}
                                         {houseRatings && houseRatings.totalRatings === 0 && (
-                                            <span className="text-xs text-[#6B9E99]">
+                                            <span className="text-xs text-[#6B9E99] dark:text-slate-400">
                                                 {isAr ? 'لا يوجد تقييم' : 'No ratings yet'}
                                             </span>
                                         )}
@@ -370,37 +339,37 @@ export default function AuctionDetailPage({ currentUser }) {
                         </div>
 
                         {/* Title */}
-                        <div className="bg-white rounded-xl border border-[#C5E0DC] p-4 shadow-sm">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 p-4 shadow-sm">
                             <h1
                                 dir={titleDir}
-                                className={`font-bold text-2xl text-[#1A2E2C] ${resolveTextAlignmentClass(auction?.title || '')}`}
+                                className={`font-bold text-2xl text-[#1A2E2C] dark:text-slate-100 ${resolveTextAlignmentClass(auction?.title || '')}`}
                             >
                                 {auction?.title}
                             </h1>
                         </div>
 
                         {/* Price Section */}
-                        <div className="bg-white rounded-xl border border-[#C5E0DC] p-6 shadow-sm">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 p-6 shadow-sm">
                             <div className="mb-4">
-                                <p className="text-xs text-[#6B9E99] mb-1">
+                                <p className="text-xs text-[#6B9E99] dark:text-slate-400 mb-1">
                                     {isAr ? 'السعر الحالي' : 'Current Price'}
                                 </p>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-4xl font-bold text-[#2A9D8F] pulse-animation" dir="ltr">
                                         {currentPrice}
                                     </span>
-                                    <span className="text-lg font-semibold text-[#6B9E99]">﷼</span>
+                                    <span className="text-lg font-semibold text-[#6B9E99] dark:text-slate-400">﷼</span>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-[#C5E0DC]">
+                            <div className="grid grid-cols-2 gap-3 pt-4 border-t border-[#C5E0DC] dark:border-slate-700">
                                 <div>
-                                    <p className="text-xs text-[#6B9E99]">{isAr ? 'السعر الأولي' : 'Starting Price'}</p>
-                                    <p className="font-semibold text-[#1A2E2C]" dir={isAr ? 'rtl' : 'ltr'}>{startingPrice} ﷼</p>
+                                    <p className="text-xs text-[#6B9E99] dark:text-slate-400">{isAr ? 'السعر الأولي' : 'Starting Price'}</p>
+                                    <p className="font-semibold text-[#1A2E2C] dark:text-slate-100" dir={isAr ? 'rtl' : 'ltr'}>{startingPrice} ﷼</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-[#6B9E99]">{isAr ? 'عدد المزايدات' : 'Bids'}</p>
-                                    <p className="font-semibold text-[#1A2E2C]">{auction?.bidCount || 0}</p>
+                                    <p className="text-xs text-[#6B9E99] dark:text-slate-400">{isAr ? 'عدد المزايدات' : 'Bids'}</p>
+                                    <p className="font-semibold text-[#1A2E2C] dark:text-slate-100">{auction?.bidCount || 0}</p>
                                 </div>
                             </div>
                         </div>
@@ -419,8 +388,8 @@ export default function AuctionDetailPage({ currentUser }) {
                         )}
 
                         {isLiveAuction && !auctionEnded && (
-                            <div className="bg-white rounded-xl border border-[#C5E0DC] p-4 shadow-sm">
-                                <p className="text-sm font-semibold text-[#6B9E99] mb-2">
+                            <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 p-4 shadow-sm">
+                                <p className="text-sm font-semibold text-[#6B9E99] dark:text-slate-300 mb-2">
                                     {isAr ? 'الوقت المتبقي' : 'Time Left'}
                                 </p>
                                 <CountdownTimer targetDate={auction.endDate} mode="end" />
@@ -446,13 +415,6 @@ export default function AuctionDetailPage({ currentUser }) {
                                     <Trophy className="w-5 h-5" />
                                     <p className="font-bold">{isAr ? '🎉 أنت الفائز!' : '🎉 You Won!'}</p>
                                 </div>
-                                <PaymentStatusIndicator
-                                    status={auction?.paymentStatus}
-                                    isPaid={auction?.isPaid}
-                                    paidAt={auction?.paidAt}
-                                    endDate={auction?.endDate}
-                                    className="mb-2 bg-white/90 text-[#0F766E] border-white/80"
-                                />
                                 {(auction?.auctionHouseId || auction?.auctionHouseName) && (
                                     <AuctionHouseRating
                                         auctionId={auctionId}
@@ -467,20 +429,20 @@ export default function AuctionDetailPage({ currentUser }) {
 
                         {/* Auto-Bid Indicator */}
                         {canBid && autoBid && (
-                            <div className="bg-[#EAF7F5] border border-[#2A9D8F] rounded-xl p-3 shadow-sm flex items-center justify-between mb-4">
+                            <div className="bg-[#EAF7F5] dark:bg-emerald-950/30 border border-[#2A9D8F] dark:border-emerald-700 rounded-xl p-3 shadow-sm flex items-center justify-between mb-4">
                                 <div>
                                     <p className="text-xs text-[#2A9D8F] font-bold flex items-center gap-1">
                                         <span className="w-1.5 h-1.5 bg-[#2A9D8F] rounded-full animate-pulse"></span>
                                         {t('autoBid.active')}
                                     </p>
-                                    <p className="text-sm text-[#1A2E2C] font-semibold mt-0.5">
+                                    <p className="text-sm text-[#1A2E2C] dark:text-slate-100 font-semibold mt-0.5">
                                         {t('autoBid.activeMax')}: {autoBid.maxAmount} ر.س
                                     </p>
                                 </div>
                                 <button
                                     onClick={() => cancelAutoBid()}
                                     disabled={autoBidLoading}
-                                    className="p-1.5 bg-white text-[#E05252] hover:bg-[#E05252] hover:text-white rounded-lg transition-colors border border-[#E05252]/20"
+                                    className="p-1.5 bg-white dark:bg-slate-900 text-[#E05252] hover:bg-[#E05252] hover:text-white rounded-lg transition-colors border border-[#E05252]/20 dark:border-rose-700/40"
                                     title={t('autoBid.cancel')}
                                 >
                                     <X className="w-4 h-4" />
@@ -489,7 +451,7 @@ export default function AuctionDetailPage({ currentUser }) {
                         )}
 
                         {/* Action Buttons */}
-                        <div className="bg-white rounded-xl border border-[#C5E0DC] p-4 shadow-sm space-y-2">
+                        <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 p-4 shadow-sm space-y-2">
                             {canBid && (
                                 <div className="grid grid-cols-2 gap-2">
                                     <button
@@ -502,7 +464,7 @@ export default function AuctionDetailPage({ currentUser }) {
                                     <button
                                         onClick={() => setAutoBidModalOpen(true)}
                                         disabled={bidLoading || autoBidLoading}
-                                        className="w-full bg-[#EAF7F5] hover:bg-[#D5EFEC] text-[#2A9D8F] border border-[#2A9D8F] px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 text-sm"
+                                        className="w-full bg-[#EAF7F5] dark:bg-emerald-950/30 hover:bg-[#D5EFEC] dark:hover:bg-emerald-900/40 text-[#2A9D8F] dark:text-emerald-300 border border-[#2A9D8F] dark:border-emerald-700 px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 text-sm"
                                     >
                                         {isAr ? 'مزايدة تلقائية' : 'Auto-Bid'}
                                     </button>
@@ -510,17 +472,14 @@ export default function AuctionDetailPage({ currentUser }) {
                             )}
 
                             {isWinner && (
-                                <WinnerPaymentAction
-                                    auctionId={auction.id}
-                                    status={auction?.paymentStatus}
-                                    isPaid={auction?.isPaid}
-                                    paidAt={auction?.paidAt}
-                                    endDate={auction?.endDate}
+                                <button
+                                    onClick={handleGenerateReceipt}
                                     disabled={bidLoading}
-                                    payLabel={isAr ? 'ادفع الآن' : 'Pay Now'}
-                                    payClassName="w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
-                                    receiptClassName="w-full bg-[#EAF7F5] border border-[#2A9D8F] text-[#1A7A6E] hover:bg-[#D9F0EC] px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 text-sm"
-                                />
+                                    className="w-full bg-[#2A9D8F] hover:bg-[#1A7A6E] text-white px-4 py-3 rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    {isAr ? 'تحميل الإيصال' : 'Download Receipt'}
+                                </button>
                             )}
 
                             {isSeller && isLiveAuction && !isFeatured && (
@@ -535,7 +494,7 @@ export default function AuctionDetailPage({ currentUser }) {
                             )}
 
                             {isSeller && isFeatured && (
-                                <div className="w-full bg-[#EAF7F5] border border-[#2A9D8F] text-[#2A9D8F] px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-sm">
+                                <div className="w-full bg-[#EAF7F5] dark:bg-emerald-950/30 border border-[#2A9D8F] dark:border-emerald-700 text-[#2A9D8F] dark:text-emerald-300 px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2 text-sm">
                                     <Zap className="w-4 h-4" />
                                     {t('featuredActive')}
                                 </div>
@@ -553,7 +512,7 @@ export default function AuctionDetailPage({ currentUser }) {
 
                             <button
                                 onClick={() => isSeller ? navigate('/seller-dashboard') : navigate('/')}
-                                className="w-full bg-[#F4FAFA] hover:bg-[#E2F1EF] text-[#2A9D8F] px-4 py-3 rounded-lg font-bold transition-colors text-sm"
+                                className="w-full bg-[#F4FAFA] dark:bg-slate-800 hover:bg-[#E2F1EF] dark:hover:bg-slate-700 text-[#2A9D8F] dark:text-slate-100 px-4 py-3 rounded-lg font-bold transition-colors text-sm"
                             >
                                 {isAr ? '← العودة' : 'Back →'}
                             </button>
@@ -561,7 +520,7 @@ export default function AuctionDetailPage({ currentUser }) {
 
                         {/* Winner Information - For Seller */}
                         {auctionEnded && isSeller && hasBids && auction?.highestBidder && (
-                            <div className="bg-[#EAF7F5] border border-[#2A9D8F] rounded-xl py-4 px-4 shadow-sm">
+                            <div className="bg-[#EAF7F5] dark:bg-emerald-950/30 border border-[#2A9D8F] dark:border-emerald-700 rounded-xl py-4 px-4 shadow-sm">
                                 <div className="flex items-center gap-2 mb-3">
                                     <Trophy className="w-5 h-5 text-[#2A9D8F]" />
                                     <p className="font-semibold text-[#2A9D8F]">
@@ -569,7 +528,7 @@ export default function AuctionDetailPage({ currentUser }) {
                                     </p>
                                 </div>
                                 <div className={`flex items-center gap-2 mb-2 flex-wrap ${isAr ? 'flex-row-reverse justify-end' : ''}`}>
-                                    <p className="text-[#1A2E2C] font-bold">{auction.highestBidder}</p>
+                                    <p className="text-[#1A2E2C] dark:text-slate-100 font-bold">{auction.highestBidder}</p>
                                     <WinnerBuyerRating
                                         auctionId={auctionId}
                                         buyerUsername={auction.highestBidder}
@@ -577,7 +536,7 @@ export default function AuctionDetailPage({ currentUser }) {
                                     />
                                 </div>
                                 {auction.highestBidderEmail && (
-                                    <p className="text-xs text-[#6B9E99]" dir="ltr">
+                                    <p className="text-xs text-[#6B9E99] dark:text-slate-400" dir="ltr">
                                         {isAr ? 'البريد الإلكتروني' : 'Email'}: {auction.highestBidderEmail}
                                     </p>
                                 )}
@@ -634,30 +593,30 @@ export default function AuctionDetailPage({ currentUser }) {
                     onClick={() => setRatingsModalOpen(false)}
                 >
                     <div
-                        className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col"
+                        className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col"
                         dir={isAr ? 'rtl' : 'ltr'}
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Modal Header */}
-                        <div className="flex items-center justify-between p-5 border-b border-[#C5E0DC]">
+                        <div className="flex items-center justify-between p-5 border-b border-[#C5E0DC] dark:border-slate-700">
                             <div>
-                                <h2 className="font-bold text-[#1A2E2C] text-lg">
+                                <h2 className="font-bold text-[#1A2E2C] dark:text-slate-100 text-lg">
                                     {isAr ? 'تقييمات صالة المزاد' : 'Auction House Reviews'}
                                 </h2>
-                                <p className="text-sm text-[#6B9E99] mt-0.5">
+                                <p className="text-sm text-[#6B9E99] dark:text-slate-400 mt-0.5">
                                     {auction?.auctionHouseName}
                                 </p>
                             </div>
                             <button
                                 onClick={() => setRatingsModalOpen(false)}
-                                className="p-2 rounded-lg hover:bg-[#F0F2F5] transition-colors"
+                                className="p-2 rounded-lg hover:bg-[#F0F2F5] dark:hover:bg-slate-800 transition-colors"
                             >
-                                <X className="w-5 h-5 text-[#6B9E99]" />
+                                <X className="w-5 h-5 text-[#6B9E99] dark:text-slate-400" />
                             </button>
                         </div>
 
                         {/* Average Summary */}
-                        <div className="flex items-center gap-3 px-5 py-4 bg-[#F4FAFA] border-b border-[#C5E0DC]">
+                        <div className="flex items-center gap-3 px-5 py-4 bg-[#F4FAFA] dark:bg-slate-800 border-b border-[#C5E0DC] dark:border-slate-700">
                             <div className="text-4xl font-bold text-[#2A9D8F]">
                                 {houseRatings.averageRating.toFixed(1)}
                             </div>
@@ -670,22 +629,22 @@ export default function AuctionDetailPage({ currentUser }) {
                                         />
                                     ))}
                                 </div>
-                                <p className="text-xs text-[#6B9E99]">
+                                <p className="text-xs text-[#6B9E99] dark:text-slate-400">
                                     {houseRatings.totalRatings} {isAr ? 'تقييم' : 'ratings'}
                                 </p>
                             </div>
                         </div>
 
                         {/* Ratings List */}
-                        <div className="overflow-y-auto flex-1 divide-y divide-[#C5E0DC]">
+                        <div className="overflow-y-auto flex-1 divide-y divide-[#C5E0DC] dark:divide-slate-700">
                             {houseRatings.ratings.map((r, idx) => (
                                 <div key={idx} className="px-5 py-4">
                                     <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-full bg-[#EAF7F5] flex items-center justify-center">
+                                            <div className="w-8 h-8 rounded-full bg-[#EAF7F5] dark:bg-emerald-950/40 flex items-center justify-center">
                                                 <User className="w-4 h-4 text-[#2A9D8F]" />
                                             </div>
-                                            <span className="font-semibold text-sm text-[#1A2E2C]">{r.buyerUsername}</span>
+                                            <span className="font-semibold text-sm text-[#1A2E2C] dark:text-slate-100">{r.buyerUsername}</span>
                                         </div>
                                         <div className="flex items-center gap-0.5">
                                             {[1, 2, 3, 4, 5].map((star) => (
@@ -697,7 +656,7 @@ export default function AuctionDetailPage({ currentUser }) {
                                         </div>
                                     </div>
                                     {r.comment && (
-                                        <p className="text-sm text-[#1A2E2C] leading-relaxed">
+                                        <p className="text-sm text-[#1A2E2C] dark:text-slate-200 leading-relaxed">
                                             {r.comment}
                                         </p>
                                     )}

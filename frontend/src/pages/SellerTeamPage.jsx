@@ -227,7 +227,7 @@ export default function SellerTeamPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#F0F2F5] flex flex-col">
+        <div className="min-h-screen bg-[#F0F2F5] dark:bg-slate-950 flex flex-col">
             <TopNavigationBar
                 currentUser={currentUser}
                 isSeller={true}
@@ -259,12 +259,12 @@ export default function SellerTeamPage() {
                         {isAr ? 'العودة للوحة التحكم' : 'Back to Dashboard'}
                     </button>
 
-                    <div className="bg-white border border-[#C5E0DC] rounded-xl p-6 mb-6 shadow-sm">
+                    <div className="bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 rounded-xl p-6 mb-6 shadow-sm">
                         <div className="flex items-center gap-3 mb-2">
                             <Users className="w-6 h-6 text-[#2A9D8F]" />
-                            <h1 className="text-2xl font-bold text-[#1A2E2C]">{isAr ? 'الفريق' : 'Team'}</h1>
+                            <h1 className="text-2xl font-bold text-[#1A2E2C] dark:text-slate-100">{isAr ? 'الفريق' : 'Team'}</h1>
                         </div>
-                        <p className="text-[#6B9E99] text-sm">
+                        <p className="text-[#6B9E99] dark:text-slate-300 text-sm">
                             {isAr ? 'إدارة أعضاء صالة المزاد وصلاحياتهم' : 'Manage auction house members and permissions'}
                         </p>
                     </div>
@@ -281,8 +281,8 @@ export default function SellerTeamPage() {
                     )}
 
                     {pendingInvitations.length > 0 && (
-                        <div className="bg-[#EAF7F5] border border-[#2A9D8F] rounded-xl p-5 mb-6">
-                            <p className="font-semibold text-[#1A2E2C] mb-1 rtl:text-right ltr:text-left">
+                        <div className="bg-[#EAF7F5] dark:bg-emerald-950/30 border border-[#2A9D8F] dark:border-emerald-700 rounded-xl p-5 mb-6">
+                            <p className="font-semibold text-[#1A2E2C] dark:text-slate-100 mb-1 rtl:text-right ltr:text-left">
                                 {isAr ? 'لديك دعوة للانضمام إلى صالة مزاد' : 'You have an invitation to join an Auction House'}
                             </p>
                             <p className="text-sm text-[#2A9D8F] mb-4">
@@ -300,16 +300,16 @@ export default function SellerTeamPage() {
                     )}
 
                     {isAdmin && sentInvitations.length > 0 && (
-                        <div className="bg-white border border-[#C5E0DC] rounded-xl p-5 mb-6 shadow-sm">
-                            <p className="font-semibold text-[#1A2E2C] mb-3 rtl:text-right ltr:text-left">
+                        <div className="bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 rounded-xl p-5 mb-6 shadow-sm">
+                            <p className="font-semibold text-[#1A2E2C] dark:text-slate-100 mb-3 rtl:text-right ltr:text-left">
                                 {isAr ? 'الدعوات المرسلة المعلّقة' : 'Pending Sent Invitations'}
                             </p>
                             <div className="space-y-2">
                                 {sentInvitations.map((invite) => (
-                                    <div key={invite.email} className="flex items-center justify-between rounded-lg border border-[#E3ECEA] px-3 py-2">
+                                    <div key={invite.email} className="flex items-center justify-between rounded-lg border border-[#E3ECEA] dark:border-slate-700 px-3 py-2">
                                         <div>
-                                            <p className="text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">{invite.username || '-'}</p>
-                                            <p className="text-xs text-[#6B9E99]">{invite.email}</p>
+                                            <p className="text-sm font-semibold text-[#1A2E2C] dark:text-slate-100 rtl:text-right ltr:text-left">{invite.username || '-'}</p>
+                                            <p className="text-xs text-[#6B9E99] dark:text-slate-400">{invite.email}</p>
                                         </div>
                                         <button
                                             onClick={() => handleCancelInvite(invite.email)}
@@ -327,7 +327,7 @@ export default function SellerTeamPage() {
                         <div className="mb-6">
                             <button
                                 onClick={handleLeaveAuctionHouse}
-                                className="px-4 py-2 rounded-lg bg-white border border-red-300 text-red-600 hover:bg-red-50 text-sm font-semibold"
+                                className="px-4 py-2 rounded-lg bg-white dark:bg-slate-900 border border-red-300 dark:border-red-700 text-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30 text-sm font-semibold"
                             >
                                 {isAr ? 'مغادرة صالة المزاد' : 'Leave Auction House'}
                             </button>
@@ -335,15 +335,15 @@ export default function SellerTeamPage() {
                     )}
 
                     {isAdmin && hasAuctionHouse && (
-                        <form onSubmit={handleAddSeller} className="bg-white border border-[#C5E0DC] rounded-xl p-6 mb-6 shadow-sm">
-                            <h2 className="font-bold text-[#1A2E2C] mb-3">{isAr ? 'إضافة بائع غير مسؤول' : 'Add Non-Admin Seller'}</h2>
+                        <form onSubmit={handleAddSeller} className="bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 rounded-xl p-6 mb-6 shadow-sm">
+                            <h2 className="font-bold text-[#1A2E2C] dark:text-slate-100 mb-3">{isAr ? 'إضافة بائع غير مسؤول' : 'Add Non-Admin Seller'}</h2>
                             <div className="flex gap-3">
                                 <input
                                     value={inviteEmail}
                                     onChange={(e) => setInviteEmail(e.target.value)}
                                     placeholder={isAr ? 'البريد الإلكتروني للبائع' : 'Seller email'}
                                     type="email"
-                                    className="flex-1 border border-[#C5E0DC] rounded-lg px-3 py-2 text-sm"
+                                    className="flex-1 border border-[#C5E0DC] dark:border-slate-700 bg-white dark:bg-slate-800 text-[#1A2E2C] dark:text-slate-100 rounded-lg px-3 py-2 text-sm"
                                     required
                                 />
                                 <button
@@ -360,31 +360,31 @@ export default function SellerTeamPage() {
                         </form>
                     )}
 
-                    <div className="bg-white border border-[#C5E0DC] rounded-xl shadow-sm overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 rounded-xl shadow-sm overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full">
-                                <thead className="bg-[#F4FAFA] border-b border-[#C5E0DC]">
+                                <thead className="bg-[#F4FAFA] dark:bg-slate-800 border-b border-[#C5E0DC] dark:border-slate-700">
                                     <tr>
-                                        <th className="px-4 py-3 text-left text-sm font-semibold text-[#1A2E2C]">{isAr ? 'المستخدم' : 'User'}</th>
-                                        <th className="px-4 py-3 text-left text-sm font-semibold text-[#1A2E2C]">{isAr ? 'البريد' : 'Email'}</th>
-                                        <th className="px-4 py-3 text-left text-sm font-semibold text-[#1A2E2C]">{isAr ? 'الدور' : 'Role'}</th>
-                                        <th className="px-4 py-3 text-left text-sm font-semibold text-[#1A2E2C]">{isAr ? 'إجراءات' : 'Actions'}</th>
+                                        <th className="px-4 py-3 text-left text-sm font-semibold text-[#1A2E2C] dark:text-slate-100">{isAr ? 'المستخدم' : 'User'}</th>
+                                        <th className="px-4 py-3 text-left text-sm font-semibold text-[#1A2E2C] dark:text-slate-100">{isAr ? 'البريد' : 'Email'}</th>
+                                        <th className="px-4 py-3 text-left text-sm font-semibold text-[#1A2E2C] dark:text-slate-100">{isAr ? 'الدور' : 'Role'}</th>
+                                        <th className="px-4 py-3 text-left text-sm font-semibold text-[#1A2E2C] dark:text-slate-100">{isAr ? 'إجراءات' : 'Actions'}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td className="px-4 py-6 text-sm text-[#6B9E99]" colSpan={4}>{isAr ? 'جاري التحميل...' : 'Loading...'}</td>
+                                            <td className="px-4 py-6 text-sm text-[#6B9E99] dark:text-slate-400" colSpan={4}>{isAr ? 'جاري التحميل...' : 'Loading...'}</td>
                                         </tr>
                                     ) : team.length === 0 ? (
                                         <tr>
-                                            <td className="px-4 py-6 text-sm text-[#6B9E99]" colSpan={4}>{isAr ? 'لا يوجد أعضاء في الفريق' : 'No team members found'}</td>
+                                            <td className="px-4 py-6 text-sm text-[#6B9E99] dark:text-slate-400" colSpan={4}>{isAr ? 'لا يوجد أعضاء في الفريق' : 'No team members found'}</td>
                                         </tr>
                                     ) : (
                                         team.map((member) => (
-                                            <tr key={member.sellerId} className="border-b border-[#C5E0DC] last:border-0">
-                                                        <td className="px-4 py-3 text-sm font-semibold text-[#1A2E2C] rtl:text-right ltr:text-left">{member.username}</td>
-                                                <td className="px-4 py-3 text-sm text-[#6B9E99]">{member.email || '-'}</td>
+                                            <tr key={member.sellerId} className="border-b border-[#C5E0DC] dark:border-slate-700 last:border-0">
+                                                        <td className="px-4 py-3 text-sm font-semibold text-[#1A2E2C] dark:text-slate-100 rtl:text-right ltr:text-left">{member.username}</td>
+                                                <td className="px-4 py-3 text-sm text-[#6B9E99] dark:text-slate-400">{member.email || '-'}</td>
                                                 <td className="px-4 py-3 text-sm">
                                                     {member.isAdmin ? (
                                                         <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#EAF7F5] text-[#2A9D8F] font-semibold">
@@ -392,7 +392,7 @@ export default function SellerTeamPage() {
                                                             {isAr ? 'مسؤول' : 'Admin'}
                                                         </span>
                                                     ) : (
-                                                        <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-600 font-semibold">{isAr ? 'بائع' : 'Seller'}</span>
+                                                        <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-300 font-semibold">{isAr ? 'بائع' : 'Seller'}</span>
                                                     )}
                                                 </td>
                                                 <td className="px-4 py-3 text-sm">
@@ -414,7 +414,7 @@ export default function SellerTeamPage() {
                                                             </button>
                                                              <button
                                                                  onClick={() => handleDeleteSeller(member.sellerId)}
-                                                                 className="px-3 py-1 rounded-lg bg-[#1A2E2C] hover:bg-black text-white text-xs font-semibold"
+                                                                 className="px-3 py-1 rounded-lg bg-[#1A2E2C] dark:bg-slate-700 hover:bg-black dark:hover:bg-slate-600 text-white text-xs font-semibold"
                                                              >
                                                                  {isAr ? 'حذف الحساب' : 'Delete Account'}
                                                              </button>

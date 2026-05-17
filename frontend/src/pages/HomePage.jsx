@@ -132,13 +132,6 @@ export default function HomePage() {
   }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
-    if (location.state?.openMyBids) {
-      setShowMyBids(true);
-      navigate(location.pathname, { replace: true, state: {} });
-    }
-  }, [location.pathname, location.state, navigate]);
-
-  useEffect(() => {
     const loadInitialData = async () => {
       await fetchAuctions();
       fetchFeaturedAuctions();
@@ -297,7 +290,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F0F2F5] to-[#E8EAF0] flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-[#F0F2F5] to-[#E8EAF0] dark:from-slate-950 dark:to-slate-900 flex flex-col">
       <TopNavigationBar
         currentUser={currentUser}
         isSeller={isSeller}
@@ -321,19 +314,19 @@ export default function HomePage() {
           <div className="container mx-auto px-4 py-8 max-w-7xl">
             <button
               onClick={() => setMobileFilterOpen(true)}
-              className="lg:hidden flex items-center gap-2 text-[#6B9E99] bg-white border border-[#C5E0DC] px-4 py-3 rounded-lg font-semibold mb-6"
+              className="lg:hidden flex items-center gap-2 text-[#6B9E99] dark:text-slate-300 bg-white dark:bg-slate-800 border border-[#C5E0DC] dark:border-slate-700 px-4 py-3 rounded-lg font-semibold mb-6"
             >
               <Menu className="w-4 h-4" />
               {isAr ? 'المرشحات' : 'Filters'} ({filteredAuctions.length})
             </button>
 
             {!loading && !error && filteredAuctions.length === 0 && (
-              <div className="bg-white rounded-xl border border-[#C5E0DC] p-10 text-center">
-                <p className="text-[#6B9E99] font-semibold">{isAr ? 'لا توجد مزادات تطابق الفلاتر' : 'No auctions match filters'}</p>
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-[#C5E0DC] dark:border-slate-700 p-10 text-center">
+                <p className="text-[#6B9E99] dark:text-slate-300 font-semibold">{isAr ? 'لا توجد مزادات تطابق الفلاتر' : 'No auctions match filters'}</p>
               </div>
             )}
 
-            {loading && <p className="text-[#6B9E99]">{isAr ? 'جاري التحميل...' : 'Loading...'}</p>}
+            {loading && <p className="text-[#6B9E99] dark:text-slate-300">{isAr ? 'جاري التحميل...' : 'Loading...'}</p>}
 
             {error && (
               <div className="bg-red-50 border border-[#E05252] rounded-lg p-4 text-[#E05252] font-semibold">
@@ -346,7 +339,7 @@ export default function HomePage() {
                 {/* Featured Auctions Section */}
                 {featuredAuctionIds.length > 0 && filteredAuctions.some((a) => featuredAuctionIds.includes(a.id)) && (
                   <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-[#1A2E2C] mb-4 flex items-center gap-2">
+                    <h2 className="text-2xl font-bold text-[#1A2E2C] dark:text-slate-100 mb-4 flex items-center gap-2">
                       <span className="text-[#FFD700]">⭐</span>
                       {t('featuredAuctions')}
                     </h2>
@@ -365,7 +358,7 @@ export default function HomePage() {
                 {/* All Auctions Section */}
                 <div className="pb-8">
                   {featuredAuctionIds.length > 0 && filteredAuctions.some((a) => featuredAuctionIds.includes(a.id)) && (
-                    <h2 className="text-xl font-bold text-[#1A2E2C] mb-4">
+                    <h2 className="text-xl font-bold text-[#1A2E2C] dark:text-slate-100 mb-4">
                       {isAr ? 'جميع المزادات' : 'All Auctions'}
                     </h2>
                   )}
