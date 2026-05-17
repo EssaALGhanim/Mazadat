@@ -91,4 +91,10 @@ public class ControllerAdvice {
         return ResponseEntity.status(403).body(new ApiResponse(msg));
     }
 
+    @ExceptionHandler(value = org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ApiResponse> handleSecurityAccessDeniedException(org.springframework.security.access.AccessDeniedException e) {
+        String msg = e.getMessage();
+        return ResponseEntity.status(403).body(new ApiResponse(msg));
+    }
+
 }

@@ -30,7 +30,7 @@ public class AuctionComment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(columnDefinition = "VARCHAR(500)", nullable = false)
+    @Column(columnDefinition = "VARCHAR(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci", nullable = false)
     private String content;
 
     @CreationTimestamp

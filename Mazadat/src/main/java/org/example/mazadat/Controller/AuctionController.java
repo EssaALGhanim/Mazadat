@@ -113,7 +113,7 @@ public class AuctionController {
                                          @PathVariable Integer commentId,
                                          @Valid @RequestBody AuctionCommentDTOIN dto,
                                          @AuthenticationPrincipal User user){
-        auctionCommentService.editComment(dto, commentId, user.getId());
+        auctionCommentService.editComment(dto, auctionId, commentId, user.getId());
         return ResponseEntity.status(HttpStatus.OK.value()).body(new ApiResponse("Comment updated successfully"));
     }
 
@@ -121,7 +121,7 @@ public class AuctionController {
     public ResponseEntity<?> deleteComment(@PathVariable Integer auctionId,
                                            @PathVariable Integer commentId,
                                            @AuthenticationPrincipal User user){
-        auctionCommentService.deleteComment(commentId, user.getId());
+        auctionCommentService.deleteComment(auctionId, commentId, user.getId());
         return ResponseEntity.status(HttpStatus.OK.value()).body(new ApiResponse("Comment deleted successfully"));
     }
 }

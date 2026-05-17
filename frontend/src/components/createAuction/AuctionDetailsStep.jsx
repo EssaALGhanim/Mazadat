@@ -37,7 +37,7 @@ export default function AuctionDetailsStep({ formData, setFormData, onNext }) {
 
         {/* Title */}
         <div>
-          <label className="block mb-2 font-semibold text-[#1A2E2C]">
+          <label className="block mb-2 font-semibold text-[#1A2E2C] dark:text-slate-100">
             {t('titleLabel')} <span className="text-[#E05252]">*</span>
           </label>
           <input
@@ -47,13 +47,13 @@ export default function AuctionDetailsStep({ formData, setFormData, onNext }) {
               onChange={handleChange}
               maxLength={100}
               placeholder={t('titlePlaceholder')}
-              className={`w-full rounded-lg border bg-white px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow ${
+              className={`w-full rounded-lg border bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow ${
                   errors.title ? 'border-[#E05252] focus:ring-[#E05252]' : 'border-[#C5E0DC]'
               }`}
           />
           <div className="flex justify-between items-center mt-2">
             <span className="text-sm text-[#E05252] min-h-[20px]">{errors.title}</span>
-            <span className="text-xs text-[#6B9E99]" dir="ltr">
+            <span className="text-xs text-[#6B9E99] dark:text-slate-400" dir="ltr">
             {displayCount(formData.title.length, 100)}
           </span>
           </div>
@@ -61,7 +61,7 @@ export default function AuctionDetailsStep({ formData, setFormData, onNext }) {
 
         {/* Description */}
         <div>
-          <label className="block mb-2 font-semibold text-[#1A2E2C]">
+          <label className="block mb-2 font-semibold text-[#1A2E2C] dark:text-slate-100">
             {t('descriptionLabel')} <span className="text-[#E05252]">*</span>
           </label>
           <textarea
@@ -71,13 +71,13 @@ export default function AuctionDetailsStep({ formData, setFormData, onNext }) {
               maxLength={1000}
               rows={5}
               placeholder={t('descriptionPlaceholder')}
-              className={`w-full rounded-lg border bg-white px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow resize-y min-h-[120px] ${
+              className={`w-full rounded-lg border bg-white dark:bg-slate-900 text-[#1A2E2C] dark:text-slate-100 placeholder:text-[#6B9E99] dark:placeholder:text-slate-400 px-4 py-3 focus:ring-2 focus:ring-[#2A9D8F] focus:outline-none transition-shadow resize-y min-h-[120px] ${
                   errors.description ? 'border-[#E05252] focus:ring-[#E05252]' : 'border-[#C5E0DC]'
               }`}
           />
           <div className="flex justify-between items-center mt-2">
             <span className="text-sm text-[#E05252] min-h-[20px]">{errors.description}</span>
-            <span className="text-xs text-[#6B9E99]" dir="ltr">
+            <span className="text-xs text-[#6B9E99] dark:text-slate-400" dir="ltr">
             {displayCount(formData.description.length, 1000)}
           </span>
           </div>

@@ -92,32 +92,32 @@ export default function FeatureAuctionModal({
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+            <div className="bg-white dark:bg-slate-900 border border-[#C5E0DC] dark:border-slate-700 rounded-xl p-6 w-full max-w-md shadow-xl">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-2">
                         <Zap className="w-5 h-5 text-[#2A9D8F]" />
-                        <h2 className="text-xl font-bold text-[#1A2E2C]">
+                        <h2 className="text-xl font-bold text-[#1A2E2C] dark:text-slate-100">
                             {t('featureThisAuction')}
                         </h2>
                     </div>
                     <button
                         onClick={() => onOpenChange(false)}
-                        className="p-1 hover:bg-[#F4FAFA] rounded-lg transition-colors"
+                        className="p-1 hover:bg-[#F4FAFA] dark:hover:bg-slate-800 rounded-lg transition-colors"
                     >
-                        <X className="w-5 h-5 text-[#6B9E99]" />
+                        <X className="w-5 h-5 text-[#6B9E99] dark:text-slate-400" />
                     </button>
                 </div>
 
                 {/* Product Title */}
-                <div className="mb-6 p-3 bg-[#F4FAFA] rounded-lg">
-                    <p className="text-xs text-[#6B9E99] mb-1">{isAr ? 'المنتج' : 'Product'}</p>
-                    <p className="font-semibold text-[#1A2E2C] line-clamp-2">{auctionTitle}</p>
+                <div className="mb-6 p-3 bg-[#F4FAFA] dark:bg-slate-800 rounded-lg">
+                    <p className="text-xs text-[#6B9E99] dark:text-slate-400 mb-1">{isAr ? 'المنتج' : 'Product'}</p>
+                    <p className="font-semibold text-[#1A2E2C] dark:text-slate-100 line-clamp-2">{auctionTitle}</p>
                 </div>
 
                 {/* Date Input */}
                 <div className="mb-4">
-                    <label className="block text-sm font-semibold text-[#1A2E2C] mb-2">
+                    <label className="block text-sm font-semibold text-[#1A2E2C] dark:text-slate-200 mb-2">
                         {isAr ? 'تاريخ الانتهاء' : 'End Date'}
                     </label>
                     <input
@@ -126,13 +126,13 @@ export default function FeatureAuctionModal({
                         onChange={(e) => setSelectedDate(e.target.value)}
                         min={today}
                         max={auctionEndDateValue || undefined}
-                        className="w-full px-3 py-2 border border-[#C5E0DC] rounded-lg focus:outline-none focus:border-[#2A9D8F] focus:ring-2 focus:ring-[#2A9D8F]/20 text-[#1A2E2C]"
+                        className="w-full px-3 py-2 border border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg focus:outline-none focus:border-[#2A9D8F] focus:ring-2 focus:ring-[#2A9D8F]/20 text-[#1A2E2C] dark:text-slate-100"
                     />
                 </div>
 
                 {/* Time Input */}
                 <div className="mb-6">
-                    <label className="block text-sm font-semibold text-[#1A2E2C] mb-2">
+                    <label className="block text-sm font-semibold text-[#1A2E2C] dark:text-slate-200 mb-2">
                         {isAr ? 'الوقت' : 'Time'}
                     </label>
                     <input
@@ -141,24 +141,24 @@ export default function FeatureAuctionModal({
                         onChange={(e) => setSelectedTime(e.target.value)}
                         min={minTime}
                         max={maxTime}
-                        className="w-full px-3 py-2 border border-[#C5E0DC] rounded-lg focus:outline-none focus:border-[#2A9D8F] focus:ring-2 focus:ring-[#2A9D8F]/20 text-[#1A2E2C]"
+                        className="w-full px-3 py-2 border border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-900 rounded-lg focus:outline-none focus:border-[#2A9D8F] focus:ring-2 focus:ring-[#2A9D8F]/20 text-[#1A2E2C] dark:text-slate-100"
                     />
                 </div>
 
                 {/* Cost Summary */}
                 {hours > 0 && (
-                    <div className="mb-6 p-4 bg-[#EAF7F5] border border-[#2A9D8F]/20 rounded-lg">
+                    <div className="mb-6 p-4 bg-[#EAF7F5] dark:bg-emerald-950/30 border border-[#2A9D8F]/20 dark:border-emerald-700/50 rounded-lg">
                         <div className="grid grid-cols-3 gap-2 mb-2">
                             <div>
-                                <p className="text-xs text-[#6B9E99]">{isAr ? 'الساعات' : 'Hours'}</p>
-                                <p className="font-bold text-[#1A2E2C]">{hours}</p>
+                                <p className="text-xs text-[#6B9E99] dark:text-slate-400">{isAr ? 'الساعات' : 'Hours'}</p>
+                                <p className="font-bold text-[#1A2E2C] dark:text-slate-100">{hours}</p>
                             </div>
                             <div>
-                                <p className="text-xs text-[#6B9E99]">{isAr ? 'السعر/الساعة' : 'Price/Hour'}</p>
-                                <p className="font-bold text-[#1A2E2C]">50 ﷼</p>
+                                <p className="text-xs text-[#6B9E99] dark:text-slate-400">{isAr ? 'السعر/الساعة' : 'Price/Hour'}</p>
+                                <p className="font-bold text-[#1A2E2C] dark:text-slate-100">50 ﷼</p>
                             </div>
                             <div>
-                                <p className="text-xs text-[#6B9E99]">{isAr ? 'الإجمالي' : 'Total'}</p>
+                                <p className="text-xs text-[#6B9E99] dark:text-slate-400">{isAr ? 'الإجمالي' : 'Total'}</p>
                                 <p className="font-bold text-[#2A9D8F]">{cost} ﷼</p>
                             </div>
                         </div>
@@ -176,7 +176,7 @@ export default function FeatureAuctionModal({
                 <div className="flex gap-2">
                     <button
                         onClick={() => onOpenChange(false)}
-                        className="flex-1 px-4 py-2 bg-[#F4FAFA] hover:bg-[#E2F1EF] text-[#2A9D8F] rounded-lg font-semibold transition-colors"
+                        className="flex-1 px-4 py-2 bg-[#F4FAFA] dark:bg-slate-800 hover:bg-[#E2F1EF] dark:hover:bg-slate-700 text-[#2A9D8F] dark:text-emerald-300 rounded-lg font-semibold transition-colors"
                     >
                         {t('cancel')}
                     </button>

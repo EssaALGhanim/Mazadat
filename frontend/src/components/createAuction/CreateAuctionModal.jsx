@@ -162,19 +162,19 @@ export default function CreateAuctionModal({ open, onOpenChange, onSuccess }) {
       <Dialog.Root open={open} onOpenChange={handleOpenChange}>
          <Dialog.Portal>
            <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50 animate-in fade-in" />
-           <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-4xl max-h-[90vh] bg-[#F4FAFA] rounded-xl shadow-xl z-50 overflow-hidden flex flex-col focus:outline-none animate-in zoom-in-95 duration-200">
+           <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[95vw] max-w-4xl max-h-[90vh] bg-[#F4FAFA] dark:bg-slate-950 border border-[#C5E0DC] dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden flex flex-col focus:outline-none animate-in zoom-in-95 duration-200">
 
             {/* Header */}
-            <div className="bg-white border-b border-[#C5E0DC] px-6 h-16 flex items-center justify-between shrink-0">
+            <div className="bg-white dark:bg-slate-900 border-b border-[#C5E0DC] dark:border-slate-700 px-6 h-16 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <img src="/logos/mazadat_green_logo.png" alt="Mazadat" className="h-8" />
-                <Dialog.Title className="font-bold text-[#1A2E2C] text-lg hidden sm:block">
+                <Dialog.Title className="font-bold text-[#1A2E2C] dark:text-slate-100 text-lg hidden sm:block">
                   {t('pageTitle')}
                 </Dialog.Title>
               </div>
               {!isPublished && (
                   <Dialog.Close asChild>
-                    <button className="text-[#6B9E99] hover:text-[#1A2E2C] transition-colors p-1 rounded-full hover:bg-gray-100">
+                    <button className="text-[#6B9E99] dark:text-slate-400 hover:text-[#1A2E2C] dark:hover:text-slate-100 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800">
                       <X className="w-6 h-6" />
                     </button>
                   </Dialog.Close>
@@ -185,11 +185,11 @@ export default function CreateAuctionModal({ open, onOpenChange, onSuccess }) {
             <div className="overflow-y-auto p-4 md:p-8 flex-1">
               {isPublished ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center h-full">
-                    <div className="bg-white p-8 rounded-xl shadow-sm border border-[#C5E0DC] max-w-md w-full animate-in fade-in zoom-in duration-500">
+                    <div className="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-sm border border-[#C5E0DC] dark:border-slate-700 max-w-md w-full animate-in fade-in zoom-in duration-500">
                       <div className="flex justify-center mb-6">
                         <CheckCircle className="w-20 h-20 text-[#2A9D8F]" strokeWidth={1.5} />
                       </div>
-                      <h2 className="text-2xl font-bold text-[#1A2E2C] mb-8">{t('publishSuccess')}</h2>
+                      <h2 className="text-2xl font-bold text-[#1A2E2C] dark:text-slate-100 mb-8">{t('publishSuccess')}</h2>
                       <div className="space-y-3">
                         <button
                             onClick={handleClose}
@@ -206,7 +206,7 @@ export default function CreateAuctionModal({ open, onOpenChange, onSuccess }) {
 
                     {/* Error Message */}
                     {error && (
-                        <div className="mb-4 bg-red-50 border border-[#E05252] text-[#E05252] rounded-lg px-4 py-3 text-sm font-semibold">
+                        <div className="mb-4 bg-red-50 dark:bg-red-950/30 border border-[#E05252] dark:border-red-700 text-[#E05252] dark:text-red-300 rounded-lg px-4 py-3 text-sm font-semibold">
                           {error}
                         </div>
                     )}
