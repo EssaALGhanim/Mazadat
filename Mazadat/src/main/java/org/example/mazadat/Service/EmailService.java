@@ -1,5 +1,6 @@
 package org.example.mazadat.Service;
 
+import org.example.mazadat.Api.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +46,6 @@ public class EmailService {
         sendHtml(toEmail, subject, body);
     }
 
-    @Async
     public void sendOtpEmail(String toEmail, String username, String otp) {
         String subject = "Mazadat Verification Code | رمز التحقق من مزادات";
         String body = buildOtpHtml(username, otp);
@@ -74,6 +74,9 @@ public class EmailService {
 
     private void sendHtml(String toEmail, String subject, String htmlBody) {
         try {
+            if (brevoApiKey == null || brevoApiKey.isBlank()) {
+                throw new ApiException("Brevo API key is not configured");
+            }
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("api-key", brevoApiKey);
@@ -88,10 +91,13 @@ public class EmailService {
             ResponseEntity<String> response = restTemplate.postForEntity(BREVO_API_URL, request, String.class);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
-                logger.error("Brevo API error for {}: status={}", toEmail, response.getStatusCode());
+                logger.error("Brevo API error for {}: status={}, body={}", toEmail, response.getStatusCode(), response.getBody());
+                throw new ApiException("Failed to send email (provider response: " + response.getStatusCode() + ")");
             }
         } catch (Exception e) {
             logger.error("Failed to send email to {}: {}", toEmail, e.getMessage());
+            if (e instanceof ApiException) throw (ApiException) e;
+            throw new ApiException("Failed to send email. Please check mail provider configuration");
         }
     }
 

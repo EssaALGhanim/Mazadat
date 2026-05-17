@@ -270,7 +270,7 @@ export default function AdminDashboardPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F0F5F4]" dir={i18n.dir()}>
+        <div className="min-h-screen bg-[#F0F5F4] dark:bg-slate-950" dir={i18n.dir()}>
             <TopNavigationBar
                 isSeller={false}
                 isBuyer={false}
@@ -281,14 +281,14 @@ export default function AdminDashboardPage() {
             <div className="mx-auto max-w-7xl px-4 py-8">
                 <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                     <div>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-[#C5E0DC] bg-white px-3 py-1 text-sm font-semibold text-[#2A9D8F]">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-[#C5E0DC] dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1 text-sm font-semibold text-[#2A9D8F] dark:text-slate-100">
                             <ShieldCheck className="h-4 w-4" />
                             <span>{t('admin.badge')}</span>
                         </div>
-                        <h1 className="mt-4 text-3xl font-bold text-[#1A2E2C]">
+                        <h1 className="mt-4 text-3xl font-bold text-[#1A2E2C] dark:text-slate-100">
                             {t('admin.title')}
                         </h1>
-                        <p className="mt-2 max-w-3xl text-[#6B9E99]">
+                        <p className="mt-2 max-w-3xl text-[#6B9E99] dark:text-slate-300">
                             {t('admin.subtitle')}
                         </p>
                         <div className="mt-4 min-h-[76px]">
@@ -300,35 +300,35 @@ export default function AdminDashboardPage() {
                         </div>
                     </div>
 
-                    <Card className="border-[#D7E8E5] bg-white shadow-sm lg:w-[320px]">
+                    <Card className="border-[#D7E8E5] dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm lg:w-[320px]">
                         <CardContent className="flex items-center gap-4 p-5">
                             <div className="rounded-2xl bg-[#F4FAFA] p-3 text-[#2A9D8F]">
                                 <ShieldCheck className="h-5 w-5" />
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-[#6B9E99]">{t('admin.loggedInAs')}</p>
-                                <p className="text-lg font-semibold text-[#1A2E2C]">{currentUser?.username || '—'}</p>
-                                <p className="text-sm text-[#6B9E99]">{t('admin.roles.admin')}</p>
+                                <p className="text-sm font-medium text-[#6B9E99] dark:text-slate-300">{t('admin.loggedInAs')}</p>
+                                <p className="text-lg font-semibold text-[#1A2E2C] dark:text-slate-100">{currentUser?.username || '—'}</p>
+                                <p className="text-sm text-[#6B9E99] dark:text-slate-300">{t('admin.roles.admin')}</p>
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
                 <Tabs defaultValue="overview" className="gap-6">
-                    <TabsList dir={i18n.dir()} className="mx-auto grid h-auto w-full grid-cols-4 rounded-2xl border border-[#D7E8E5] bg-white p-1 sm:w-fit">
-                        <TabsTrigger value="overview" className="gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] data-[state=active]:text-[#1A2E2C]">
+                    <TabsList dir={i18n.dir()} className="mx-auto grid h-auto w-full grid-cols-4 rounded-2xl border border-[#D7E8E5] dark:border-slate-700 bg-white dark:bg-slate-900 p-1 sm:w-fit">
+                        <TabsTrigger value="overview" className="gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] dark:data-[state=active]:bg-slate-800 data-[state=active]:text-[#1A2E2C] dark:data-[state=active]:text-slate-100">
                             <ShieldCheck className="h-4 w-4 shrink-0" />
                             <span>{t('admin.tabs.overview')}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="users" className="gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] data-[state=active]:text-[#1A2E2C]">
+                        <TabsTrigger value="users" className="gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] dark:data-[state=active]:bg-slate-800 data-[state=active]:text-[#1A2E2C] dark:data-[state=active]:text-slate-100">
                             <Users className="h-4 w-4 shrink-0" />
                             <span>{t('admin.tabs.users')}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="auctions" className="gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] data-[state=active]:text-[#1A2E2C]">
+                        <TabsTrigger value="auctions" className="gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] dark:data-[state=active]:bg-slate-800 data-[state=active]:text-[#1A2E2C] dark:data-[state=active]:text-slate-100">
                             <Gavel className="h-4 w-4 shrink-0" />
                             <span>{t('admin.tabs.auctions')}</span>
                         </TabsTrigger>
-                        <TabsTrigger value="reports" className="relative gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] data-[state=active]:text-[#1A2E2C]">
+                        <TabsTrigger value="reports" className="relative gap-2 rounded-xl px-4 py-2 data-[state=active]:bg-[#F4FAFA] dark:data-[state=active]:bg-slate-800 data-[state=active]:text-[#1A2E2C] dark:data-[state=active]:text-slate-100">
                             <Flag className="h-4 w-4 shrink-0" />
                             <span>{t('admin.tabs.reports')}</span>
                             {reports.filter((r) => r.status === 'PENDING').length > 0 && (

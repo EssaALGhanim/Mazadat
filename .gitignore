@@ -30,3 +30,6 @@ node_modules
 *.sublime-workspace
 .jshintrc
 .env.local
+# Build files
+target/
+*.class

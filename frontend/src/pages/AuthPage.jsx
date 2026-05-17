@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Check, Eye, EyeOff, Mail, ShieldCheck, Store, TrendingUp, User, X } from 'lucide-react';
+import { Check, Eye, EyeOff, Mail, Moon, ShieldCheck, Store, Sun, TrendingUp, User, X } from 'lucide-react';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { useTheme } from '@/contexts/ThemeContext';
 import { login } from '@/services/authService';
 import { getSellerAuctionHouse } from '@/services/auctionHouseService';
 import { sendOtp, startRegistrationOtp, verifyOtp } from '@/services/notificationService';
@@ -694,12 +695,22 @@ function RegisterForm() {
 export default function AuthPage() {
   const { t, i18n } = useTranslation('auth');
   const { t: tCommon } = useTranslation('common');
+  const { isDark, toggleTheme } = useTheme();
   const isAr = i18n.language === 'ar';
   const dir = isAr ? 'rtl' : 'ltr';
 
   return (
     <div className="flex min-h-screen">
       <LanguageSwitcher />
+      <button
+        onClick={toggleTheme}
+        className="fixed top-4 end-[92px] z-50 inline-flex items-center gap-1.5 rounded-lg border border-[#C5E0DC] dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-semibold text-[#2A9D8F] dark:text-slate-100 shadow-sm transition-colors hover:bg-[#F4FAFA] dark:hover:bg-slate-700"
+        title={isDark ? (isAr ? 'الوضع الفاتح' : 'Light mode') : (isAr ? 'الوضع الداكن' : 'Dark mode')}
+        aria-label={isDark ? (isAr ? 'الوضع الفاتح' : 'Light mode') : (isAr ? 'الوضع الداكن' : 'Dark mode')}
+      >
+        {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+        <span className="hidden sm:inline">{isDark ? (isAr ? 'فاتح' : 'Light') : (isAr ? 'داكن' : 'Dark')}</span>
+      </button>
 
       <div className="relative hidden w-1/2 overflow-hidden bg-[#1A7A6E] lg:flex lg:flex-col lg:items-center lg:justify-center">
         <GeometricPattern />
@@ -720,7 +731,7 @@ export default function AuthPage() {
         <div className="absolute -top-20 -end-20 h-40 w-40 rounded-full bg-white/5" />
       </div>
 
-      <div className="relative flex w-full flex-col items-center justify-center bg-[#F4FAFA] px-6 py-12 lg:w-1/2 lg:px-16">
+      <div className="relative flex w-full flex-col items-center justify-center bg-[#F4FAFA] dark:bg-slate-950 px-6 py-12 lg:w-1/2 lg:px-16">
         <div className="absolute top-4 start-8 hidden lg:flex items-center gap-2">
           <span className="text-2xl font-bold text-[#2A9D8F]">{tCommon('brandName')}</span>
           <TrendingUp strokeWidth={3} className="h-6 w-6 text-[#2A9D8F]" />
@@ -735,29 +746,29 @@ export default function AuthPage() {
 
         <div className="w-full max-w-md mt-6 lg:mt-0">
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="mt-4 mb-8 grid h-12 w-full grid-cols-2 rounded-xl border border-[#C5E0DC] bg-white p-1">
+            <TabsList className="mt-4 mb-8 grid h-12 w-full grid-cols-2 rounded-xl border border-[#C5E0DC] dark:border-slate-700 bg-white dark:bg-slate-900 p-1">
               <TabsTrigger value="login"
-                className="rounded-lg text-base font-semibold text-[#6B9E99] data-[state=active]:bg-[#2A9D8F] data-[state=active]:text-white data-[state=active]:shadow-sm">
+                className="rounded-lg text-base font-semibold text-[#6B9E99] dark:text-slate-300 data-[state=active]:bg-[#2A9D8F] data-[state=active]:text-white data-[state=active]:shadow-sm">
                 {t('login')}
               </TabsTrigger>
               <TabsTrigger value="register"
-                className="rounded-lg text-base font-semibold text-[#6B9E99] data-[state=active]:bg-[#2A9D8F] data-[state=active]:text-white data-[state=active]:shadow-sm">
+                className="rounded-lg text-base font-semibold text-[#6B9E99] dark:text-slate-300 data-[state=active]:bg-[#2A9D8F] data-[state=active]:text-white data-[state=active]:shadow-sm">
                 {t('register')}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="login" className="mt-0">
               <div className="mb-6 text-start" dir={dir}>
-                <h2 className="text-2xl font-bold text-[#1A2E2C]">{t('welcomeBack')}</h2>
-                <p className="mt-1 text-[#6B9E99]">{t('loginToContinue')}</p>
+                <h2 className="text-2xl font-bold text-[#1A2E2C] dark:text-slate-100">{t('welcomeBack')}</h2>
+                <p className="mt-1 text-[#6B9E99] dark:text-slate-300">{t('loginToContinue')}</p>
               </div>
               <LoginForm />
             </TabsContent>
 
             <TabsContent value="register" className="mt-0">
               <div className="mb-6 text-start" dir={dir}>
-                <h2 className="text-2xl font-bold text-[#1A2E2C]">{t('createAccountTitle')}</h2>
-                <p className="mt-1 text-[#6B9E99]">{t('joinUs')}</p>
+                <h2 className="text-2xl font-bold text-[#1A2E2C] dark:text-slate-100">{t('createAccountTitle')}</h2>
+                <p className="mt-1 text-[#6B9E99] dark:text-slate-300">{t('joinUs')}</p>
               </div>
               <RegisterForm />
             </TabsContent>

@@ -13,6 +13,7 @@ import AuctionDetailPage from './pages/AuctionDetailPage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { WatchlistProvider } from './contexts/WatchlistContext'
+import { useTheme } from './contexts/ThemeContext'
 
 function getDefaultRoute(currentUser) {
   if (currentUser?.role === 'SELLER') return '/seller-dashboard'
@@ -22,6 +23,7 @@ function getDefaultRoute(currentUser) {
 
 function App() {
   const { i18n } = useTranslation()
+  const { theme } = useTheme()
 
   useEffect(() => {
     const dir = i18n.language === 'ar' ? 'rtl' : 'ltr'
@@ -32,7 +34,7 @@ function App() {
   return (
       <BrowserRouter>
         <WatchlistProvider>
-          <Toaster position="top-center" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'} />
+          <Toaster position="top-center" dir={i18n.language === 'ar' ? 'rtl' : 'ltr'} theme={theme} />
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/" element={
